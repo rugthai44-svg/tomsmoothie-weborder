@@ -103,8 +103,8 @@ export const CustomerPortal = () => {
     }
   };
 
-  const submitOrder = () => {
-    const created = createOrder(cart, isRedeemed, pickupTime);
+  const submitOrder = async () => {
+    const created = await createOrder(cart, isRedeemed, pickupTime);
     if (created) {
       setCart([]);
       setIsCheckoutOpen(false);

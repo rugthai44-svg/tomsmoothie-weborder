@@ -163,11 +163,11 @@ export const AuthPortal = () => {
     handleGoogleLoginSelect(name, googleEmail);
   };
 
-  const handlePhoneSubmit = (e) => {
+  const handlePhoneSubmit = async (e) => {
     e.preventDefault();
     if (!tempPhone.trim() || !pendingPhoneUserId) return;
 
-    updateUserPhone(pendingPhoneUserId, tempPhone.trim());
+    await updateUserPhone(pendingPhoneUserId, tempPhone.trim());
     
     setShowPhonePrompt(false);
     setPendingPhoneUserId(null);

@@ -129,7 +129,6 @@ export const StaffPortal = () => {
               // Successfully decoded member code
               triggerToast(`พบรหัสสมาชิกจากการสแกน: ${decodedText}`, 'success');
               handleFindCustomerByCode(decodedText);
-              scanner.clear();
               setCameraMode(false);
             },
             (error) => {
@@ -171,9 +170,9 @@ export const StaffPortal = () => {
   };
 
   // Perform Loyalty Action (EARN points)
-  const handleCreditPoints = () => {
+  const handleCreditPoints = async () => {
     if (!foundCustomer) return;
-    const res = scanLoyaltyQR(foundCustomer.member_code, 'EARN', cupsCount);
+    const res = await scanLoyaltyQR(foundCustomer.member_code, 'EARN', cupsCount);
     if (res.success) {
       // Re-fetch customer information to sync displayed points
       const updatedCust = users.find(u => u.id === foundCustomer.id);
@@ -183,7 +182,7 @@ export const StaffPortal = () => {
   };
 
   // Perform Loyalty Action (REDEEM 10 points)
-  const handleRedeemPoints = () => {
+  const handleRedeemPoints = async () => {
     if (!foundCustomer) return;
     if (foundCustomer.current_points < 10) {
       triggerToast('ลูกค้าท่านนี้มีแต้มไม่เพียงพอสะสม (ต้องมีอย่างน้อย 10 แต้ม)', 'danger');
@@ -191,7 +190,7 @@ export const StaffPortal = () => {
     }
     
     if (confirm(`ยืนยันการใช้สิทธิ์แลกน้ำปั่นฟรี 1 แก้ว? (หักลบ 10 แต้มจากคุณ ${foundCustomer.full_name})`)) {
-      const res = scanLoyaltyQR(foundCustomer.member_code, 'REDEEM');
+      const res = await scanLoyaltyQR(foundCustomer.member_code, 'REDEEM');
       if (res.success) {
         const updatedCust = users.find(u => u.id === foundCustomer.id);
         setFoundCustomer(updatedCust);
