@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <title>qrcodescann-project</title>
+    <script>
+      window.addEventListener('error', function(e) {
+        // Ignore generic cross-origin script loading errors or extension errors
+        if (e.message === 'Script error.' || e.message === 'Script error') {
+          console.warn('Ignored cross-origin Script error:', e);
+          return;
+        }
+        var errBox = document.getElementById('runtime-error-box');
+        if (!errBox) {
+          errBox = document.createElement('div');
+          errBox.id = 'runtime-error-box';
+          errBox.style.position = 'fixed';
+          errBox.style.top = '0';
+          errBox.style.left = '0';
+          errBox.style.width = '100%';
+          errBox.style.height = '100%';
+          errBox.style.backgroundColor = '#ffebee';
+          errBox.style.color = '#c62828';
+          errBox.style.padding = '24px';
+          errBox.style.fontFamily = 'monospace';
+          errBox.style.zIndex = '999999';
+          errBox.style.boxSizing = 'border-box';
+          errBox.style.overflow = 'auto';
+          document.body.appendChild(errBox);
+        }
+        errBox.innerHTML = '<h2>🚨 Runtime Javascript Error</h2>' +
+          '<p><b>Message:</b> ' + e.message + '</p>' +
+          '<p><b>Source:</b> ' + e.filename + ':' + e.lineno + ':' + e.colno + '</p>' +
+          '<pre style="background:#fff; padding:12px; border:1px solid #ffcdd2; border-radius:4px; margin-top:16px;">' + (e.error ? e.error.stack : '') + '</pre>';
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
