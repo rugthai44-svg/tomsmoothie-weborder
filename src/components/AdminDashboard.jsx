@@ -110,14 +110,14 @@ export const AdminDashboard = () => {
     setIsMenuModalOpen(false);
   };
 
-  const handleStaffSubmit = (e) => {
+  const handleStaffSubmit = async (e) => {
     e.preventDefault();
     if (!staffEmail || !staffPassword || !staffName) {
       triggerToast('กรุณากรอกข้อมูลพนักงานที่ต้องการเพิ่มให้ครบถ้วน', 'danger');
       return;
     }
 
-    const res = registerStaff({
+    const res = await registerStaff({
       email: staffEmail,
       password: staffPassword,
       full_name: staffName,

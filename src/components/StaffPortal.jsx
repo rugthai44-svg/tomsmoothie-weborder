@@ -73,7 +73,7 @@ export const StaffPortal = () => {
     }
   }, [closeDate, orders, transactions, staffTab]);
 
-  const handleCloseShiftSubmit = (e) => {
+  const handleCloseShiftSubmit = async (e) => {
     e.preventDefault();
     if (cupsSold < 0 || freeCupsRedeemed < 0 || totalRevenue < 0 || cashActual < 0) {
       triggerToast('กรุณากรอกข้อมูลตัวเลขที่ถูกต้อง', 'danger');
@@ -81,7 +81,7 @@ export const StaffPortal = () => {
     }
 
     if (confirm('ยืนยันความถูกต้องและต้องการส่งรายงานปิดยอดขายให้แอดมินทาง LINE หรือไม่?')) {
-      const res = submitDailyClosing({
+      const res = await submitDailyClosing({
         date: closeDate,
         staff_id: currentUser.id,
         staff_name: currentUser.full_name,
@@ -106,8 +106,6 @@ export const StaffPortal = () => {
   
   // Point adjustment states
   const [cupsCount, setCupsCount] = useState(1);
-
-  if (!currentUser || currentUser.role !== 'STAFF') return null;
 
   // Real Camera Scanner Initialization
   useEffect(() => {
@@ -152,6 +150,8 @@ export const StaffPortal = () => {
       };
     }
   }, [cameraMode]);
+
+  if (!currentUser || currentUser.role !== 'STAFF') return null;
 
   // Find customer logic
   const handleFindCustomerByCode = (code) => {

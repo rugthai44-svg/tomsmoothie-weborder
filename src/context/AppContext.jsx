@@ -797,34 +797,80 @@ export const AppProvider = ({ children }) => {
       is_active: true
     };
 
-    const updatedUsers = [...users, newStaff];
+    // Insert staff to Supabase
+    const { data: dbStaff, error: staffErr } = await supabase
+      .from('tomsmoothie_users')
+      .insert([newStaff])
+      .select()
+      .single();
+
+    if (staffErr || !dbStaff) {
+      console.error('Error inserting staff to Supabase:', staffErr);
+      triggerToast('เกิดข้อผิดพลาดในการลงทะเบียนพนักงาน', 'danger');
+      return { success: false };
+    }
+
+    const updatedUsers = [...users, dbStaff];
     setUsers(updatedUsers);
     mockDb.saveUsers(updatedUsers);
     triggerToast(`เพิ่มพนักงานคุณ "${data.full_name}" สำเร็จ`, 'success');
     return { success: true };
   };
 
-  const toggleStaffStatus = (id) => {
+  const toggleStaffStatus = async (id) => {
+    const targetUser = users.find(u => u.id === id);
+    if (!targetUser) return;
+    const nextState = !targetUser.is_active;
+
+    const { error: err } = await supabase
+      .from('tomsmoothie_users')
+      .update({ is_active: nextState })
+      .eq('id', id);
+
+    if (err) {
+      console.error('Error updating staff active status in Supabase:', err);
+      triggerToast('เกิดข้อผิดพลาดในการอัปเดตสถานะพนักงาน', 'danger');
+      return;
+    }
+
     const updatedUsers = users.map(u => {
       if (u.id === id) {
-        const nextState = !u.is_active;
-        triggerToast(`${nextState ? 'เปิดใช้งาน' : 'ระงับใช้งาน'} พนักงาน "${u.full_name}" เรียบร้อย`, 'info');
         return { ...u, is_active: nextState };
       }
       return u;
     });
     setUsers(updatedUsers);
     mockDb.saveUsers(updatedUsers);
+    triggerToast(`${nextState ? 'เปิดใช้งาน' : 'ระงับใช้งาน'} พนักงาน "${targetUser.full_name}" เรียบร้อย`, 'info');
   };
 
-  const submitDailyClosing = (closingData) => {
+  const submitDailyClosing = async (closingData) => {
     const newClosing = {
       id: 'close-' + Date.now(),
       created_at: new Date().toISOString(),
-      ...closingData
+      date: closingData.date,
+      staff_id: closingData.staff_id,
+      staff_name: closingData.staff_name,
+      cups_sold: Number(closingData.cups_sold),
+      free_cups_redeemed: Number(closingData.free_cups_redeemed),
+      total_revenue: Number(closingData.total_revenue),
+      cash_actual: Number(closingData.cash_actual),
+      notes: closingData.notes || ''
     };
 
-    const updatedClosings = [newClosing, ...dailyClosings];
+    const { data: dbClosing, error: closeErr } = await supabase
+      .from('tomsmoothie_daily_closings')
+      .insert([newClosing])
+      .select()
+      .single();
+
+    if (closeErr || !dbClosing) {
+      console.error('Error inserting daily closing to Supabase:', closeErr);
+      triggerToast('เกิดข้อผิดพลาดในการบันทึกปิดกะลงระบบ', 'danger');
+      return { success: false };
+    }
+
+    const updatedClosings = [dbClosing, ...dailyClosings];
     setDailyClosings(updatedClosings);
     mockDb.saveDailyClosings(updatedClosings);
 
@@ -850,21 +896,59 @@ export const AppProvider = ({ children }) => {
   };
 
   // RESET DATABASE helper
-  const resetDatabase = () => {
-    const res = mockDb.resetAll();
-    setUsers(res.users);
-    setMenuItems(res.menu);
-    setOrders(res.orders);
-    setTransactions(res.transactions);
-    setDailyClosings(res.dailyClosings || []);
-    
-    // Set default customer as logged in
-    const defaultCust = res.users.find(u => u.role === 'CUSTOMER');
-    setCurrentUser(defaultCust);
-    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(defaultCust));
-    
-    setLineNotifications([]);
-    triggerToast('รีเซ็ตฐานข้อมูลเป็นค่าตั้งต้นแล้ว', 'warning');
+  const resetDatabase = async () => {
+    try {
+      // 1. Clear Supabase tables to reset them
+      // Deleting order_items first due to foreign keys referencing orders, then orders/transactions referencing users.
+      await supabase.from('tomsmoothie_order_items').delete().neq('order_id', '_');
+      await supabase.from('tomsmoothie_orders').delete().neq('id', '_');
+      await supabase.from('tomsmoothie_point_transactions').delete().neq('id', '_');
+      await supabase.from('tomsmoothie_daily_closings').delete().neq('id', '_');
+      await supabase.from('tomsmoothie_users').delete().neq('id', '_');
+
+      // 2. Clean all local mock database data back to defaults
+      const res = mockDb.resetAll();
+
+      // 3. Re-seed default users in Supabase
+      if (res.users && res.users.length > 0) {
+        const usersPayload = res.users.map(u => ({
+          id: u.id,
+          email: u.email,
+          password_hash: u.password_hash,
+          full_name: u.full_name,
+          phone: u.phone_number || u.phone || '',
+          role: u.role,
+          member_code: u.member_code,
+          current_points: u.current_points,
+          line_user_id: u.line_user_id,
+          google_id: u.google_id,
+          auth_provider: u.auth_provider,
+          is_active: u.is_active
+        }));
+        const { error: seedErr } = await supabase.from('tomsmoothie_users').insert(usersPayload);
+        if (seedErr) {
+          console.error('Error seeding users to Supabase on reset:', seedErr);
+        }
+      }
+
+      // 4. Update local states
+      setUsers(res.users);
+      setMenuItems(res.menu);
+      setOrders(res.orders);
+      setTransactions(res.transactions);
+      setDailyClosings(res.dailyClosings || []);
+      
+      // Set default customer as logged in
+      const defaultCust = res.users.find(u => u.role === 'CUSTOMER');
+      setCurrentUser(defaultCust);
+      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(defaultCust));
+      
+      setLineNotifications([]);
+      triggerToast('รีเซ็ตฐานข้อมูลเป็นค่าตั้งต้นเรียบร้อยแล้ว!', 'warning');
+    } catch (error) {
+      console.error('Error resetting database:', error);
+      triggerToast('เกิดข้อผิดพลาดในการรีเซ็ตฐานข้อมูล', 'danger');
+    }
   };
 
   return (
