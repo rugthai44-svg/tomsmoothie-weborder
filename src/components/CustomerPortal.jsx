@@ -19,7 +19,14 @@ export const CustomerPortal = () => {
     triggerToast 
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState('menu'); // 'menu' | 'rewards' | 'orders'
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('tomsmoothie_customer_active_tab') || 'menu';
+  });
+
+  const handleSetActiveTab = (tab) => {
+    setActiveTab(tab);
+    localStorage.setItem('tomsmoothie_customer_active_tab', tab);
+  };
   const [selectedItem, setSelectedItem] = useState(null); // Item currently in customizer modal
   const [cart, setCart] = useState([]); // In-app cart
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -108,7 +115,7 @@ export const CustomerPortal = () => {
     if (created) {
       setCart([]);
       setIsCheckoutOpen(false);
-      setActiveTab('orders'); // Jump to orders view to see status tracker
+      handleSetActiveTab('orders'); // Jump to orders view to see status tracker
     }
   };
 
@@ -132,7 +139,7 @@ export const CustomerPortal = () => {
 
     setCart(newCartItems);
     triggerToast('โหลดรายการสั่งซื้อเดิมลงตะกร้าแล้ว', 'success');
-    setActiveTab('menu');
+    handleSetActiveTab('menu');
     setIsCheckoutOpen(true);
   };
 
@@ -154,19 +161,19 @@ export const CustomerPortal = () => {
       }}>
         <button 
           className={`desktop-tab-link ${activeTab === 'menu' ? 'active' : ''}`}
-          onClick={() => setActiveTab('menu')}
+          onClick={() => handleSetActiveTab('menu')}
         >
           🥤 สั่งเครื่องดื่ม
         </button>
         <button 
           className={`desktop-tab-link ${activeTab === 'rewards' ? 'active' : ''}`}
-          onClick={() => setActiveTab('rewards')}
+          onClick={() => handleSetActiveTab('rewards')}
         >
           ⭐ สะสมแต้ม
         </button>
         <button 
           className={`desktop-tab-link ${activeTab === 'orders' ? 'active' : ''}`}
-          onClick={() => { setActiveTab('orders'); setIsCheckoutOpen(false); }}
+          onClick={() => { handleSetActiveTab('orders'); setIsCheckoutOpen(false); }}
         >
           📋 ออเดอร์
           {activeOrders.length > 0 && (
@@ -334,19 +341,19 @@ export const CustomerPortal = () => {
         <div className="tabs-container" style={{ margin: 0 }}>
           <button 
             className={`tab-btn ${activeTab === 'menu' ? 'active' : ''}`}
-            onClick={() => setActiveTab('menu')}
+            onClick={() => handleSetActiveTab('menu')}
           >
             🥤 เมนูน้ำปั่น
           </button>
           <button 
             className={`tab-btn ${activeTab === 'rewards' ? 'active' : ''}`}
-            onClick={() => setActiveTab('rewards')}
+            onClick={() => handleSetActiveTab('rewards')}
           >
             ⭐ สะสมแต้ม
           </button>
           <button 
             className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
-            onClick={() => setActiveTab('orders')}
+            onClick={() => handleSetActiveTab('orders')}
             style={{ position: 'relative' }}
           >
             📋 ออเดอร์
@@ -1270,7 +1277,7 @@ export const CustomerPortal = () => {
       <div className="bottom-nav">
         <button 
           className={`nav-item ${activeTab === 'menu' ? 'active' : ''}`}
-          onClick={() => setActiveTab('menu')}
+          onClick={() => handleSetActiveTab('menu')}
         >
           <ShoppingBag size={20} />
           <span>สั่งเครื่องดื่ม</span>
@@ -1278,7 +1285,7 @@ export const CustomerPortal = () => {
         
         <button 
           className={`nav-item ${activeTab === 'rewards' ? 'active' : ''}`}
-          onClick={() => setActiveTab('rewards')}
+          onClick={() => handleSetActiveTab('rewards')}
         >
           <Gift size={20} />
           <span>สะสมแต้ม</span>
@@ -1286,7 +1293,7 @@ export const CustomerPortal = () => {
         
         <button 
           className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`}
-          onClick={() => setActiveTab('orders')}
+          onClick={() => handleSetActiveTab('orders')}
         >
           <Clock size={20} />
           <span>ออเดอร์</span>

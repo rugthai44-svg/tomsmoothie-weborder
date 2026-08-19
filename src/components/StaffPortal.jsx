@@ -19,7 +19,14 @@ export const StaffPortal = () => {
     submitDailyClosing
   } = useApp();
 
-  const [staffTab, setStaffTab] = useState('queue'); // 'queue' | 'scan' | 'close'
+  const [staffTab, setStaffTab] = useState(() => {
+    return localStorage.getItem('tomsmoothie_staff_active_tab') || 'queue';
+  });
+
+  const handleSetStaffTab = (tab) => {
+    setStaffTab(tab);
+    localStorage.setItem('tomsmoothie_staff_active_tab', tab);
+  };
   
   // Close Shift states
   const [closeDate, setCloseDate] = useState(new Date().toISOString().split('T')[0]);
@@ -94,7 +101,7 @@ export const StaffPortal = () => {
 
       if (res.success) {
         setCloseNotes('');
-        setStaffTab('queue');
+        handleSetStaffTab('queue');
       }
     }
   };
@@ -245,7 +252,7 @@ export const StaffPortal = () => {
           <button 
             type="button"
             className={`tab-btn ${staffTab === 'queue' ? 'active' : ''}`}
-            onClick={() => setStaffTab('queue')}
+            onClick={() => handleSetStaffTab('queue')}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
           >
             <ClipboardList size={16} />
@@ -260,7 +267,7 @@ export const StaffPortal = () => {
           <button 
             type="button"
             className={`tab-btn ${staffTab === 'scan' ? 'active' : ''}`}
-            onClick={() => setStaffTab('scan')}
+            onClick={() => handleSetStaffTab('scan')}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
           >
             <ScanLine size={16} />
@@ -270,7 +277,7 @@ export const StaffPortal = () => {
           <button 
             type="button"
             className={`tab-btn ${staffTab === 'close' ? 'active' : ''}`}
-            onClick={() => setStaffTab('close')}
+            onClick={() => handleSetStaffTab('close')}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
           >
             <Clock size={16} />
