@@ -209,6 +209,40 @@ export const CustomerPortal = () => {
           </button>
         </div>
 
+        {/* LINE OA Friend Banner */}
+        <div style={{
+          backgroundColor: 'rgba(6, 199, 85, 0.15)',
+          border: '1px solid rgba(6, 199, 85, 0.3)',
+          borderRadius: '8px',
+          padding: '8px 12px',
+          marginBottom: '14px',
+          fontSize: '0.75rem',
+          color: '#ffffff',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <span>📢 แอดไลน์ร้าน <strong>@385egjtn</strong> เพื่อรับข้อความแจ้งเตือนออเดอร์และแต้มสะสม</span>
+          <a 
+            href="https://line.me/R/ti/p/@385egjtn" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              backgroundColor: '#06C755',
+              color: 'white',
+              textDecoration: 'none',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontWeight: 'bold',
+              fontSize: '0.7rem',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            ➕ เพิ่มเพื่อน
+          </a>
+        </div>
+
         {/* Dynamic points progress card */}
         <div style={{
           backgroundColor: 'rgba(255, 255, 255, 0.1)',
