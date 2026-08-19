@@ -15,6 +15,7 @@ export const AppProvider = ({ children }) => {
   // Custom states for notifications and simulator experience
   const [lineNotifications, setLineNotifications] = useState([]);
   const [toast, setToast] = useState(null);
+  const [isLiffInitialized, setIsLiffInitialized] = useState(false);
 
   // Sync database state from Supabase on load
   useEffect(() => {
@@ -127,9 +128,11 @@ export const AppProvider = ({ children }) => {
       window.liff.init({ liffId })
         .then(() => {
           console.log("LIFF SDK Initialized successfully");
+          setIsLiffInitialized(true);
         })
         .catch(err => {
           console.error("LIFF initialization failed:", err);
+          setIsLiffInitialized(false);
         });
     }
   }, []);
@@ -438,7 +441,7 @@ export const AppProvider = ({ children }) => {
     if (isCurrentlyLinked) {
       saveLinkedLineId(null);
     } else {
-      if (window.liff) {
+      if (window.liff && isLiffInitialized) {
         if (!window.liff.isLoggedIn()) {
           triggerToast('กำลังนำคุณไปยังหน้าเข้าสู่ระบบ LINE...', 'info');
           window.liff.login();
