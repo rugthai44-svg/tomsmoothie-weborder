@@ -11,7 +11,14 @@ export const AppProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [currentUser, setCurrentUser] = useState(() => {
     try {
-      const savedUser = sessionStorage.getItem('tomsmoothie_current_user');
+      const tabSessionActive = sessionStorage.getItem('tomsmoothie_tab_session_active');
+      if (!tabSessionActive) {
+        localStorage.removeItem('tomsmoothie_current_user');
+        localStorage.removeItem('tomsmoothie_session_token');
+        sessionStorage.setItem('tomsmoothie_tab_session_active', 'true');
+        return null;
+      }
+      const savedUser = localStorage.getItem('tomsmoothie_current_user');
       return savedUser ? JSON.parse(savedUser) : null;
     } catch (e) {
       return null;
@@ -100,7 +107,7 @@ export const AppProvider = ({ children }) => {
       if (dbClosings) setDailyClosings(dbClosings);
 
       // 6. Sync current user session
-      const savedUser = sessionStorage.getItem('tomsmoothie_current_user');
+      const savedUser = localStorage.getItem('tomsmoothie_current_user');
       if (savedUser) {
         try {
           const parsed = JSON.parse(savedUser);
@@ -108,7 +115,7 @@ export const AppProvider = ({ children }) => {
             const fresh = dbUsers.find(u => u.id === parsed.id);
             if (fresh) {
               setCurrentUser(fresh);
-              sessionStorage.setItem('tomsmoothie_current_user', JSON.stringify(fresh));
+              localStorage.setItem('tomsmoothie_current_user', JSON.stringify(fresh));
             } else {
               setCurrentUser(parsed);
             }
@@ -146,7 +153,7 @@ export const AppProvider = ({ children }) => {
         const googleId = googleUser.id;
 
         // Skip if already logged in locally to avoid session collision and loops on reload
-        const saved = sessionStorage.getItem('tomsmoothie_current_user');
+        const saved = localStorage.getItem('tomsmoothie_current_user');
         if (saved) return;
 
         const res = await loginWithGoogle({
@@ -235,7 +242,7 @@ export const AppProvider = ({ children }) => {
       return { success: false, message: 'บัญชีนี้ถูกปิดใช้งาน' };
     }
     setCurrentUser(user);
-    sessionStorage.setItem('tomsmoothie_current_user', JSON.stringify(user));
+    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(user));
     triggerToast(`ยินดีต้อนรับคุณ ${user.full_name}`, 'success');
     return { success: true, user };
   };
@@ -282,7 +289,7 @@ export const AppProvider = ({ children }) => {
 
     setUsers(prev => [...prev, dbUser]);
     setCurrentUser(dbUser);
-    sessionStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
     triggerToast('ลงทะเบียนและเข้าสู่ระบบสำเร็จ', 'success');
     return { success: true, user: dbUser };
   };
@@ -290,8 +297,8 @@ export const AppProvider = ({ children }) => {
   const logout = async () => {
     await supabase.auth.signOut();
     setCurrentUser(null);
-    sessionStorage.removeItem('tomsmoothie_current_user');
-    sessionStorage.removeItem('tomsmoothie_session_token');
+    localStorage.removeItem('tomsmoothie_current_user');
+    localStorage.removeItem('tomsmoothie_session_token');
     triggerToast('ออกจากระบบเรียบร้อยแล้ว', 'info');
   };
 
@@ -373,10 +380,10 @@ export const AppProvider = ({ children }) => {
     }
 
     setCurrentUser(user);
-    sessionStorage.setItem('tomsmoothie_current_user', JSON.stringify(user));
+    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(user));
     
     const mockToken = 'mock-jwt-' + btoa(JSON.stringify({ userId: user.id, email: user.email, role: user.role }));
-    sessionStorage.setItem('tomsmoothie_session_token', mockToken);
+    localStorage.setItem('tomsmoothie_session_token', mockToken);
 
     triggerToast(`ยินดีต้อนรับคุณ ${user.full_name}`, 'success');
     return { success: true, user, isNew };
@@ -410,7 +417,7 @@ export const AppProvider = ({ children }) => {
     setUsers(prev => prev.map(u => u.id === userId ? dbUser : u));
     if (currentUser && currentUser.id === userId) {
       setCurrentUser(dbUser);
-      sessionStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
     }
     triggerToast('บันทึกเบอร์โทรศัพท์สำเร็จ!', 'success');
     return { success: true };
@@ -425,7 +432,7 @@ export const AppProvider = ({ children }) => {
     
     if (target) {
       setCurrentUser(target);
-      sessionStorage.setItem('tomsmoothie_current_user', JSON.stringify(target));
+      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(target));
       triggerToast(`สลับบทบาทเป็น: ${role}`, 'success');
     }
   };
@@ -477,7 +484,7 @@ export const AppProvider = ({ children }) => {
 
     setUsers(prev => prev.map(u => u.id === currentUser.id ? dbUser : u));
     setCurrentUser(dbUser);
-    sessionStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
     
     if (newId) {
       triggerToast('เชื่อมต่อบัญชี LINE สำเร็จแล้ว!', 'success');
@@ -559,7 +566,7 @@ export const AppProvider = ({ children }) => {
         updatedSelf = dbUser;
         setUsers(prev => prev.map(u => u.id === currentUser.id ? dbUser : u));
         setCurrentUser(dbUser);
-        sessionStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+        localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
       }
 
       // Append transaction to Supabase
@@ -705,7 +712,7 @@ export const AppProvider = ({ children }) => {
     // Sync logged in user if currently viewing customer simulation
     if (currentUser && currentUser.id === customerUser.id) {
       setCurrentUser(dbUser);
-      sessionStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
     }
 
     triggerToast(`บันทึกแต้มให้คุณ ${customerUser.full_name} (${pointsChange > 0 ? '+' : ''}${pointsChange} แต้ม) สำเร็จ`, 'success');
@@ -951,7 +958,7 @@ export const AppProvider = ({ children }) => {
       }
 
       setCurrentUser(nextCurrentUser);
-      sessionStorage.setItem('tomsmoothie_current_user', JSON.stringify(nextCurrentUser));
+      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(nextCurrentUser));
       
       setLineNotifications([]);
       triggerToast('รีเซ็ตฐานข้อมูลเป็นค่าตั้งต้นเรียบร้อยแล้ว!', 'warning');
