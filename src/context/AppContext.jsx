@@ -145,14 +145,9 @@ export const AppProvider = ({ children }) => {
         const fullName = googleUser.user_metadata?.full_name || googleUser.user_metadata?.name || 'ลูกค้า Google';
         const googleId = googleUser.id;
 
-        // Skip if already logged in locally to avoid infinite toast loops on reload
+        // Skip if already logged in locally to avoid session collision and loops on reload
         const saved = localStorage.getItem('tomsmoothie_current_user');
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (parsed.email === email) return;
-          } catch(e) {}
-        }
+        if (saved) return;
 
         const res = await loginWithGoogle({
           email: email,
