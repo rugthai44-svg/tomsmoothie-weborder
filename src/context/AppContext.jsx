@@ -493,37 +493,20 @@ export const AppProvider = ({ children }) => {
   const createOrder = async (orderCart, isRedeemedFreeCup, pickupTime) => {
     if (!currentUser || currentUser.role !== 'CUSTOMER') return null;
     
-    // Check points if free cup requested
-    if (isRedeemedFreeCup && currentUser.current_points < 10) {
-      triggerToast('แต้มสะสมไม่เพียงพอสำหรับการแลกเครื่องดื่มฟรี', 'danger');
-      return null;
-    }
+    const cartTotal = orderCart.reduce((sum, item) => sum + item.subtotal_price, 0);
+    const totalCups = orderCart.reduce((sum, item) => sum + item.quantity, 0);
 
-    // Calculate free cup discount (only 1 cup gets free)
-    let discountAmount = 0;
-    let discountMenuItemId = null;
-    
-    if (isRedeemedFreeCup && orderCart.length > 0) {
-      let maxSinglePrice = 0;
-      let targetIndex = -1;
-      
-      orderCart.forEach((item, index) => {
-        const toppingPrice = (item.toppings ? item.toppings.length : 0) * 10;
-        const singlePrice = item.base_price + toppingPrice;
-        if (singlePrice > maxSinglePrice) {
-          maxSinglePrice = singlePrice;
-          targetIndex = index;
-        }
-      });
-      
-      if (targetIndex !== -1) {
-        discountAmount = maxSinglePrice;
-        discountMenuItemId = orderCart[targetIndex].menu_id;
+    // Check points if free cup requested
+    if (isRedeemedFreeCup) {
+      if (currentUser.current_points < 10) {
+        triggerToast('แต้มสะสมไม่เพียงพอสำหรับการแลกเครื่องดื่มฟรี', 'danger');
+        return null;
+      }
+      if (totalCups > 1) {
+        triggerToast('สิทธิ์แลกฟรี 1 แก้ว สามารถใช้ได้เมื่อสั่งซื้อ 1 แก้วต่อออเดอร์เท่านั้น', 'danger');
+        return null;
       }
     }
-
-    const cartTotal = orderCart.reduce((sum, item) => sum + item.subtotal_price, 0);
-    const totalPrice = Math.max(0, cartTotal - discountAmount);
 
     const orderId = 'ord-' + Math.floor(1000 + Math.random() * 9000);
     const newOrder = {
@@ -533,7 +516,7 @@ export const AppProvider = ({ children }) => {
       customer_phone: currentUser.phone || '',
       pickup_time: pickupTime,
       order_status: 'Pending', // Pending -> Preparing -> Ready -> Completed
-      total_price: totalPrice,
+      total_price: isRedeemedFreeCup ? 0 : cartTotal,
       is_redeemed_free_cup: isRedeemedFreeCup,
       created_at: new Date().toISOString()
     };
@@ -550,24 +533,15 @@ export const AppProvider = ({ children }) => {
     }
 
     // 2. Insert items
-    let discountApplied = false;
-    const itemsPayload = orderCart.map((item) => {
-      let itemSubtotal = item.subtotal_price;
-      if (isRedeemedFreeCup && !discountApplied && item.menu_id === discountMenuItemId) {
-        itemSubtotal = Math.max(0, item.subtotal_price - discountAmount);
-        discountApplied = true;
-      }
-      
-      return {
-        order_id: orderId,
-        menu_item_id: item.menu_id,
-        name: item.name,
-        sweetness_level: item.sweetness_level,
-        toppings: item.toppings,
-        quantity: item.quantity,
-        subtotal_price: itemSubtotal
-      };
-    });
+    const itemsPayload = orderCart.map((item) => ({
+      order_id: orderId,
+      menu_item_id: item.menu_id,
+      name: item.name,
+      sweetness_level: item.sweetness_level,
+      toppings: item.toppings,
+      quantity: item.quantity,
+      subtotal_price: isRedeemedFreeCup ? 0 : item.subtotal_price
+    }));
 
     const { error: itemsErr } = await supabase
       .from('tomsmoothie_order_items')

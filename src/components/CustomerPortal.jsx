@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
@@ -32,6 +32,14 @@ export const CustomerPortal = () => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [pickupTime, setPickupTime] = useState('15 นาที');
   const [isRedeemed, setIsRedeemed] = useState(false);
+
+  useEffect(() => {
+    const totalCups = cart.reduce((sum, item) => sum + item.quantity, 0);
+    if (totalCups > 1 && isRedeemed) {
+      setIsRedeemed(false);
+      triggerToast('สิทธิ์แลกฟรี 1 แก้ว ใช้ได้เฉพาะออเดอร์ที่มี 1 แก้วเท่านั้น', 'warning');
+    }
+  }, [cart, isRedeemed, triggerToast]);
 
   const customerTxs = (transactions || []).filter(t => t.customer_id === currentUser.id);
 
@@ -104,8 +112,9 @@ export const CustomerPortal = () => {
       return;
     }
     setIsCheckoutOpen(true);
-    // Reset free cup selection if they don't have enough points
-    if (currentUser.current_points < 10) {
+    // Reset free cup selection if they don't have enough points or total cups > 1
+    const totalCups = cart.reduce((sum, item) => sum + item.quantity, 0);
+    if (currentUser.current_points < 10 || totalCups > 1) {
       setIsRedeemed(false);
     }
   };
@@ -151,13 +160,7 @@ export const CustomerPortal = () => {
 
 
   const cartTotal = cart.reduce((sum, item) => sum + item.subtotal_price, 0);
-  const freeCupDiscount = isRedeemed 
-    ? cart.reduce((max, item) => {
-        const toppingPrice = (item.toppings ? item.toppings.length : 0) * 10;
-        const singlePrice = item.base_price + toppingPrice;
-        return Math.max(max, singlePrice);
-      }, 0)
-    : 0;
+  const totalCups = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -620,32 +623,48 @@ export const CustomerPortal = () => {
 
                     {/* Point deduction option */}
                     {currentUser.current_points >= 10 && (
-                      <div style={{ 
-                        backgroundColor: 'var(--success-light)', 
-                        border: '1px solid rgba(56, 142, 60, 0.2)',
-                        padding: '10px', 
-                        borderRadius: '8px', 
-                        marginBottom: '14px' 
-                      }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0 }}>
-                          <input 
-                            type="checkbox" 
-                            checked={isRedeemed} 
-                            onChange={(e) => setIsRedeemed(e.target.checked)} 
-                            style={{ accentColor: 'var(--success)', width: '15px', height: '15px' }} 
-                          />
-                          <div>
-                            <p style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--success)' }}>ใช้ 10 แต้ม แลกฟรีแก้วนี้!</p>
-                          </div>
-                        </label>
-                      </div>
+                      totalCups <= 1 ? (
+                        <div style={{ 
+                          backgroundColor: 'var(--success-light)', 
+                          border: '1px solid rgba(56, 142, 60, 0.2)',
+                          padding: '10px', 
+                          borderRadius: '8px', 
+                          marginBottom: '14px' 
+                        }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0 }}>
+                            <input 
+                              type="checkbox" 
+                              checked={isRedeemed} 
+                              onChange={(e) => setIsRedeemed(e.target.checked)} 
+                              style={{ accentColor: 'var(--success)', width: '15px', height: '15px' }} 
+                            />
+                            <div>
+                              <p style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--success)' }}>ใช้ 10 แต้ม แลกฟรีแก้วนี้!</p>
+                            </div>
+                          </label>
+                        </div>
+                      ) : (
+                        <div style={{ 
+                          backgroundColor: 'rgba(139, 90, 43, 0.05)', 
+                          border: '1px dashed var(--border)',
+                          padding: '10px', 
+                          borderRadius: '8px', 
+                          marginBottom: '14px',
+                          color: 'var(--text-muted)',
+                          fontSize: '0.72rem',
+                          textAlign: 'center',
+                          fontWeight: '500'
+                        }}>
+                          ⚠️ สิทธิ์แลกฟรี 1 แก้ว สามารถใช้ได้เมื่อสั่งซื้อ 1 แก้วต่อออเดอร์เท่านั้น
+                        </div>
+                      )
                     )}
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderTop: '1px solid var(--border)', marginBottom: '12px' }}>
                       <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
-                        {isRedeemed ? 'ราคาสุทธิ (หักแลกฟรี 1 แก้ว):' : 'ราคาสุทธิ:'}
+                        {isRedeemed ? 'ราคาสุทธิ (ใช้แลกสิทธิ์แก้วฟรี):' : 'ราคาสุทธิ:'}
                       </span>
-                      <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary)' }}>฿{Math.max(0, cartTotal - freeCupDiscount)}</span>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary)' }}>฿{isRedeemed ? 0 : cartTotal}</span>
                     </div>
 
                     <button 
@@ -1223,29 +1242,45 @@ export const CustomerPortal = () => {
 
             {/* Points Redemption Offer */}
             {currentUser.current_points >= 10 && (
-              <div className="card" style={{ 
-                backgroundColor: 'var(--success-light)', 
-                borderColor: 'rgba(56, 142, 60, 0.2)',
-                padding: '12px 14px', 
-                marginBottom: '16px' 
-              }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0 }}>
-                  <input 
-                    type="checkbox" 
-                    checked={isRedeemed}
-                    onChange={(e) => setIsRedeemed(e.target.checked)}
-                    style={{ width: '16px', height: '16px', accentColor: 'var(--success)' }}
-                  />
-                  <div>
-                    <p style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--success)' }}>
-                      ใช้คะแนนสะสม 10 แต้ม แลกแก้วนี้ฟรี!
-                    </p>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                      คะแนนปัจจุบัน: {currentUser.current_points} แต้ม (หักหลังยืนยัน)
-                    </p>
-                  </div>
-                </label>
-              </div>
+              totalCups <= 1 ? (
+                <div className="card" style={{ 
+                  backgroundColor: 'var(--success-light)', 
+                  borderColor: 'rgba(56, 142, 60, 0.2)',
+                  padding: '12px 14px', 
+                  marginBottom: '16px' 
+                }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0 }}>
+                    <input 
+                      type="checkbox" 
+                      checked={isRedeemed}
+                      onChange={(e) => setIsRedeemed(e.target.checked)}
+                      style={{ width: '16px', height: '16px', accentColor: 'var(--success)' }}
+                    />
+                    <div>
+                      <p style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--success)' }}>
+                        ใช้คะแนนสะสม 10 แต้ม แลกแก้วนี้ฟรี!
+                      </p>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                        คะแนนปัจจุบัน: {currentUser.current_points} แต้ม (หักหลังยืนยัน)
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              ) : (
+                <div style={{ 
+                  backgroundColor: 'rgba(139, 90, 43, 0.05)', 
+                  border: '1px dashed var(--border)',
+                  padding: '12px 14px', 
+                  borderRadius: '8px', 
+                  marginBottom: '16px',
+                  color: 'var(--text-muted)',
+                  fontSize: '0.75rem',
+                  textAlign: 'center',
+                  fontWeight: '500'
+                }}>
+                  ⚠️ สิทธิ์แลกฟรี 1 แก้ว สามารถใช้ได้เมื่อสั่งซื้อ 1 แก้วต่อออเดอร์เท่านั้น
+                </div>
+              )
             )}
 
             {/* Price calculation block */}
@@ -1259,10 +1294,10 @@ export const CustomerPortal = () => {
               alignItems: 'center'
             }}>
               <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
-                {isRedeemed ? 'ราคาสุทธิ (หักแลกฟรี 1 แก้ว)' : 'ราคาสุทธิ (ชำระเงินหน้าร้าน)'}
+                {isRedeemed ? 'ใช้แลกสิทธิ์แก้วฟรี' : 'ราคาสุทธิ (ชำระเงินหน้าร้าน)'}
               </span>
               <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary)' }}>
-                ฿{Math.max(0, cartTotal - freeCupDiscount)}
+                ฿{isRedeemed ? 0 : cartTotal}
               </span>
             </div>
 
