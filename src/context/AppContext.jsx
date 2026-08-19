@@ -341,14 +341,18 @@ export const AppProvider = ({ children }) => {
       }
     } else {
       isNew = true;
-      const randCode = 'TOM-CUST-' + Math.floor(1000 + Math.random() * 9000);
+      const selectedRole = localStorage.getItem('tomsmoothie_last_role') || 'CUSTOMER';
+      const randCode = selectedRole === 'CUSTOMER' 
+        ? 'TOM-CUST-' + Math.floor(1000 + Math.random() * 9000)
+        : (selectedRole === 'STAFF' ? 'STAFF' + Math.floor(100 + Math.random() * 900) : 'ADMIN' + Math.floor(100 + Math.random() * 900));
+
       const newUser = {
         id: 'u-' + Date.now(),
         email: profile.email,
         password_hash: 'GOOGLE-OAUTH',
         full_name: profile.name,
         phone: '',
-        role: 'CUSTOMER',
+        role: selectedRole,
         current_points: 0,
         line_user_id: null,
         google_id: profile.google_id,
