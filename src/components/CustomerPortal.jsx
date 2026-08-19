@@ -148,6 +148,16 @@ export const CustomerPortal = () => {
   const activeOrders = customerOrders.filter(o => o.order_status !== 'Completed');
   const pastOrders = customerOrders.filter(o => o.order_status === 'Completed');
 
+  const [hasAutoSwitched, setHasAutoSwitched] = useState(false);
+
+  // Auto-switch to orders tab on load/init if there are active pre-orders in progress
+  useEffect(() => {
+    if (activeOrders.length > 0 && !hasAutoSwitched) {
+      handleSetActiveTab('orders');
+      setHasAutoSwitched(true);
+    }
+  }, [orders, hasAutoSwitched]);
+
   const cartTotal = cart.reduce((sum, item) => sum + item.subtotal_price, 0);
 
   return (
