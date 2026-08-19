@@ -20,20 +20,7 @@ const AppContent = () => {
       
       {/* 1. Developer Simulator Helper Bar Removed */}
 
-      {/* 2. Mock LINE Notification Alerts */}
-      {lineNotifications.length > 0 && (
-        <div className="line-notif-bar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-            <span>💬</span>
-            <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-              <b>[LINE แจ้งเตือน]:</b> {lineNotifications[0].message}
-            </span>
-          </div>
-          <span style={{ fontSize: '0.65rem', backgroundColor: 'rgba(0,0,0,0.2)', padding: '2px 6px', borderRadius: '4px', flexShrink: 0 }}>
-            {lineNotifications[0].timestamp}
-          </span>
-        </div>
-      )}
+
 
       {/* 3. Header Logo Section */}
       <header>

@@ -190,61 +190,6 @@ export const CustomerPortal = () => {
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>{currentUser.full_name}</h3>
             <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>รหัสสมาชิก: {currentUser.member_code}</span>
           </div>
-
-          <button 
-            onClick={linkLineAccount}
-            style={{
-              backgroundColor: currentUser.line_user_id ? '#06C755' : 'transparent',
-              color: currentUser.line_user_id ? 'white' : '#06C755',
-              border: '1px solid #06C755',
-              borderRadius: '24px',
-              padding: '6px 12px',
-              fontSize: '0.7rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              transition: 'var(--transition)'
-            }}
-          >
-            <MessageSquare size={12} fill={currentUser.line_user_id ? 'white' : 'none'} />
-            {currentUser.line_user_id ? 'เชื่อมต่อ LINE แล้ว' : 'ผูกบัญชี LINE'}
-          </button>
-        </div>
-
-        {/* LINE OA Friend Banner */}
-        <div style={{
-          backgroundColor: 'rgba(6, 199, 85, 0.15)',
-          border: '1px solid rgba(6, 199, 85, 0.3)',
-          borderRadius: '8px',
-          padding: '8px 12px',
-          marginBottom: '14px',
-          fontSize: '0.75rem',
-          color: '#ffffff',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <span>📢 แอดไลน์ร้าน <strong>@385egjtn</strong> เพื่อรับข้อความแจ้งเตือนออเดอร์และแต้มสะสม</span>
-          <a 
-            href="https://line.me/R/ti/p/@385egjtn" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{
-              backgroundColor: '#06C755',
-              color: 'white',
-              textDecoration: 'none',
-              padding: '4px 8px',
-              borderRadius: '4px',
-              fontWeight: 'bold',
-              fontSize: '0.7rem',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            ➕ เพิ่มเพื่อน
-          </a>
         </div>
 
         {/* Dynamic points progress card */}
@@ -275,6 +220,114 @@ export const CustomerPortal = () => {
           </button>
         </div>
       </div>
+
+      {/* Live Order Status Board */}
+      {activeOrders.length > 0 && (
+        <div style={{
+          margin: '16px 16px 0 16px',
+          padding: '16px',
+          backgroundColor: '#fffdf9',
+          border: '2px solid var(--primary)',
+          borderRadius: 'var(--radius-md)',
+          boxShadow: 'var(--shadow-md)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          <h4 style={{ color: 'var(--brown)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800 }}>
+            📢 บอร์ดติดตามออเดอร์ล่าสุด (Live Order Board)
+          </h4>
+          {activeOrders.map(order => (
+            <div key={order.id} style={{
+              backgroundColor: 'white',
+              borderRadius: 'var(--radius-sm)',
+              padding: '12px',
+              border: '1px solid var(--border)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '0.85rem', color: 'var(--brown)' }}>
+                  ออเดอร์ #{order.id}
+                </span>
+                <span className={`badge badge-${order.order_status.toLowerCase()}`} style={{ fontSize: '0.75rem' }}>
+                  {order.order_status === 'Pending' && '⏳ รอดำเนินการ'}
+                  {order.order_status === 'Preparing' && '🍓 กำลังเริ่มปั่น'}
+                  {order.order_status === 'Ready' && '🔔 ปั่นเสร็จแล้ว! มารับได้เลย'}
+                </span>
+              </div>
+
+              {/* Progress Tracker */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '8px 0', padding: '0 4px', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '50%', left: '8%', right: '8%', height: '2px', backgroundColor: 'var(--border)', zIndex: 1, transform: 'translateY(-50%)' }} />
+                <div style={{ 
+                  position: 'absolute', 
+                  top: '50%', 
+                  left: '8%', 
+                  width: order.order_status === 'Pending' ? '0%' : order.order_status === 'Preparing' ? '42%' : '84%', 
+                  height: '2px', 
+                  backgroundColor: 'var(--primary)', 
+                  zIndex: 2, 
+                  transform: 'translateY(-50%)',
+                  transition: 'width 0.4s ease'
+                }} />
+
+                {[
+                  { label: 'รอดำเนินการ', status: 'Pending', icon: '⏳' },
+                  { label: 'กำลังปั่น', status: 'Preparing', icon: '🍓' },
+                  { label: 'พร้อมรับสินค้า', status: 'Ready', icon: '🔔' }
+                ].map((step, idx) => {
+                  const statuses = ['Pending', 'Preparing', 'Ready'];
+                  const currentIdx = statuses.indexOf(order.order_status);
+                  const stepIdx = statuses.indexOf(step.status);
+                  const isCompleted = stepIdx < currentIdx;
+                  const isActive = stepIdx === currentIdx;
+
+                  return (
+                    <div key={step.status} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 3 }}>
+                      <div style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        backgroundColor: isActive ? 'var(--primary)' : isCompleted ? 'var(--brown)' : 'white',
+                        color: isActive || isCompleted ? 'white' : 'var(--text-muted)',
+                        border: `2px solid ${isActive || isCompleted ? 'var(--primary)' : 'var(--border)'}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.85rem',
+                        fontWeight: 'bold',
+                        transition: 'var(--transition)'
+                      }}>
+                        {step.icon}
+                      </div>
+                      <span style={{ fontSize: '0.65rem', fontWeight: isActive ? 'bold' : 'normal', color: isActive ? 'var(--primary)' : 'var(--text-muted)', marginTop: '4px' }}>
+                        {step.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Order items detail */}
+              <div style={{ fontSize: '0.78rem', color: 'var(--text)', borderTop: '1px dashed var(--border)', paddingTop: '8px' }}>
+                <span style={{ fontWeight: 'bold', color: 'var(--brown)' }}>รายละเอียด: </span>
+                {order.items.map((item, idx) => (
+                  <span key={idx}>
+                    {idx > 0 && ', '}{item.name} (หวาน {item.sweetness_level}) x{item.quantity}
+                  </span>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem', borderTop: '1px solid var(--border-light)', paddingTop: '6px' }}>
+                <span>🕒 รับสินค้าประมาณ: <strong style={{ color: 'var(--primary)' }}>{order.pickup_time}</strong></span>
+                <span>ยอดชำระ: <strong style={{ color: 'var(--primary)' }}>฿{order.total_price}</strong></span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Tabs - Mobile only */}
       <div className="desktop-hidden" style={{ padding: '16px 16px 0 16px' }}>
