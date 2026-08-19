@@ -938,10 +938,19 @@ export const AppProvider = ({ children }) => {
       setTransactions(res.transactions);
       setDailyClosings(res.dailyClosings || []);
       
-      // Set default customer as logged in
-      const defaultCust = res.users.find(u => u.role === 'CUSTOMER');
-      setCurrentUser(defaultCust);
-      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(defaultCust));
+      // Keep the current user logged in with their newly seeded user details
+      let nextCurrentUser = null;
+      if (currentUser) {
+        nextCurrentUser = res.users.find(u => u.email === currentUser.email) 
+                          || res.users.find(u => u.role === currentUser.role);
+      }
+      
+      if (!nextCurrentUser) {
+        nextCurrentUser = res.users.find(u => u.role === 'CUSTOMER');
+      }
+
+      setCurrentUser(nextCurrentUser);
+      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(nextCurrentUser));
       
       setLineNotifications([]);
       triggerToast('รีเซ็ตฐานข้อมูลเป็นค่าตั้งต้นเรียบร้อยแล้ว!', 'warning');
