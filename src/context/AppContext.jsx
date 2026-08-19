@@ -11,13 +11,6 @@ export const AppProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [currentUser, setCurrentUser] = useState(() => {
     try {
-      const tabSessionActive = sessionStorage.getItem('tomsmoothie_tab_session_active');
-      if (!tabSessionActive) {
-        localStorage.removeItem('tomsmoothie_current_user');
-        localStorage.removeItem('tomsmoothie_session_token');
-        sessionStorage.setItem('tomsmoothie_tab_session_active', 'true');
-        return null;
-      }
       const savedUser = localStorage.getItem('tomsmoothie_current_user');
       return savedUser ? JSON.parse(savedUser) : null;
     } catch (e) {
