@@ -61,7 +61,7 @@ export const AppProvider = ({ children }) => {
     setTimeout(() => setToast(null), 3500);
   };
 
-  // Helper to send mock LINE notifications
+  // Helper to send mock LINE notifications (and real push if token configured)
   const sendLineNotification = (targetUserId, message) => {
     const targetUser = users.find(u => u.id === targetUserId);
     if (!targetUser || !targetUser.line_user_id) return; // Only notify if LINE is linked
@@ -78,6 +78,32 @@ export const AppProvider = ({ children }) => {
     setTimeout(() => {
       setLineNotifications(prev => prev.filter(n => n.id !== newNotif.id));
     }, 8000);
+
+    // Real LINE Messaging API Push (if VITE_LINE_ACCESS_TOKEN is configured)
+    const channelAccessToken = import.meta.env.VITE_LINE_ACCESS_TOKEN || "";
+    if (channelAccessToken && !targetUser.line_user_id.startsWith('U-LINE-')) {
+      const payload = {
+        to: targetUser.line_user_id,
+        messages: [
+          {
+            type: "text",
+            text: message
+          }
+        ]
+      };
+
+      fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.line.me/v2/bot/message/push'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${channelAccessToken}`
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => console.log('Real LINE push notification sent:', data))
+      .catch(err => console.error('Error sending real LINE notification:', err));
+    }
   };
 
   // Auth Operations
