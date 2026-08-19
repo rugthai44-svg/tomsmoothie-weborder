@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { mockDb } from '../mockDb';
+import { supabase } from '../supabase';
 
 const AppContext = createContext(null);
 
@@ -15,30 +16,108 @@ export const AppProvider = ({ children }) => {
   const [lineNotifications, setLineNotifications] = useState([]);
   const [toast, setToast] = useState(null);
 
-  // Sync database state from localStorage on load
+  // Sync database state from Supabase on load
   useEffect(() => {
-    setUsers(mockDb.getUsers());
-    setMenuItems(mockDb.getMenu());
-    setOrders(mockDb.getOrders());
-    setTransactions(mockDb.getTransactions());
-    setDailyClosings(mockDb.getDailyClosings());
+    const initData = async () => {
+      // 1. Fetch Users
+      let { data: dbUsers, error: usersErr } = await supabase
+        .from('tomsmoothie_users')
+        .select('*');
+        
+      if (usersErr) {
+        console.error('Error fetching users from Supabase:', usersErr);
+      }
+      
+      // Seed if empty
+      if (!dbUsers || dbUsers.length === 0) {
+        const initialUsers = mockDb.getUsers();
+        const { data: insertedUsers, error: insertErr } = await supabase
+          .from('tomsmoothie_users')
+          .insert(initialUsers.map(u => ({
+            id: u.id,
+            email: u.email,
+            password_hash: u.password_hash,
+            full_name: u.full_name,
+            phone: u.phone_number,
+            role: u.role,
+            member_code: u.member_code,
+            current_points: u.current_points,
+            line_user_id: u.line_user_id,
+            google_id: u.google_id,
+            auth_provider: u.auth_provider,
+            is_active: u.is_active
+          })))
+          .select();
+          
+        if (insertErr) {
+          console.error('Error seeding users:', insertErr);
+        } else {
+          dbUsers = insertedUsers;
+        }
+      }
+      
+      if (dbUsers) setUsers(dbUsers);
+      
+      // 2. Fetch Menu Items (Local static read-only in this mock db)
+      setMenuItems(mockDb.getMenu());
+      
+      // 3. Fetch Orders (with nested items)
+      const { data: dbOrders, error: ordersErr } = await supabase
+        .from('tomsmoothie_orders')
+        .select(`
+          *,
+          items:tomsmoothie_order_items(*)
+        `)
+        .order('created_at', { ascending: false });
+        
+      if (ordersErr) console.error('Error fetching orders:', ordersErr);
+      if (dbOrders) setOrders(dbOrders);
+      
+      // 4. Fetch Point Transactions
+      const { data: dbTxs, error: txsErr } = await supabase
+        .from('tomsmoothie_point_transactions')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (txsErr) console.error('Error fetching transactions:', txsErr);
+      if (dbTxs) setTransactions(dbTxs);
+      
+      // 5. Fetch Daily Closings
+      const { data: dbClosings, error: closingsErr } = await supabase
+        .from('tomsmoothie_daily_closings')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (closingsErr) console.error('Error fetching daily closings:', closingsErr);
+      if (dbClosings) setDailyClosings(dbClosings);
+
+      // 6. Sync current user session
+      const savedUser = localStorage.getItem('tomsmoothie_current_user');
+      if (savedUser) {
+        try {
+          const parsed = JSON.parse(savedUser);
+          if (dbUsers) {
+            const fresh = dbUsers.find(u => u.id === parsed.id);
+            if (fresh) {
+              setCurrentUser(fresh);
+              localStorage.setItem('tomsmoothie_current_user', JSON.stringify(fresh));
+            } else {
+              setCurrentUser(parsed);
+            }
+          }
+        } catch (e) {}
+      } else {
+        if (dbUsers) {
+          const defaultCustomer = dbUsers.find(u => u.role === 'CUSTOMER');
+          if (defaultCustomer) {
+            setCurrentUser(defaultCustomer);
+            localStorage.setItem('tomsmoothie_current_user', JSON.stringify(defaultCustomer));
+          }
+        }
+      }
+    };
     
-    // Automatically log in customer1 as default starting experience
-    const savedUser = localStorage.getItem('tomsmoothie_current_user');
-    if (savedUser) {
-      try {
-        setCurrentUser(JSON.parse(savedUser));
-      } catch (e) {
-        // ignore
-      }
-    } else {
-      const allUsers = mockDb.getUsers();
-      const defaultCustomer = allUsers.find(u => u.role === 'CUSTOMER');
-      if (defaultCustomer) {
-        setCurrentUser(defaultCustomer);
-        localStorage.setItem('tomsmoothie_current_user', JSON.stringify(defaultCustomer));
-      }
-    }
+    initData();
   }, []);
  
   // Real LINE LIFF Initialization
@@ -107,9 +186,15 @@ export const AppProvider = ({ children }) => {
   };
 
   // Auth Operations
-  const login = (email, password) => {
-    const user = users.find(u => u.email === email && u.password_hash === password);
-    if (!user) {
+  const login = async (email, password) => {
+    const { data: user, error } = await supabase
+      .from('tomsmoothie_users')
+      .select('*')
+      .eq('email', email)
+      .eq('password_hash', password)
+      .maybeSingle();
+
+    if (error || !user) {
       triggerToast('อีเมลหรือรหัสผ่านไม่ถูกต้อง', 'danger');
       return { success: false, message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' };
     }
@@ -123,8 +208,14 @@ export const AppProvider = ({ children }) => {
     return { success: true, user };
   };
 
-  const registerCustomer = (data) => {
-    const existing = users.find(u => u.email === data.email);
+  const registerCustomer = async (data) => {
+    // Check if email exists
+    const { data: existing } = await supabase
+      .from('tomsmoothie_users')
+      .select('id')
+      .eq('email', data.email)
+      .maybeSingle();
+
     if (existing) {
       triggerToast('อีเมลนี้ถูกใช้งานแล้ว', 'danger');
       return { success: false, message: 'อีเมลนี้ถูกใช้งานแล้ว' };
@@ -136,7 +227,7 @@ export const AppProvider = ({ children }) => {
       email: data.email,
       password_hash: data.password,
       full_name: data.full_name,
-      phone_number: data.phone_number,
+      phone: data.phone_number || '',
       role: 'CUSTOMER',
       current_points: 0,
       line_user_id: null,
@@ -145,15 +236,23 @@ export const AppProvider = ({ children }) => {
       is_active: true
     };
     
-    const updatedUsers = [...users, newUser];
-    setUsers(updatedUsers);
-    mockDb.saveUsers(updatedUsers);
-    
-    // Auto log in newly registered user
-    setCurrentUser(newUser);
-    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(newUser));
+    const { data: dbUser, error } = await supabase
+      .from('tomsmoothie_users')
+      .insert([newUser])
+      .select()
+      .single();
+
+    if (error || !dbUser) {
+      console.error('Error registering customer:', error);
+      triggerToast('เกิดข้อผิดพลาดในการลงทะเบียน', 'danger');
+      return { success: false };
+    }
+
+    setUsers(prev => [...prev, dbUser]);
+    setCurrentUser(dbUser);
+    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
     triggerToast('ลงทะเบียนและเข้าสู่ระบบสำเร็จ', 'success');
-    return { success: true, user: newUser };
+    return { success: true, user: dbUser };
   };
 
   const logout = () => {
@@ -163,8 +262,13 @@ export const AppProvider = ({ children }) => {
     triggerToast('ออกจากระบบเรียบร้อยแล้ว', 'info');
   };
 
-  const loginWithGoogle = (profile) => {
-    let user = users.find(u => u.email.toLowerCase().trim() === profile.email.toLowerCase().trim());
+  const loginWithGoogle = async (profile) => {
+    let { data: user } = await supabase
+      .from('tomsmoothie_users')
+      .select('*')
+      .eq('email', profile.email)
+      .maybeSingle();
+
     let isNew = false;
 
     if (user) {
@@ -180,10 +284,16 @@ export const AppProvider = ({ children }) => {
       }
 
       if (changed) {
-        const updatedUsers = users.map(u => u.id === user.id ? updatedUser : u);
-        setUsers(updatedUsers);
-        mockDb.saveUsers(updatedUsers);
-        user = updatedUser;
+        const { data: freshUser } = await supabase
+          .from('tomsmoothie_users')
+          .update({ google_id: updatedUser.google_id, auth_provider: updatedUser.auth_provider })
+          .eq('id', user.id)
+          .select()
+          .single();
+        if (freshUser) {
+          user = freshUser;
+          setUsers(prev => prev.map(u => u.id === user.id ? user : u));
+        }
       }
       
       if (!user.is_active) {
@@ -193,12 +303,12 @@ export const AppProvider = ({ children }) => {
     } else {
       isNew = true;
       const randCode = 'TOM-CUST-' + Math.floor(1000 + Math.random() * 9000);
-      user = {
+      const newUser = {
         id: 'u-' + Date.now(),
         email: profile.email,
-        password_hash: null,
+        password_hash: 'GOOGLE-OAUTH',
         full_name: profile.name,
-        phone_number: '',
+        phone: '',
         role: 'CUSTOMER',
         current_points: 0,
         line_user_id: null,
@@ -209,9 +319,20 @@ export const AppProvider = ({ children }) => {
         is_active: true
       };
 
-      const updatedUsers = [...users, user];
-      setUsers(updatedUsers);
-      mockDb.saveUsers(updatedUsers);
+      const { data: dbUser, error } = await supabase
+        .from('tomsmoothie_users')
+        .insert([newUser])
+        .select()
+        .single();
+
+      if (error || !dbUser) {
+        console.error('Error creating google user:', error);
+        triggerToast('เกิดข้อผิดพลาดในการเชื่อมโยงบัญชี Google', 'danger');
+        return { success: false };
+      }
+
+      user = dbUser;
+      setUsers(prev => [...prev, user]);
     }
 
     setCurrentUser(user);
@@ -224,21 +345,24 @@ export const AppProvider = ({ children }) => {
     return { success: true, user, isNew };
   };
 
-  const updateUserPhone = (userId, phone) => {
-    const updatedUsers = users.map(u => {
-      if (u.id === userId) {
-        const updated = { ...u, phone_number: phone };
-        if (currentUser && currentUser.id === userId) {
-          setCurrentUser(updated);
-          localStorage.setItem('tomsmoothie_current_user', JSON.stringify(updated));
-        }
-        return updated;
-      }
-      return u;
-    });
+  const updateUserPhone = async (userId, phone) => {
+    const { data: dbUser, error } = await supabase
+      .from('tomsmoothie_users')
+      .update({ phone: phone })
+      .eq('id', userId)
+      .select()
+      .single();
 
-    setUsers(updatedUsers);
-    mockDb.saveUsers(updatedUsers);
+    if (error || !dbUser) {
+      triggerToast('เกิดข้อผิดพลาดในการบันทึกเบอร์โทรศัพท์', 'danger');
+      return { success: false };
+    }
+
+    setUsers(prev => prev.map(u => u.id === userId ? dbUser : u));
+    if (currentUser && currentUser.id === userId) {
+      setCurrentUser(dbUser);
+      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+    }
     triggerToast('บันทึกเบอร์โทรศัพท์สำเร็จ!', 'success');
     return { success: true };
   };
@@ -289,20 +413,22 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const saveLinkedLineId = (newId) => {
-    const updatedUsers = users.map(u => {
-      if (u.id === currentUser.id) {
-        return { ...u, line_user_id: newId };
-      }
-      return u;
-    });
-    
-    setUsers(updatedUsers);
-    mockDb.saveUsers(updatedUsers);
-    
-    const updatedSelf = { ...currentUser, line_user_id: newId };
-    setCurrentUser(updatedSelf);
-    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(updatedSelf));
+  const saveLinkedLineId = async (newId) => {
+    const { data: dbUser, error } = await supabase
+      .from('tomsmoothie_users')
+      .update({ line_user_id: newId })
+      .eq('id', currentUser.id)
+      .select()
+      .single();
+
+    if (error || !dbUser) {
+      triggerToast('เกิดข้อผิดพลาดในการบันทึกบัญชี LINE', 'danger');
+      return;
+    }
+
+    setUsers(prev => prev.map(u => u.id === currentUser.id ? dbUser : u));
+    setCurrentUser(dbUser);
+    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
     
     if (newId) {
       triggerToast('เชื่อมต่อบัญชี LINE สำเร็จแล้ว!', 'success');
@@ -315,8 +441,8 @@ export const AppProvider = ({ children }) => {
   };
 
   // CUSTOMER: Pre-order Smoothie
-  const createOrder = (orderCart, isRedeemedFreeCup, pickupTime) => {
-    if (!currentUser || currentUser.role !== 'CUSTOMER') return;
+  const createOrder = async (orderCart, isRedeemedFreeCup, pickupTime) => {
+    if (!currentUser || currentUser.role !== 'CUSTOMER') return null;
     
     // Check points if free cup requested
     if (isRedeemedFreeCup && currentUser.current_points < 10) {
@@ -329,44 +455,65 @@ export const AppProvider = ({ children }) => {
       id: orderId,
       customer_id: currentUser.id,
       customer_name: currentUser.full_name,
+      customer_phone: currentUser.phone || '',
       pickup_time: pickupTime,
       order_status: 'Pending', // Pending -> Preparing -> Ready -> Completed
       total_price: isRedeemedFreeCup ? 0 : orderCart.reduce((sum, item) => sum + item.subtotal_price, 0),
       is_redeemed_free_cup: isRedeemedFreeCup,
-      created_at: new Date().toISOString(),
-      items: orderCart.map((item, idx) => ({
-        id: `ord-item-${Date.now()}-${idx}`,
-        menu_id: item.menu_id,
-        name: item.name,
-        sweetness_level: item.sweetness_level,
-        toppings: item.toppings,
-        quantity: item.quantity,
-        subtotal_price: isRedeemedFreeCup ? 0 : item.subtotal_price
-      }))
+      created_at: new Date().toISOString()
     };
 
-    // Save order
-    const updatedOrders = [newOrder, ...orders];
-    setOrders(updatedOrders);
-    mockDb.saveOrders(updatedOrders);
+    // 1. Insert order to Supabase
+    const { error: orderErr } = await supabase
+      .from('tomsmoothie_orders')
+      .insert([newOrder]);
 
-    // If free cup redeemed, deduct 10 points
+    if (orderErr) {
+      console.error('Error creating order in Supabase:', orderErr);
+      triggerToast('เกิดข้อผิดพลาดในการสั่งซื้อ', 'danger');
+      return null;
+    }
+
+    // 2. Insert items
+    const itemsPayload = orderCart.map((item, idx) => ({
+      order_id: orderId,
+      menu_item_id: item.menu_id,
+      name: item.name,
+      sweetness_level: item.sweetness_level,
+      toppings: item.toppings,
+      quantity: item.quantity,
+      subtotal_price: isRedeemedFreeCup ? 0 : item.subtotal_price
+    }));
+
+    const { error: itemsErr } = await supabase
+      .from('tomsmoothie_order_items')
+      .insert(itemsPayload);
+
+    if (itemsErr) {
+      console.error('Error creating order items in Supabase:', itemsErr);
+    }
+
+    const fullOrder = { ...newOrder, items: itemsPayload };
+
+    // 3. Deduct points if free cup redeemed
     let updatedSelf = { ...currentUser };
     if (isRedeemedFreeCup) {
-      const updatedUsers = users.map(u => {
-        if (u.id === currentUser.id) {
-          const nextPoints = u.current_points - 10;
-          updatedSelf.current_points = nextPoints;
-          return { ...u, current_points: nextPoints };
-        }
-        return u;
-      });
-      setUsers(updatedUsers);
-      mockDb.saveUsers(updatedUsers);
-      setCurrentUser(updatedSelf);
-      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(updatedSelf));
+      const nextPoints = currentUser.current_points - 10;
+      const { data: dbUser } = await supabase
+        .from('tomsmoothie_users')
+        .update({ current_points: nextPoints })
+        .eq('id', currentUser.id)
+        .select()
+        .single();
 
-      // Append transaction
+      if (dbUser) {
+        updatedSelf = dbUser;
+        setUsers(prev => prev.map(u => u.id === currentUser.id ? dbUser : u));
+        setCurrentUser(dbUser);
+        localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+      }
+
+      // Append transaction to Supabase
       const newTx = {
         id: 'tx-' + Date.now(),
         customer_id: currentUser.id,
@@ -378,24 +525,41 @@ export const AppProvider = ({ children }) => {
         transaction_type: 'REDEEM',
         created_at: new Date().toISOString()
       };
-      const updatedTx = [newTx, ...transactions];
-      setTransactions(updatedTx);
-      mockDb.saveTransactions(updatedTx);
+
+      const { data: dbTx } = await supabase
+        .from('tomsmoothie_point_transactions')
+        .insert([newTx])
+        .select()
+        .single();
+
+      if (dbTx) {
+        setTransactions(prev => [dbTx, ...prev]);
+      }
       
       sendLineNotification(currentUser.id, `🍹 แลกน้ำปั่นฟรีสำเร็จ! หักคะแนน 10 แต้ม คงเหลือ ${updatedSelf.current_points} แต้ม`);
     } else {
       sendLineNotification(currentUser.id, `🛒 สั่งซื้อสำเร็จ! ออเดอร์ของคุณกำลังรอดำเนินการ รับสินค้าเวลา ${pickupTime}`);
     }
 
+    setOrders(prev => [fullOrder, ...prev]);
     triggerToast('ส่งคำสั่งซื้อล่วงหน้าเรียบร้อยแล้ว!', 'success');
-    return newOrder;
+    return fullOrder;
   };
 
   // STAFF: Update order status
-  const updateOrderStatus = (orderId, newStatus) => {
+  const updateOrderStatus = async (orderId, newStatus) => {
+    const { error } = await supabase
+      .from('tomsmoothie_orders')
+      .update({ order_status: newStatus })
+      .eq('id', orderId);
+
+    if (error) {
+      triggerToast('เกิดข้อผิดพลาดในการอัปเดตสถานะ', 'danger');
+      return;
+    }
+
     const updatedOrders = orders.map(ord => {
       if (ord.id === orderId) {
-        // Trigger LINE messages for customer
         if (newStatus === 'Preparing') {
           sendLineNotification(ord.customer_id, `🍓 ร้านกำลังเริ่มปั่นเครื่องดื่มของคุณแล้ว! (เตรียมรับสินค้าตามเวลาที่ระบุ)`);
         } else if (newStatus === 'Ready') {
@@ -409,18 +573,11 @@ export const AppProvider = ({ children }) => {
     });
 
     setOrders(updatedOrders);
-    mockDb.saveOrders(updatedOrders);
-    
-    // Sync current_user locally if they are the customer looking at their active trackers
-    if (currentUser && currentUser.role === 'CUSTOMER') {
-      // Just let React state triggers clean it
-    }
-
     triggerToast(`อัปเดตสถานะออเดอร์เป็น [${newStatus}]`, 'success');
   };
 
   // STAFF: Scan QR points add/deduct
-  const scanLoyaltyQR = (memberCode, actionType, cupsCount = 1) => {
+  const scanLoyaltyQR = async (memberCode, actionType, cupsCount = 1) => {
     if (!currentUser || currentUser.role !== 'STAFF') {
       triggerToast('เฉพาะพนักงานเท่านั้นที่สามารถบันทึกแต้มได้', 'danger');
       return { success: false, message: 'การสิทธิ์ไม่ถูกต้อง' };
@@ -443,18 +600,22 @@ export const AppProvider = ({ children }) => {
       pointsChange = -10;
     }
 
-    const updatedUsers = users.map(u => {
-      if (u.id === customerUser.id) {
-        const nextPoints = Math.max(0, u.current_points + pointsChange);
-        return { ...u, current_points: nextPoints };
-      }
-      return u;
-    });
+    const nextPoints = Math.max(0, customerUser.current_points + pointsChange);
 
-    setUsers(updatedUsers);
-    mockDb.saveUsers(updatedUsers);
+    // 1. Update user points in Supabase
+    const { data: dbUser, error: userErr } = await supabase
+      .from('tomsmoothie_users')
+      .update({ current_points: nextPoints })
+      .eq('id', customerUser.id)
+      .select()
+      .single();
 
-    // Record audit log
+    if (userErr || !dbUser) {
+      triggerToast('เกิดข้อผิดพลาดในการอัปเดตแต้ม', 'danger');
+      return { success: false };
+    }
+
+    // 2. Record transaction in Supabase
     const newTx = {
       id: 'tx-' + Date.now(),
       customer_id: customerUser.id,
@@ -467,12 +628,20 @@ export const AppProvider = ({ children }) => {
       created_at: new Date().toISOString()
     };
 
-    const updatedTx = [newTx, ...transactions];
-    setTransactions(updatedTx);
-    mockDb.saveTransactions(updatedTx);
+    const { data: dbTx } = await supabase
+      .from('tomsmoothie_point_transactions')
+      .insert([newTx])
+      .select()
+      .single();
+
+    if (dbTx) {
+      setTransactions(prev => [dbTx, ...prev]);
+    }
+
+    setUsers(prev => prev.map(u => u.id === customerUser.id ? dbUser : u));
 
     // Send LINE alerts
-    const finalPoints = Math.max(0, customerUser.current_points + pointsChange);
+    const finalPoints = dbUser.current_points;
     if (actionType === 'EARN') {
       sendLineNotification(customerUser.id, `🎉 ได้รับแต้มสะสม +${pointsChange} แต้ม! ปัจจุบันคุณมีสะสม ${finalPoints}/10 แต้ม`);
       if (finalPoints >= 10) {
@@ -486,27 +655,26 @@ export const AppProvider = ({ children }) => {
 
     // Sync logged in user if currently viewing customer simulation
     if (currentUser.id === customerUser.id) {
-      setCurrentUser({ ...currentUser, current_points: finalPoints });
-      localStorage.setItem('tomsmoothie_current_user', JSON.stringify({ ...currentUser, current_points: finalPoints }));
+      setCurrentUser(dbUser);
+      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
     }
 
     triggerToast(`บันทึกแต้มให้คุณ ${customerUser.full_name} (${pointsChange > 0 ? '+' : ''}${pointsChange} แต้ม) สำเร็จ`, 'success');
-    return { success: true, customer: customerUser, finalPoints };
+    return { success: true, customer: dbUser, finalPoints };
   };
 
-  // ADMIN: Menu Management CRUD
+  // ADMIN: Menu Management CRUD (Locally kept for static catalog demo)
   const addMenuItem = (item) => {
     const newItem = {
       id: 'm-' + Date.now(),
       name: item.name,
-      category: item.category, // Smoothie or Topping
+      category: item.category,
       base_price: Number(item.base_price),
       image_url: item.category === 'Smoothie' ? (item.image_url || '🥤') : null,
       is_popular: !!item.is_popular,
       is_available: true,
       total_sold_count: 0
     };
-
     const updatedMenu = [...menuItems, newItem];
     setMenuItems(updatedMenu);
     mockDb.saveMenu(updatedMenu);
@@ -526,7 +694,6 @@ export const AppProvider = ({ children }) => {
       }
       return item;
     });
-
     setMenuItems(updatedMenu);
     mockDb.saveMenu(updatedMenu);
     triggerToast(`แก้ไขรายการ "${updatedItem.name}" สำเร็จ`, 'success');
@@ -549,14 +716,19 @@ export const AppProvider = ({ children }) => {
       }
       return item;
     });
-
     setMenuItems(updatedMenu);
     mockDb.saveMenu(updatedMenu);
   };
 
   // ADMIN: Staff Management CRUD
-  const registerStaff = (data) => {
-    const existing = users.find(u => u.email === data.email);
+  const registerStaff = async (data) => {
+    // Check email exists
+    const { data: existing } = await supabase
+      .from('tomsmoothie_users')
+      .select('id')
+      .eq('email', data.email)
+      .maybeSingle();
+
     if (existing) {
       triggerToast('อีเมลนี้ถูกใช้งานแล้ว', 'danger');
       return { success: false, message: 'อีเมลนี้มีอยู่แล้ว' };
@@ -568,7 +740,7 @@ export const AppProvider = ({ children }) => {
       email: data.email,
       password_hash: data.password,
       full_name: data.full_name,
-      phone_number: data.phone_number || '',
+      phone: data.phone_number || '',
       role: 'STAFF',
       current_points: 0,
       line_user_id: null,
