@@ -14,7 +14,7 @@ const INITIAL_USERS = [
   {
     id: 'u-admin-1',
     email: 'admin@tomsmoothie.com',
-    password_hash: 'admin123', // Clean plain-text for simulator simplicity
+    password_hash: 'TomAdmin@99!', // Secure and unique password to avoid Chrome leak warning
     full_name: 'แอดมิน พี่ต้อม',
     phone_number: '089-999-9999',
     role: 'ADMIN',
