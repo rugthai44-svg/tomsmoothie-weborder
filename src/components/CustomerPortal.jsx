@@ -11,6 +11,8 @@ export const CustomerPortal = () => {
   const { 
     menuItems, 
     orders, 
+    transactions,
+    users,
     currentUser, 
     createOrder, 
     linkLineAccount, 
@@ -23,6 +25,8 @@ export const CustomerPortal = () => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [pickupTime, setPickupTime] = useState('15 นาที');
   const [isRedeemed, setIsRedeemed] = useState(false);
+
+  const customerTxs = (transactions || []).filter(t => t.customer_id === currentUser.id);
 
   // Customizer state
   const [sweetness, setSweetness] = useState('100%');
@@ -682,6 +686,79 @@ export const CustomerPortal = () => {
                 <span className="badge badge-ready" style={{ width: '6px', height: '6px', padding: 0 }}></span>
                 <span>รหัส QR อัปเดตแบบเรียลไทม์</span>
               </div>
+            </div>
+
+            {/* Points History Card */}
+            <div className="card" style={{ 
+              marginTop: '20px', 
+              textAlign: 'left',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                📜 ประวัติการรับและแลกแต้ม
+              </h4>
+
+              {customerTxs.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '20px 10px', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                  ยังไม่มีประวัติการทำรายการสะสมแต้มสะสม
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {customerTxs.map(t => {
+                    const isEarn = t.transaction_type === 'EARN';
+                    const staffUser = users.find(u => u.id === t.staff_id || u.email === t.staff_email);
+                    const staffName = staffUser ? staffUser.full_name : (t.staff_email || 'ระบบอัตโนมัติ');
+                    
+                    // Format Date
+                    let formattedDateTime = '-';
+                    try {
+                      const d = new Date(t.created_at);
+                      const dateStr = d.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                      const timeStr = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+                      formattedDateTime = `${dateStr} - ${timeStr}`;
+                    } catch (e) {}
+
+                    return (
+                      <div 
+                        key={t.id}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '10px 12px',
+                          backgroundColor: 'var(--bg-light)',
+                          borderRadius: '8px',
+                          borderLeft: isEarn ? '4px solid var(--success)' : '4px solid var(--primary)',
+                          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.01)'
+                        }}
+                      >
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                          <span style={{ fontWeight: 'bold', fontSize: '0.85rem', color: 'var(--brown)' }}>
+                            {isEarn ? '🥤 บันทึกสะสมแต้มหน้าร้าน' : '🎁 แลกเครื่องดื่มฟรี 1 แก้ว'}
+                          </span>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                            🕒 {formattedDateTime}
+                          </span>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                            👤 พนักงาน: <strong style={{ color: 'var(--brown)' }}>{staffName}</strong>
+                          </span>
+                        </div>
+                        <div style={{
+                          backgroundColor: isEarn ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 120, 46, 0.1)',
+                          color: isEarn ? 'var(--success)' : 'var(--primary)',
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          fontWeight: 'bold',
+                          fontSize: '0.8rem',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {isEarn ? `+${t.points_change} แต้ม` : `${t.points_change} แต้ม`}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
           </div>
