@@ -107,14 +107,6 @@ export const AppProvider = ({ children }) => {
             }
           }
         } catch (e) {}
-      } else {
-        if (dbUsers) {
-          const defaultCustomer = dbUsers.find(u => u.role === 'CUSTOMER');
-          if (defaultCustomer) {
-            setCurrentUser(defaultCustomer);
-            localStorage.setItem('tomsmoothie_current_user', JSON.stringify(defaultCustomer));
-          }
-        }
       }
     };
     
