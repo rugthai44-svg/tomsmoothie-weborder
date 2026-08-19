@@ -134,6 +134,41 @@ export const AppProvider = ({ children }) => {
     }
   }, []);
 
+  // Listen for Supabase OAuth redirects and sign-ins
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const googleUser = session.user;
+        const email = googleUser.email;
+        const fullName = googleUser.user_metadata?.full_name || googleUser.user_metadata?.name || 'ลูกค้า Google';
+        const googleId = googleUser.id;
+
+        // Skip if already logged in locally to avoid infinite toast loops on reload
+        const saved = localStorage.getItem('tomsmoothie_current_user');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed.email === email) return;
+          } catch(e) {}
+        }
+
+        const res = await loginWithGoogle({
+          email: email,
+          name: fullName,
+          google_id: googleId
+        });
+        
+        if (!res?.success) {
+          await supabase.auth.signOut();
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [users]);
+
   // Quick helper to display a brief visual toast
   const triggerToast = (message, type = 'info') => {
     setToast({ message, type });
@@ -255,7 +290,8 @@ export const AppProvider = ({ children }) => {
     return { success: true, user: dbUser };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setCurrentUser(null);
     localStorage.removeItem('tomsmoothie_current_user');
     localStorage.removeItem('tomsmoothie_session_token');
@@ -343,6 +379,18 @@ export const AppProvider = ({ children }) => {
 
     triggerToast(`ยินดีต้อนรับคุณ ${user.full_name}`, 'success');
     return { success: true, user, isNew };
+  };
+
+  const loginWithGoogleRedirect = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+    if (error) {
+      triggerToast('เกิดข้อผิดพลาดในการลงชื่อเข้าใช้งานด้วย Google', 'danger');
+    }
   };
 
   const updateUserPhone = async (userId, phone) => {
@@ -834,7 +882,7 @@ export const AppProvider = ({ children }) => {
         login,
         registerCustomer,
         logout,
-        loginWithGoogle,
+        loginWithGoogle: loginWithGoogleRedirect,
         updateUserPhone,
         devSwitchRole,
         linkLineAccount,

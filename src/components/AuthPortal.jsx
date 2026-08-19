@@ -322,7 +322,7 @@ export const AuthPortal = () => {
         {/* Google OAuth Button */}
         <button
           type="button"
-          onClick={() => setIsGoogleModalOpen(true)}
+          onClick={loginWithGoogle}
           style={{
             width: '100%',
             padding: '12px',
