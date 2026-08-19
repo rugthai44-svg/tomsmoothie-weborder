@@ -173,7 +173,7 @@ export const AuthPortal = () => {
     setPendingPhoneUserId(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -182,7 +182,7 @@ export const AuthPortal = () => {
         setError('กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง');
         return;
       }
-      const res = registerCustomer({
+      const res = await registerCustomer({
         email,
         password,
         full_name: fullName,
@@ -196,13 +196,13 @@ export const AuthPortal = () => {
         setError('กรุณากรอกอีเมลและรหัสผ่าน');
         return;
       }
-      const res = login(email, password);
+      const res = await login(email, password);
       if (!res.success) {
         setError(res.message);
       } else {
         if (res.user.role !== loginRole) {
           setError(`สิทธิ์การเข้าใช้งานไม่ถูกต้องสำหรับหน้าล็อกอินบทบาทนี้`);
-          logout();
+          await logout();
           return;
         }
         saveCredentials(email, password, rememberMe);
