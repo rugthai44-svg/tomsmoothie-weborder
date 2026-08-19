@@ -151,6 +151,13 @@ export const CustomerPortal = () => {
 
 
   const cartTotal = cart.reduce((sum, item) => sum + item.subtotal_price, 0);
+  const freeCupDiscount = isRedeemed 
+    ? cart.reduce((max, item) => {
+        const toppingPrice = (item.toppings ? item.toppings.length : 0) * 10;
+        const singlePrice = item.base_price + toppingPrice;
+        return Math.max(max, singlePrice);
+      }, 0)
+    : 0;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -635,8 +642,10 @@ export const CustomerPortal = () => {
                     )}
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderTop: '1px solid var(--border)', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>ราคาสุทธิ:</span>
-                      <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary)' }}>฿{isRedeemed ? 0 : cartTotal}</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
+                        {isRedeemed ? 'ราคาสุทธิ (หักแลกฟรี 1 แก้ว):' : 'ราคาสุทธิ:'}
+                      </span>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary)' }}>฿{Math.max(0, cartTotal - freeCupDiscount)}</span>
                     </div>
 
                     <button 
@@ -1250,10 +1259,10 @@ export const CustomerPortal = () => {
               alignItems: 'center'
             }}>
               <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
-                {isRedeemed ? 'ใช้แลกสิทธิ์แก้วฟรี' : 'ราคาสุทธิ (ชำระเงินหน้าร้าน)'}
+                {isRedeemed ? 'ราคาสุทธิ (หักแลกฟรี 1 แก้ว)' : 'ราคาสุทธิ (ชำระเงินหน้าร้าน)'}
               </span>
               <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary)' }}>
-                ฿{isRedeemed ? 0 : cartTotal}
+                ฿{Math.max(0, cartTotal - freeCupDiscount)}
               </span>
             </div>
 
