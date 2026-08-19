@@ -25,36 +25,6 @@ const INITIAL_USERS = [
     member_code: 'ADMIN001',
     created_at: new Date(2026, 7, 1).toISOString(),
     is_active: true
-  },
-  {
-    id: 'u-staff-1',
-    email: 'staff1@tomsmoothie.com',
-    password_hash: 'staff123',
-    full_name: 'สมศรี ปั่นเก่ง',
-    phone_number: '081-111-2222',
-    role: 'STAFF',
-    current_points: 0,
-    line_user_id: null,
-    google_id: null,
-    auth_provider: 'LOCAL',
-    member_code: 'STAFF001',
-    created_at: new Date(2026, 7, 5).toISOString(),
-    is_active: true
-  },
-  {
-    id: 'u-customer-1',
-    email: 'customer1@tomsmoothie.com',
-    password_hash: 'cust123',
-    full_name: 'สมชาย รักสุขภาพ',
-    phone_number: '081-234-5678',
-    role: 'CUSTOMER',
-    current_points: 0,
-    line_user_id: null,
-    google_id: null,
-    auth_provider: 'LOCAL',
-    member_code: 'MEMBER777',
-    created_at: new Date(2026, 7, 10).toISOString(),
-    is_active: true
   }
 ];
 

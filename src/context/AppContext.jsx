@@ -947,7 +947,7 @@ export const AppProvider = ({ children }) => {
       }
       
       if (!nextCurrentUser) {
-        nextCurrentUser = res.users.find(u => u.role === 'CUSTOMER');
+        nextCurrentUser = res.users.find(u => u.role === 'ADMIN') || res.users[0] || null;
       }
 
       setCurrentUser(nextCurrentUser);
