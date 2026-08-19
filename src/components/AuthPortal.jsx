@@ -25,16 +25,7 @@ export const AuthPortal = () => {
   const getSavedCredentials = () => {
     try {
       const saved = localStorage.getItem('tomsmoothie_remembered_credentials');
-      if (!saved) {
-        const defaultCreds = {
-          'customer1@tomsmoothie.com': 'cust123',
-          'staff1@tomsmoothie.com': 'staff123',
-          'admin@tomsmoothie.com': 'admin123'
-        };
-        localStorage.setItem('tomsmoothie_remembered_credentials', JSON.stringify(defaultCreds));
-        return defaultCreds;
-      }
-      return JSON.parse(saved);
+      return saved ? JSON.parse(saved) : {};
     } catch (e) {
       return {};
     }
@@ -63,25 +54,21 @@ export const AuthPortal = () => {
     }
     setLoginRole(lastRole);
 
-    let defaultEmail = 'customer1@tomsmoothie.com';
-    let defaultPass = 'cust123';
-    if (lastRole === 'STAFF') {
-      defaultEmail = 'staff1@tomsmoothie.com';
-      defaultPass = 'staff123';
-    } else if (lastRole === 'ADMIN') {
-      defaultEmail = 'admin@tomsmoothie.com';
-      defaultPass = 'admin123';
-    }
-
-    let lastEmail = localStorage.getItem(`tomsmoothie_last_email_${lastRole}`) || defaultEmail;
+    let lastEmail = localStorage.getItem(`tomsmoothie_last_email_${lastRole}`) || '';
     setEmail(lastEmail);
 
-    const creds = getSavedCredentials();
-    const savedPass = creds[lastEmail.toLowerCase().trim()] || (lastEmail === defaultEmail ? defaultPass : '');
-    if (savedPass) {
-      setPassword(savedPass);
-      setRememberMe(true);
+    if (lastEmail) {
+      const creds = getSavedCredentials();
+      const savedPass = creds[lastEmail.toLowerCase().trim()] || '';
+      if (savedPass) {
+        setPassword(savedPass);
+        setRememberMe(true);
+      } else {
+        setPassword('');
+        setRememberMe(false);
+      }
     } else {
+      setPassword('');
       setRememberMe(false);
     }
   }, []);
@@ -92,23 +79,18 @@ export const AuthPortal = () => {
     setError('');
     localStorage.setItem('tomsmoothie_last_role', role);
 
-    let defaultEmail = 'customer1@tomsmoothie.com';
-    let defaultPass = 'cust123';
-    if (role === 'STAFF') {
-      defaultEmail = 'staff1@tomsmoothie.com';
-      defaultPass = 'staff123';
-    } else if (role === 'ADMIN') {
-      defaultEmail = 'admin@tomsmoothie.com';
-      defaultPass = 'admin123';
-    }
-
     const creds = getSavedCredentials();
-    const savedEmail = localStorage.getItem(`tomsmoothie_last_email_${role}`) || defaultEmail;
+    const savedEmail = localStorage.getItem(`tomsmoothie_last_email_${role}`) || '';
     setEmail(savedEmail);
     
-    const savedPass = creds[savedEmail.toLowerCase().trim()] || (savedEmail === defaultEmail ? defaultPass : '');
-    setPassword(savedPass);
-    setRememberMe(!!creds[savedEmail.toLowerCase().trim()]);
+    if (savedEmail) {
+      const savedPass = creds[savedEmail.toLowerCase().trim()] || '';
+      setPassword(savedPass);
+      setRememberMe(!!savedPass);
+    } else {
+      setPassword('');
+      setRememberMe(false);
+    }
   };
 
   const handleEmailChange = (val) => {
