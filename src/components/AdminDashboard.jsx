@@ -20,7 +20,8 @@ export const AdminDashboard = () => {
     toggleStaffStatus,
     triggerToast,
     resetDatabase,
-    dailyClosings
+    dailyClosings,
+    updateCustomerPoints
   } = useApp();
 
   const [adminTab, setAdminTab] = useState('analytics'); // 'analytics' | 'menu' | 'staff' | 'logs'
@@ -184,11 +185,19 @@ export const AdminDashboard = () => {
           จัดการเมนูเครื่องดื่ม
         </button>
         <button 
+          className={`tab-btn ${adminTab === 'members' ? 'active' : ''}`}
+          onClick={() => setAdminTab('members')}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+        >
+          <Users size={16} />
+          ข้อมูลสมาชิก (ลูกค้า)
+        </button>
+        <button 
           className={`tab-btn ${adminTab === 'staff' ? 'active' : ''}`}
           onClick={() => setAdminTab('staff')}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
         >
-          <Users size={16} />
+          <ShieldCheck size={16} />
           สิทธิ์การใช้งานของพนักงาน
         </button>
         <button 
@@ -810,6 +819,117 @@ export const AdminDashboard = () => {
             </div>
           </div>
 
+        </div>
+      )}
+
+      {/* ================= ADMIN TAB: MEMBERS MANAGEMENT ================= */}
+      {adminTab === 'members' && (
+        <div style={{ animation: 'pop-in 0.3s ease' }}>
+          <div className="card" style={{ margin: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '1.1rem', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  👥 จัดการรายชื่อลูกค้าสมาชิกทั้งหมด ({users.filter(u => u.role === 'CUSTOMER').length} คน)
+                </h4>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '2px' }}>
+                  ตรวจสอบข้อมูลสมาชิกทั้งหมด ปรับแต่งแต้มสะสม หรือระงับสิทธิ์การใช้งานชั่วคราว
+                </p>
+              </div>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left', color: 'var(--text-muted)', backgroundColor: 'var(--bg)' }}>
+                    <th style={{ padding: '12px 10px' }}>ชื่อ-นามสกุล</th>
+                    <th style={{ padding: '12px 10px' }}>รหัสสมาชิก</th>
+                    <th style={{ padding: '12px 10px' }}>ข้อมูลติดต่อ</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'center' }}>แต้มสะสม</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'center' }}>สถานะใช้งาน</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'center' }}>การจัดการสมาชิก</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.filter(u => u.role === 'CUSTOMER').length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>
+                        ไม่มีข้อมูลสมาชิกลูกค้าในระบบขณะนี้
+                      </td>
+                    </tr>
+                  ) : (
+                    users.filter(u => u.role === 'CUSTOMER').map(cust => (
+                      <tr key={cust.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '12px 10px', fontWeight: 'bold', color: 'var(--brown)' }}>
+                          {cust.full_name}
+                        </td>
+                        <td style={{ padding: '12px 10px' }}>
+                          <code style={{ backgroundColor: 'var(--brown-pale)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, color: 'var(--brown)' }}>
+                            {cust.member_code}
+                          </code>
+                        </td>
+                        <td style={{ padding: '12px 10px', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                          <div>✉️ {cust.email}</div>
+                          <div>📞 {cust.phone || cust.phone_number || '-'}</div>
+                        </td>
+                        <td style={{ padding: '12px 10px', textAlign: 'center', fontWeight: 'bold', fontSize: '1rem', color: 'var(--primary)' }}>
+                          {cust.current_points} แต้ม
+                        </td>
+                        <td style={{ padding: '12px 10px', textAlign: 'center' }}>
+                          <span style={{
+                            backgroundColor: cust.is_active ? 'var(--success-light)' : 'var(--danger-light)',
+                            color: cust.is_active ? 'var(--success)' : 'var(--danger)',
+                            padding: '4px 10px',
+                            borderRadius: '12px',
+                            fontSize: '0.72rem',
+                            fontWeight: 'bold'
+                          }}>
+                            {cust.is_active ? 'ปกติ (Active)' : 'ถูกบล็อก (Blocked)'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 10px' }}>
+                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const pointsStr = prompt(`ป้อนจำนวนแต้มสะสมใหม่สำหรับคุณ ${cust.full_name} (ปัจจุบันมี ${cust.current_points} แต้ม):`, cust.current_points);
+                                if (pointsStr !== null) {
+                                  const pts = Number(pointsStr);
+                                  if (!isNaN(pts) && pts >= 0) {
+                                    updateCustomerPoints(cust.id, pts);
+                                  } else {
+                                    alert('กรุณากรอกแต้มเป็นตัวเลขบวกที่ถูกต้อง');
+                                  }
+                                }
+                              }}
+                              className="btn btn-outline"
+                              style={{ width: 'auto', padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
+                            >
+                              ⭐ ปรับแต้ม
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => toggleStaffStatus(cust.id)}
+                              className={cust.is_active ? "btn btn-outline" : "btn btn-primary"}
+                              style={{ 
+                                width: 'auto', 
+                                padding: '6px 12px', 
+                                fontSize: '0.75rem', 
+                                borderRadius: '6px',
+                                color: cust.is_active ? 'var(--danger)' : 'white',
+                                borderColor: cust.is_active ? 'var(--danger)' : 'var(--primary)'
+                              }}
+                            >
+                              {cust.is_active ? 'ระงับใช้งาน' : 'เปิดใช้งาน'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
 

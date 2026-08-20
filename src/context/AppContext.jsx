@@ -933,6 +933,59 @@ export const AppProvider = ({ children }) => {
     triggerToast(`${nextState ? 'เปิดใช้งาน' : 'ระงับใช้งาน'} พนักงาน "${targetUser.full_name}" เรียบร้อย`, 'info');
   };
 
+  // ADMIN: Adjust Customer Points directly
+  const updateCustomerPoints = async (userId, nextPoints) => {
+    const customerUser = users.find(u => u.id === userId);
+    if (!customerUser) {
+      triggerToast('ไม่พบข้อมูลสมาชิกนี้', 'danger');
+      return { success: false, message: 'ไม่พบผู้ใช้' };
+    }
+
+    // 1. Update points in Supabase
+    const { data: dbUser, error: userErr } = await supabase
+      .from('tomsmoothie_users')
+      .update({ current_points: nextPoints })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (userErr || !dbUser) {
+      console.error('Error updating customer points in Supabase:', userErr);
+      triggerToast('เกิดข้อผิดพลาดในการอัปเดตแต้มสมาชิก', 'danger');
+      return { success: false };
+    }
+
+    // 2. Record points adjustment transaction
+    const pointsChange = nextPoints - customerUser.current_points;
+    const newTx = {
+      id: 'tx-' + Date.now(),
+      customer_id: userId,
+      customer_name: customerUser.full_name,
+      staff_id: currentUser.id,
+      staff_email: currentUser.email + ' (แอดมินแก้ไข)',
+      order_id: null,
+      points_change: pointsChange,
+      transaction_type: pointsChange > 0 ? 'EARN' : 'REDEEM',
+      created_at: new Date().toISOString()
+    };
+
+    const { data: dbTx } = await supabase
+      .from('tomsmoothie_point_transactions')
+      .insert([newTx])
+      .select()
+      .single();
+
+    if (dbTx) {
+      setTransactions(prev => [dbTx, ...prev]);
+    }
+
+    setUsers(prev => prev.map(u => u.id === userId ? dbUser : u));
+    
+    sendLineNotification(userId, `⭐ แอดมินปรับคะแนนสะสมของคุณ: คะแนนปัจจุบันคือ ${nextPoints}/10 แต้ม`);
+    triggerToast(`ปรับแต้มของคุณ ${customerUser.full_name} เป็น ${nextPoints} แต้ม สำเร็จ`, 'success');
+    return { success: true };
+  };
+
   const submitDailyClosing = async (closingData) => {
     const newClosing = {
       id: 'close-' + Date.now(),
@@ -1081,6 +1134,7 @@ export const AppProvider = ({ children }) => {
         dailyClosings,
         submitDailyClosing,
         cancelOrder,
+        updateCustomerPoints,
       }}
     >
       {children}
