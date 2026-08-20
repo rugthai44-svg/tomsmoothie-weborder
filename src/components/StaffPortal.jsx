@@ -110,6 +110,7 @@ export const StaffPortal = () => {
   const [cameraMode, setCameraMode] = useState(false);
   const [searchMemberCode, setSearchMemberCode] = useState('');
   const [foundCustomer, setFoundCustomer] = useState(null);
+  const [scannedOrder, setScannedOrder] = useState(null);
   
   // Point adjustment states
   const [cupsCount, setCupsCount] = useState(1);
@@ -159,9 +160,27 @@ export const StaffPortal = () => {
 
   if (!currentUser || currentUser.role !== 'STAFF') return null;
 
-  // Find customer logic
+  // Find customer or order logic
   const handleFindCustomerByCode = (code) => {
     const codeClean = code.trim();
+    
+    // Check if it's an Order QR Code (starts with TOM-ORDER:)
+    if (codeClean.toUpperCase().startsWith('TOM-ORDER:')) {
+      const orderId = codeClean.substring(10);
+      const order = orders.find(o => o.id === orderId);
+      if (order) {
+        setScannedOrder(order);
+        setFoundCustomer(null);
+        setSearchMemberCode('');
+        triggerToast(`พบข้อมูลออเดอร์จากการสแกน: #${orderId}`, 'success');
+      } else {
+        triggerToast(`ไม่พบข้อมูลออเดอร์ #${orderId} ในระบบ`, 'danger');
+        setScannedOrder(null);
+      }
+      return;
+    }
+
+    // Standard member search
     const customer = users.find(
       u => u.role === 'CUSTOMER' && 
       (u.member_code.toLowerCase() === codeClean.toLowerCase() || u.phone_number === codeClean)
@@ -169,10 +188,12 @@ export const StaffPortal = () => {
 
     if (customer) {
       setFoundCustomer(customer);
+      setScannedOrder(null);
       setSearchMemberCode(customer.member_code);
     } else {
       triggerToast('ไม่พบลักษณะของรหัสสมาชิกหรือเบอร์โทรศัพท์นี้', 'danger');
       setFoundCustomer(null);
+      setScannedOrder(null);
     }
   };
 
@@ -621,6 +642,45 @@ export const StaffPortal = () => {
                   ))}
                 </div>
 
+                {/* Pre-defined list of active orders for easy clicking */}
+                {activeQueues.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px dashed var(--border)', paddingTop: '10px', marginTop: '4px' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 'bold', color: 'var(--brown)' }}>
+                      📦 รายการออเดอร์ที่สั่งเข้ามาจำลองคิวสแกน:
+                    </span>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '4px' }}>
+                      {activeQueues.map(order => (
+                        <button
+                          key={order.id}
+                          type="button"
+                          onClick={() => handleFindCustomerByCode(`TOM-ORDER:${order.id}`)}
+                          style={{
+                            padding: '8px 10px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--border)',
+                            backgroundColor: 'white',
+                            textAlign: 'left',
+                            fontSize: '0.75rem',
+                            color: 'var(--brown)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <div>
+                            ออเดอร์ <b>#{order.id}</b> - คุณ {order.customer_name}
+                            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>เวลารับ: {order.pickup_time} ({order.order_status === 'Pending' ? 'รอทำ' : order.order_status === 'Preparing' ? 'กำลังทำ' : 'พร้อมรับ'})</div>
+                          </div>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--primary)' }}>
+                            ฿{order.total_price}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                   <input 
                     type="text" 
@@ -640,6 +700,114 @@ export const StaffPortal = () => {
                 </div>
               </div>
             </div>
+
+            {/* Scanned Order Details Panel */}
+            {scannedOrder && (
+              <div className="card" style={{ 
+                border: '2px solid var(--primary)', 
+                animation: 'pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                marginBottom: '16px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '12px' }}>
+                  <div>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 'bold' }}>พบข้อมูลคำสั่งซื้อจากการสแกน</span>
+                    <h4 style={{ color: 'var(--brown)', fontWeight: 800, fontSize: '1.1rem', margin: '2px 0' }}>
+                      ออเดอร์ #{scannedOrder.id}
+                    </h4>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
+                      ชื่อลูกค้า: <b>คุณ {scannedOrder.customer_name}</b> | เวลานัด: <b>{scannedOrder.pickup_time}</b>
+                    </p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0 0 4px' }}>สถานะออเดอร์</p>
+                    {scannedOrder.order_status === 'Pending' && <span className="badge badge-pending">รอดำเนินการ (Pending)</span>}
+                    {scannedOrder.order_status === 'Preparing' && <span className="badge badge-preparing">กำลังทำ (Preparing)</span>}
+                    {scannedOrder.order_status === 'Ready' && <span className="badge badge-ready">พร้อมรับสินค้า (Ready)</span>}
+                    {scannedOrder.order_status === 'Completed' && <span className="badge badge-completed" style={{ backgroundColor: 'var(--success-light)', color: 'var(--success)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 'bold' }}>ส่งมอบสำเร็จ (Completed)</span>}
+                    {scannedOrder.order_status === 'Cancelled' && <span className="badge" style={{ backgroundColor: 'var(--danger-light)', color: 'var(--danger)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 'bold' }}>ยกเลิกแล้ว (Cancelled)</span>}
+                  </div>
+                </div>
+
+                <div style={{ padding: '8px 10px', backgroundColor: 'var(--bg)', borderRadius: '8px', fontSize: '0.8rem', marginBottom: '12px' }}>
+                  {scannedOrder.items.map((item, idx) => (
+                    <div key={idx} style={{ color: 'var(--brown)', fontWeight: 600, display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <div>
+                        🥤 {item.name} (หวาน {item.sweetness_level}) x{item.quantity}
+                        {item.toppings.length > 0 && <span style={{ color: 'var(--primary)', fontWeight: 'normal', fontSize: '0.75rem' }}> (+ {item.toppings.join(', ')})</span>}
+                      </div>
+                      <span>฿{item.subtotal_price}</span>
+                    </div>
+                  ))}
+                  <div style={{ borderTop: '1px dashed var(--border)', paddingTop: '6px', marginTop: '6px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                    <span>ราคารวม:</span>
+                    <span style={{ color: 'var(--primary)' }}>฿{scannedOrder.total_price} {scannedOrder.is_redeemed_free_cup && '(แลกฟรี)'}</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {scannedOrder.order_status === 'Pending' && (
+                    <button 
+                      onClick={async () => {
+                        await updateOrderStatus(scannedOrder.id, 'Preparing');
+                        const updated = orders.find(o => o.id === scannedOrder.id);
+                        setScannedOrder(updated || { ...scannedOrder, order_status: 'Preparing' });
+                      }}
+                      className="btn btn-primary"
+                      style={{ padding: '10px' }}
+                    >
+                      <Coffee size={14} /> กดยืนยันออเดอร์และเริ่มปั่น (Accept & Prepare)
+                    </button>
+                  )}
+
+                  {scannedOrder.order_status === 'Preparing' && (
+                    <button 
+                      onClick={async () => {
+                        await updateOrderStatus(scannedOrder.id, 'Ready');
+                        const updated = orders.find(o => o.id === scannedOrder.id);
+                        setScannedOrder(updated || { ...scannedOrder, order_status: 'Ready' });
+                      }}
+                      className="btn btn-primary"
+                      style={{ padding: '10px' }}
+                    >
+                      <Check size={14} /> ปั่นเสร็จแล้ว! แจ้งเตือนลูกค้าพร้อมรับ (Mark as Ready)
+                    </button>
+                  )}
+
+                  {scannedOrder.order_status === 'Ready' && (
+                    <button 
+                      onClick={async () => {
+                        await updateOrderStatus(scannedOrder.id, 'Completed');
+                        
+                        // Auto-credit points!
+                        const totalCups = scannedOrder.items.reduce((sum, item) => sum + item.quantity, 0);
+                        if (!scannedOrder.is_redeemed_free_cup && totalCups > 0) {
+                          const customer = users.find(u => u.id === scannedOrder.customer_id);
+                          if (customer) {
+                            await scanLoyaltyQR(customer.member_code, 'EARN', totalCups);
+                            triggerToast(`สะสมแต้มให้คุณ ${customer.full_name} อัตโนมัติ +${totalCups} แต้ม สำเร็จ!`, 'success');
+                          }
+                        }
+                        
+                        const updated = orders.find(o => o.id === scannedOrder.id);
+                        setScannedOrder(updated || { ...scannedOrder, order_status: 'Completed' });
+                      }}
+                      className="btn btn-primary"
+                      style={{ padding: '10px' }}
+                    >
+                      <Check size={14} /> ยืนยันส่งมอบสินค้าสำเร็จ & สะสมแต้มอัตโนมัติ (Complete)
+                    </button>
+                  )}
+
+                  <button 
+                    onClick={() => { setScannedOrder(null); }}
+                    className="btn btn-outline"
+                    style={{ fontSize: '0.8rem', padding: '6px' }}
+                  >
+                    ปิดการ์ดข้อมูลออเดอร์
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Loyalty points credit/debit panel */}
             {foundCustomer && (

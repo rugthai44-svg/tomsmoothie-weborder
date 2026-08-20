@@ -352,6 +352,29 @@ export const CustomerPortal = () => {
                 <span>ยอดชำระ: <strong style={{ color: 'var(--primary)' }}>฿{order.total_price}</strong></span>
               </div>
 
+              {/* Order QR Code scanner guide */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                borderTop: '1px dashed var(--border)',
+                paddingTop: '8px',
+                marginTop: '4px'
+              }}>
+                <div style={{ backgroundColor: 'white', padding: '4px', border: '1px solid var(--border)', borderRadius: '8px', flexShrink: 0 }}>
+                  <QRCodeSVG 
+                    value={`TOM-ORDER:${order.id}`} 
+                    size={80} 
+                    level="M"
+                    includeMargin={true}
+                  />
+                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                  📌 <b>คิวอาร์โค้ดสแกนรับสินค้า:</b><br />
+                  ยื่นให้พนักงานสแกนเมื่อถึงหน้าร้านเพื่อรับน้ำปั่นและสะสมแต้ม
+                </div>
+              </div>
+
               {order.order_status === 'Pending' && (
                 <button
                   type="button"
@@ -997,6 +1020,29 @@ export const CustomerPortal = () => {
                       <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--primary)' }}>
                         ฿{order.total_price}
                       </span>
+                    </div>
+
+                    {/* Order QR Code scanner guide */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      borderTop: '1px dashed var(--border)',
+                      paddingTop: '8px',
+                      marginTop: '8px'
+                    }}>
+                      <div style={{ backgroundColor: 'white', padding: '4px', border: '1px solid var(--border)', borderRadius: '8px', flexShrink: 0 }}>
+                        <QRCodeSVG 
+                          value={`TOM-ORDER:${order.id}`} 
+                          size={80} 
+                          level="M"
+                          includeMargin={true}
+                        />
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                        📌 <b>คิวอาร์โค้ดสแกนรับสินค้า:</b><br />
+                        ยื่นให้พนักงานสแกนเมื่อถึงหน้าร้านเพื่อรับน้ำปั่นและสะสมแต้ม
+                      </div>
                     </div>
 
                     {order.order_status === 'Pending' && (
