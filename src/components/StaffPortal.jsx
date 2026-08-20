@@ -114,6 +114,7 @@ export const StaffPortal = () => {
   
   // Point adjustment states
   const [cupsCount, setCupsCount] = useState(1);
+  const [orderCupsCount, setOrderCupsCount] = useState(1);
 
   // Real Camera Scanner Initialization
   useEffect(() => {
@@ -172,6 +173,11 @@ export const StaffPortal = () => {
         setScannedOrder(order);
         setFoundCustomer(null);
         setSearchMemberCode('');
+        
+        // Auto-calculate default cups count for the order points
+        const totalCups = order.items.reduce((sum, item) => sum + item.quantity, 0);
+        setOrderCupsCount(totalCups);
+        
         triggerToast(`พบข้อมูลออเดอร์จากการสแกน: #${orderId}`, 'success');
       } else {
         triggerToast(`ไม่พบข้อมูลออเดอร์ #${orderId} ในระบบ`, 'danger');
@@ -206,6 +212,19 @@ export const StaffPortal = () => {
       const updatedCust = users.find(u => u.id === foundCustomer.id);
       setFoundCustomer(updatedCust);
       setCupsCount(1);
+    }
+  };
+
+  const handleCreditOrderPoints = async () => {
+    if (!scannedOrder) return;
+    const customer = users.find(u => u.id === scannedOrder.customer_id);
+    if (!customer) {
+      triggerToast('ไม่พบข้อมูลลูกค้าสำหรับออเดอร์นี้', 'danger');
+      return;
+    }
+    const res = await scanLoyaltyQR(customer.member_code, 'EARN', orderCupsCount);
+    if (res.success) {
+      triggerToast(`บันทึกคะแนนสะสมให้คุณ ${customer.full_name} +${orderCupsCount} แต้มเรียบร้อย`, 'success');
     }
   };
 
@@ -743,6 +762,50 @@ export const StaffPortal = () => {
                     <span style={{ color: 'var(--primary)' }}>฿{scannedOrder.total_price} {scannedOrder.is_redeemed_free_cup && '(แลกฟรี)'}</span>
                   </div>
                 </div>
+
+                {/* Manual Point Credit Block for this order */}
+                {!scannedOrder.is_redeemed_free_cup && scannedOrder.order_status !== 'Completed' && scannedOrder.order_status !== 'Cancelled' && (
+                  <div style={{
+                    padding: '12px',
+                    backgroundColor: 'var(--success-light)',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(76, 175, 80, 0.2)',
+                    marginBottom: '12px'
+                  }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Award size={14} /> ⭐ บันทึกคะแนนสะสมให้ลูกค้าแมนนวล (+1 แต้มต่อแก้ว)
+                    </span>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                      <div style={{ display: 'flex', border: '1px solid var(--border)', borderRadius: '6px', backgroundColor: 'white' }}>
+                        <button 
+                          type="button"
+                          onClick={() => setOrderCupsCount(c => Math.max(1, c - 1))}
+                          style={{ border: 'none', background: 'none', padding: '4px 10px', cursor: 'pointer', fontWeight: 'bold' }}
+                        >
+                          -
+                        </button>
+                        <span style={{ padding: '4px 10px', fontWeight: 'bold', minWidth: '24px', textAlign: 'center', fontSize: '0.85rem' }}>{orderCupsCount}</span>
+                        <button 
+                          type="button"
+                          onClick={() => setOrderCupsCount(c => c + 1)}
+                          style={{ border: 'none', background: 'none', padding: '4px 10px', cursor: 'pointer', fontWeight: 'bold' }}
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>แก้ว</span>
+                      
+                      <button
+                        type="button"
+                        onClick={handleCreditOrderPoints}
+                        className="btn btn-primary"
+                        style={{ flex: 1, padding: '6px 12px', fontSize: '0.75rem', backgroundColor: 'var(--success)', borderColor: 'var(--success)' }}
+                      >
+                        สะสมแต้มออเดอร์นี้ (+{orderCupsCount} แต้ม)
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {scannedOrder.order_status === 'Pending' && (

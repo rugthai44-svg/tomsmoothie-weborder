@@ -33,6 +33,7 @@ export const CustomerPortal = () => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [pickupTime, setPickupTime] = useState('15 นาที');
   const [isRedeemed, setIsRedeemed] = useState(false);
+  const [expandedQrValue, setExpandedQrValue] = useState(null);
 
   useEffect(() => {
     const totalCups = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -361,7 +362,18 @@ export const CustomerPortal = () => {
                 paddingTop: '8px',
                 marginTop: '4px'
               }}>
-                <div style={{ backgroundColor: 'white', padding: '4px', border: '1px solid var(--border)', borderRadius: '8px', flexShrink: 0 }}>
+                <div 
+                  onClick={() => setExpandedQrValue(`TOM-ORDER:${order.id}`)}
+                  style={{ 
+                    backgroundColor: 'white', 
+                    padding: '4px', 
+                    border: '1px solid var(--border)', 
+                    borderRadius: '8px', 
+                    flexShrink: 0,
+                    cursor: 'zoom-in'
+                  }}
+                  title="คลิกเพื่อขยายคิวอาร์โค้ด"
+                >
                   <QRCodeSVG 
                     value={`TOM-ORDER:${order.id}`} 
                     size={80} 
@@ -851,14 +863,19 @@ export const CustomerPortal = () => {
                 เปิดให้พนักงานสแกนที่หน้าร้านเพื่อสะสมแต้ม หรือแลกแก้วฟรี
               </p>
               
-              <div style={{ 
-                padding: '16px', 
-                backgroundColor: 'white', 
-                border: '1px solid var(--border)',
-                borderRadius: '16px',
-                display: 'inline-block',
-                boxShadow: 'inset 0 0 10px rgba(0,0,0,0.02)'
-              }}>
+              <div 
+                onClick={() => setExpandedQrValue(currentUser.member_code)}
+                style={{ 
+                  padding: '16px', 
+                  backgroundColor: 'white', 
+                  border: '1px solid var(--border)',
+                  borderRadius: '16px',
+                  display: 'inline-block',
+                  boxShadow: 'inset 0 0 10px rgba(0,0,0,0.02)',
+                  cursor: 'zoom-in'
+                }}
+                title="คลิกเพื่อขยายคิวอาร์โค้ด"
+              >
                 <QRCodeSVG 
                   value={currentUser.member_code} 
                   size={180} 
@@ -1031,7 +1048,18 @@ export const CustomerPortal = () => {
                       paddingTop: '8px',
                       marginTop: '8px'
                     }}>
-                      <div style={{ backgroundColor: 'white', padding: '4px', border: '1px solid var(--border)', borderRadius: '8px', flexShrink: 0 }}>
+                      <div 
+                        onClick={() => setExpandedQrValue(`TOM-ORDER:${order.id}`)}
+                        style={{ 
+                          backgroundColor: 'white', 
+                          padding: '4px', 
+                          border: '1px solid var(--border)', 
+                          borderRadius: '8px', 
+                          flexShrink: 0,
+                          cursor: 'zoom-in'
+                        }}
+                        title="คลิกเพื่อขยายคิวอาร์โค้ด"
+                      >
                         <QRCodeSVG 
                           value={`TOM-ORDER:${order.id}`} 
                           size={80} 
@@ -1518,6 +1546,85 @@ export const CustomerPortal = () => {
           )}
         </button>
       </div>
+
+      {/* Expanded QR Code Modal Overlay */}
+      {expandedQrValue && (
+        <div 
+          onClick={() => setExpandedQrValue(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            animation: 'fade-in 0.2s ease',
+            padding: '16px'
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '20px',
+              padding: '24px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px',
+              maxWidth: '320px',
+              width: '100%',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+              textAlign: 'center',
+              animation: 'pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+            }}
+          >
+            <h4 style={{ color: 'var(--brown)', fontWeight: 800, fontSize: '1.1rem', margin: 0 }}>
+              คิวอาร์โค้ดขยายใหญ่
+            </h4>
+            
+            <div style={{ 
+              padding: '16px', 
+              backgroundColor: 'white', 
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+            }}>
+              <QRCodeSVG 
+                value={expandedQrValue} 
+                size={240} 
+                level="Q"
+                includeMargin={true}
+              />
+            </div>
+
+            <code style={{ 
+              backgroundColor: 'var(--brown-pale)', 
+              padding: '6px 12px', 
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              color: 'var(--brown)',
+              wordBreak: 'break-all'
+            }}>
+              {expandedQrValue}
+            </code>
+
+            <button 
+              type="button"
+              onClick={() => setExpandedQrValue(null)}
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '10px' }}
+            >
+              ปิดหน้าต่าง
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
