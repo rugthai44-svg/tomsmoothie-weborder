@@ -604,7 +604,86 @@ export const AppProvider = ({ children }) => {
     return fullOrder;
   };
 
+  // CUSTOMER: Cancel pending order
+  const cancelOrder = async (orderId) => {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) {
+      triggerToast('ไม่พบข้อมูลคำสั่งซื้อนี้', 'danger');
+      return { success: false, message: 'ไม่พบออเดอร์นี้' };
+    }
+    
+    if (order.order_status !== 'Pending') {
+      triggerToast('ไม่สามารถยกเลิกออเดอร์นี้ได้เนื่องจากร้านค้ากำลังเตรียมแล้ว', 'danger');
+      return { success: false, message: 'ไม่สามารถยกเลิกได้' };
+    }
+
+    // 1. Update order status to Cancelled in Supabase
+    const { error } = await supabase
+      .from('tomsmoothie_orders')
+      .update({ order_status: 'Cancelled' })
+      .eq('id', orderId);
+
+    if (error) {
+      console.error('Error cancelling order:', error);
+      triggerToast('เกิดข้อผิดพลาดในการยกเลิกออเดอร์', 'danger');
+      return { success: false };
+    }
+
+    // 2. Refund points if free cup was redeemed
+    let updatedSelf = { ...currentUser };
+    if (order.is_redeemed_free_cup) {
+      const nextPoints = currentUser.current_points + 10;
+      const { data: dbUser, error: userErr } = await supabase
+        .from('tomsmoothie_users')
+        .update({ current_points: nextPoints })
+        .eq('id', order.customer_id)
+        .select()
+        .single();
+
+      if (!userErr && dbUser) {
+        updatedSelf = dbUser;
+        setUsers(prev => prev.map(u => u.id === order.customer_id ? dbUser : u));
+        if (currentUser && currentUser.id === order.customer_id) {
+          setCurrentUser(dbUser);
+          localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+        }
+      }
+
+      // Record refund point transaction
+      const newTx = {
+        id: 'tx-' + Date.now(),
+        customer_id: order.customer_id,
+        customer_name: order.customer_name,
+        staff_id: 'system',
+        staff_email: 'ระบบอัตโนมัติ (แอป)',
+        order_id: orderId,
+        points_change: 10,
+        transaction_type: 'EARN',
+        created_at: new Date().toISOString()
+      };
+
+      const { data: dbTx } = await supabase
+        .from('tomsmoothie_point_transactions')
+        .insert([newTx])
+        .select()
+        .single();
+
+      if (dbTx) {
+        setTransactions(prev => [dbTx, ...prev]);
+      }
+      
+      sendLineNotification(order.customer_id, `🚫 ยกเลิกออเดอร์ #${orderId} คืนแต้มสะสม 10 แต้ม เรียบร้อยแล้ว (สะสมรวม: ${updatedSelf.current_points} แต้ม)`);
+    } else {
+      sendLineNotification(order.customer_id, `🚫 คำสั่งซื้อหมายเลข #${orderId} ถูกยกเลิกแล้ว`);
+    }
+
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, order_status: 'Cancelled' } : o));
+    triggerToast(`ยกเลิกออเดอร์ #${orderId} เรียบร้อยแล้ว`, 'success');
+    return { success: true };
+  };
+
   // STAFF: Update order status
+
   const updateOrderStatus = async (orderId, newStatus) => {
     const { error } = await supabase
       .from('tomsmoothie_orders')
@@ -1001,6 +1080,7 @@ export const AppProvider = ({ children }) => {
         resetDatabase,
         dailyClosings,
         submitDailyClosing,
+        cancelOrder,
       }}
     >
       {children}

@@ -16,7 +16,8 @@ export const CustomerPortal = () => {
     currentUser, 
     createOrder, 
     linkLineAccount, 
-    triggerToast 
+    triggerToast,
+    cancelOrder
   } = useApp();
 
   const [activeTab, setActiveTab] = useState(() => {
@@ -154,8 +155,14 @@ export const CustomerPortal = () => {
 
   // Filter current active orders and completed history
   const customerOrders = orders.filter(o => o.customer_id === currentUser.id);
-  const activeOrders = customerOrders.filter(o => o.order_status !== 'Completed');
-  const pastOrders = customerOrders.filter(o => o.order_status === 'Completed');
+  const activeOrders = customerOrders.filter(o => o.order_status !== 'Completed' && o.order_status !== 'Cancelled');
+  const pastOrders = customerOrders.filter(o => o.order_status === 'Completed' || o.order_status === 'Cancelled');
+
+  const handleCancelOrder = async (orderId) => {
+    if (confirm('คุณต้องการยกเลิกคำสั่งซื้อนี้ใช่หรือไม่? (กรณีใช้แต้มแลกซื้อ คะแนนจะคืนเข้าบัญชีของคุณทันที)')) {
+      await cancelOrder(orderId);
+    }
+  };
 
 
 
@@ -343,6 +350,38 @@ export const CustomerPortal = () => {
                 <span>🕒 รับสินค้าประมาณ: <strong style={{ color: 'var(--primary)' }}>{order.pickup_time}</strong></span>
                 <span>ยอดชำระ: <strong style={{ color: 'var(--primary)' }}>฿{order.total_price}</strong></span>
               </div>
+
+              {order.order_status === 'Pending' && (
+                <button
+                  type="button"
+                  onClick={() => handleCancelOrder(order.id)}
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    backgroundColor: 'var(--danger-light)',
+                    color: 'var(--danger)',
+                    border: '1px solid rgba(211, 47, 47, 0.2)',
+                    borderRadius: '8px',
+                    fontSize: '0.75rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px',
+                    marginTop: '8px',
+                    transition: 'var(--transition)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#fde8e8';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--danger-light)';
+                  }}
+                >
+                  🚫 ยกเลิกออเดอร์
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -911,6 +950,38 @@ export const CustomerPortal = () => {
                         ฿{order.total_price}
                       </span>
                     </div>
+
+                    {order.order_status === 'Pending' && (
+                      <button
+                        type="button"
+                        onClick={() => handleCancelOrder(order.id)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          backgroundColor: 'var(--danger-light)',
+                          color: 'var(--danger)',
+                          border: '1px solid rgba(211, 47, 47, 0.2)',
+                          borderRadius: '8px',
+                          fontSize: '0.78rem',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          marginTop: '12px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '4px',
+                          transition: 'var(--transition)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#fde8e8';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'var(--danger-light)';
+                        }}
+                      >
+                        🚫 ยกเลิกออเดอร์
+                      </button>
+                    )}
                   </div>
                 ))
               )}
@@ -933,7 +1004,12 @@ export const CustomerPortal = () => {
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                         วันที่: {new Date(order.created_at).toLocaleDateString('th-TH', { year: '2-digit', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} น.
                       </span>
-                      <span className="badge badge-completed">รับสำเร็จแล้ว</span>
+                      {order.order_status === 'Completed' && (
+                        <span className="badge badge-completed">รับสำเร็จแล้ว</span>
+                      )}
+                      {order.order_status === 'Cancelled' && (
+                        <span className="badge" style={{ backgroundColor: 'var(--danger-light)', color: 'var(--danger)' }}>ยกเลิกแล้ว</span>
+                      )}
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px dashed var(--border)', paddingBottom: '8px', marginBottom: '8px' }}>

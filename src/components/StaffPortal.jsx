@@ -206,7 +206,7 @@ export const StaffPortal = () => {
   };
 
   // Queue categorizations
-  const activeQueues = orders.filter(o => o.order_status !== 'Completed');
+  const activeQueues = orders.filter(o => o.order_status !== 'Completed' && o.order_status !== 'Cancelled');
   const pendingOrders = activeQueues.filter(o => o.order_status === 'Pending').reverse();
   const preparingOrders = activeQueues.filter(o => o.order_status === 'Preparing');
   const readyOrders = activeQueues.filter(o => o.order_status === 'Ready');
