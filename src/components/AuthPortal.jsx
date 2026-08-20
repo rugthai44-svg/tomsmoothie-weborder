@@ -208,34 +208,7 @@ export const AuthPortal = () => {
         </p>
       </div>
 
-      {/* 2. Global Role Selection Tabs */}
-      <div style={{ display: 'flex', borderBottom: '2px solid var(--border)', marginBottom: '4px', gap: '4px' }}>
-        {[
-          { id: 'CUSTOMER', label: '👤 ลูกค้า' },
-          { id: 'STAFF', label: '🧑‍🍳 พนักงาน' },
-          { id: 'ADMIN', label: '👑 แอดมิน' }
-        ].map((role) => (
-          <button
-            key={role.id}
-            type="button"
-            onClick={() => switchRoleTab(role.id)}
-            style={{
-              flex: 1,
-              padding: '12px 6px',
-              background: 'none',
-              border: 'none',
-              borderBottom: loginRole === role.id ? '3px solid var(--brown)' : '3px solid transparent',
-              color: loginRole === role.id ? 'var(--brown)' : 'var(--text-muted)',
-              fontWeight: 700,
-              fontSize: '0.95rem',
-              cursor: 'pointer',
-              transition: 'var(--transition)'
-            }}
-          >
-            {role.label}
-          </button>
-        ))}
-      </div>
+      {/* 2. Global Role Selection Tabs Removed */}
 
       <div className="card" style={{ padding: '28px 24px', margin: 0 }}>
         {loginRole === 'CUSTOMER' ? (
@@ -457,7 +430,110 @@ export const AuthPortal = () => {
             {isRegister ? 'ยืนยันสมัครสมาชิก' : 'เข้าสู่ระบบ'}
           </button>
         </form>
+
+        {/* Staff/Admin buttons below Customer Login form */}
+        {loginRole === 'CUSTOMER' && !isRegister && (
+          <div style={{ marginTop: '24px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              textAlign: 'center',
+              color: 'var(--text-muted)',
+              fontSize: '0.75rem',
+              marginBottom: '16px',
+              fontWeight: 600
+            }}>
+              <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border)' }}></div>
+              <span style={{ padding: '0 10px' }}>เข้าสู่ระบบสำหรับพนักงาน / แอดมิน</span>
+              <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border)' }}></div>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => switchRoleTab('STAFF')}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '10px 12px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border)',
+                  backgroundColor: 'var(--brown-pale)',
+                  color: 'var(--brown)',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  transition: 'var(--transition)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f0e6df';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--brown-pale)';
+                }}
+              >
+                🧑‍🍳 พนักงานร้าน
+              </button>
+              <button
+                type="button"
+                onClick={() => switchRoleTab('ADMIN')}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '10px 12px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border)',
+                  backgroundColor: 'var(--brown-pale)',
+                  color: 'var(--brown)',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  transition: 'var(--transition)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f0e6df';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--brown-pale)';
+                }}
+              >
+                👑 แอดมิน
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Back to Customer Login button for Staff/Admin */}
+        {loginRole !== 'CUSTOMER' && (
+          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => switchRoleTab('CUSTOMER')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--primary)',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                textDecoration: 'underline'
+              }}
+            >
+              👤 กลับสู่หน้าเข้าสู่ระบบสำหรับลูกค้า
+            </button>
+          </div>
+        )}
       </div>
+
 
       {/* Help footnote with testing accounts */}
       {!isRegister && (
