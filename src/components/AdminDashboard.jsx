@@ -61,7 +61,7 @@ export const AdminDashboard = () => {
   const revenueYearly = revenueMonthly * 12;
 
   // Best selling calculations
-  const smoothies = menuItems.filter(item => item.category === 'Smoothie');
+  const smoothies = menuItems.filter(item => ['Smoothie', 'Iced', 'Hot'].includes(item.category));
   const toppings = menuItems.filter(item => item.category === 'Topping');
   
   const sortedSellers = [...smoothies].sort((a, b) => b.total_sold_count - a.total_sold_count);
@@ -557,7 +557,7 @@ export const AdminDashboard = () => {
             {/* 1. SMOOTHIES TABLE */}
             <div className="card" style={{ padding: '16px 20px', margin: 0 }}>
               <h5 style={{ color: 'var(--brown)', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '12px' }}>
-                🥤 เมนูเครื่องดื่มปั่น (Smoothies)
+                🥤 รายการเครื่องดื่มทั้งหมด (ร้อน / เย็น / ปั่น)
               </h5>
               
               <div style={{ overflowX: 'auto' }}>
@@ -566,6 +566,7 @@ export const AdminDashboard = () => {
                     <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--text-muted)' }}>
                       <th style={{ padding: '8px 4px' }}>รูปภาพ</th>
                       <th style={{ padding: '8px' }}>ชื่อรายการ</th>
+                      <th style={{ padding: '8px', textAlign: 'center' }}>ประเภท</th>
                       <th style={{ padding: '8px' }}>ราคาตั้งต้น</th>
                       <th style={{ padding: '8px' }}>ยอดขายรวม</th>
                       <th style={{ padding: '8px' }}>ความนิยม</th>
@@ -578,6 +579,20 @@ export const AdminDashboard = () => {
                       <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
                         <td style={{ padding: '8px 4px', fontSize: '1.5rem' }}>{item.image_url}</td>
                         <td style={{ padding: '8px', fontWeight: 'bold', color: 'var(--brown)' }}>{item.name}</td>
+                        <td style={{ padding: '8px', textAlign: 'center' }}>
+                          <span style={{
+                            backgroundColor: 'var(--brown-pale)',
+                            color: 'var(--brown)',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            fontSize: '0.72rem',
+                            fontWeight: 'bold'
+                          }}>
+                            {item.category === 'Smoothie' && '🥤 ปั่น'}
+                            {item.category === 'Iced' && '🍹 เย็น'}
+                            {item.category === 'Hot' && '☕ ร้อน'}
+                          </span>
+                        </td>
                         <td style={{ padding: '8px' }}>฿{item.base_price}</td>
                         <td style={{ padding: '8px' }}>{item.total_sold_count} แก้ว</td>
                         <td style={{ padding: '8px' }}>
@@ -1019,6 +1034,8 @@ export const AdminDashboard = () => {
                   style={{ appearance: 'auto' }}
                 >
                   <option value="Smoothie">🥤 เครื่องดื่มปั่น (Smoothie)</option>
+                  <option value="Iced">🍹 เครื่องดื่มเย็น (Iced)</option>
+                  <option value="Hot">☕ เครื่องดื่มร้อน (Hot)</option>
                   <option value="Topping">🍒 ท็อปปิ้ง (Topping)</option>
                 </select>
               </div>
@@ -1047,7 +1064,7 @@ export const AdminDashboard = () => {
                 />
               </div>
 
-              {menuFormCategory === 'Smoothie' && (
+              {['Smoothie', 'Iced', 'Hot'].includes(menuFormCategory) && (
                 <>
                   <div className="form-group" style={{ margin: 0 }}>
                     <label>อีโมจิประกอบ (Emoji)</label>

@@ -110,6 +110,78 @@ const INITIAL_MENU = [
     is_available: true,
     total_sold_count: 65
   },
+  // Iced drinks
+  {
+    id: 'm-iced-1',
+    name: 'ชาไทยนมสดเย็น (Iced Thai Milk Tea)',
+    category: 'Iced',
+    base_price: 50,
+    image_url: '🍹',
+    is_popular: true,
+    is_available: true,
+    total_sold_count: 85
+  },
+  {
+    id: 'm-iced-2',
+    name: 'ชาเขียวมัทฉะเย็น (Iced Matcha Latte)',
+    category: 'Iced',
+    base_price: 55,
+    image_url: '🍵',
+    is_popular: false,
+    is_available: true,
+    total_sold_count: 60
+  },
+  {
+    id: 'm-iced-3',
+    name: 'กาแฟเอสเปรสโซ่เย็น (Iced Espresso)',
+    category: 'Iced',
+    base_price: 55,
+    image_url: '🥤',
+    is_popular: false,
+    is_available: true,
+    total_sold_count: 70
+  },
+  {
+    id: 'm-iced-4',
+    name: 'นมสดสตรอว์เบอร์รีเย็น (Iced Strawberry Milk)',
+    category: 'Iced',
+    base_price: 50,
+    image_url: '🥛',
+    is_popular: true,
+    is_available: true,
+    total_sold_count: 90
+  },
+  // Hot drinks
+  {
+    id: 'm-hot-1',
+    name: 'โกโก้ร้อน (Hot Cocoa)',
+    category: 'Hot',
+    base_price: 45,
+    image_url: '☕',
+    is_popular: false,
+    is_available: true,
+    total_sold_count: 35
+  },
+  {
+    id: 'm-hot-2',
+    name: 'กาแฟคาปูชิโน่ร้อน (Hot Cappuccino)',
+    category: 'Hot',
+    base_price: 50,
+    image_url: '☕',
+    is_popular: true,
+    is_available: true,
+    total_sold_count: 45
+  },
+  {
+    id: 'm-hot-3',
+    name: 'นมสดน้ำผึ้งร้อน (Hot Honey Milk)',
+    category: 'Hot',
+    base_price: 40,
+    image_url: '🥛',
+    is_popular: false,
+    is_available: true,
+    total_sold_count: 20
+  },
   // Toppings (stored as distinct entities)
   {
     id: 't-1',

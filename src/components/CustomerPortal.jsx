@@ -53,8 +53,9 @@ export const CustomerPortal = () => {
   if (!currentUser) return null;
 
   // Filter smoothies and toppings
-  const smoothies = menuItems.filter(item => item.category === 'Smoothie');
+  const smoothies = menuItems.filter(item => ['Smoothie', 'Iced', 'Hot'].includes(item.category));
   const toppings = menuItems.filter(item => item.category === 'Topping' && item.is_available);
+  const [selectedCategory, setSelectedCategory] = useState('ALL'); // 'ALL' | 'Smoothie' | 'Iced' | 'Hot'
 
   // Calculate 5 Best Sellers
   const bestSellers = [...smoothies]
@@ -500,11 +501,46 @@ export const CustomerPortal = () => {
 
               {/* Categorized Menu List */}
               <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem', marginBottom: '12px' }}>
-                🥤 เมนูเครื่องดื่มปั่นทั้งหมด
+                🥤 เลือกประเภทเครื่องดื่ม
               </h4>
+
+              {/* Category Filter Pills */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+                {[
+                  { id: 'ALL', label: '🥤 ทั้งหมด', color: 'var(--brown)' },
+                  { id: 'Smoothie', label: '🍧 เมนูปั่น', color: 'var(--primary)' },
+                  { id: 'Iced', label: '🍹 เมนูเย็น', color: 'var(--info)' },
+                  { id: 'Hot', label: '☕ เมนูร้อน', color: 'var(--warning)' }
+                ].map(cat => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat.id)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      border: '1px solid var(--border)',
+                      backgroundColor: selectedCategory === cat.id ? 'var(--brown)' : 'white',
+                      color: selectedCategory === cat.id ? 'white' : 'var(--text)',
+                      fontWeight: 'bold',
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      transition: 'var(--transition)',
+                      whiteSpace: 'nowrap',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {smoothies.map(item => (
+                {smoothies
+                  .filter(item => selectedCategory === 'ALL' || item.category === selectedCategory)
+                  .map(item => (
                   <div 
                     key={item.id}
                     onClick={() => openCustomizer(item)}
@@ -537,6 +573,18 @@ export const CustomerPortal = () => {
                           {item.name}
                         </h5>
                         <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
+                          <span style={{
+                            fontSize: '0.65rem',
+                            backgroundColor: 'var(--brown-pale)',
+                            color: 'var(--brown)',
+                            padding: '1px 6px',
+                            borderRadius: '4px',
+                            fontWeight: 'bold'
+                          }}>
+                            {item.category === 'Smoothie' && 'ปั่น'}
+                            {item.category === 'Iced' && 'เย็น'}
+                            {item.category === 'Hot' && 'ร้อน'}
+                          </span>
                           {item.is_popular && (
                             <span style={{ fontSize: '0.65rem', backgroundColor: 'var(--warning-light)', color: 'var(--warning)', padding: '1px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
                               ยอดฮิต

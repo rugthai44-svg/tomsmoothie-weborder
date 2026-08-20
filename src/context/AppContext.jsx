@@ -807,7 +807,7 @@ export const AppProvider = ({ children }) => {
       name: item.name,
       category: item.category,
       base_price: Number(item.base_price),
-      image_url: item.category === 'Smoothie' ? (item.image_url || '🥤') : null,
+      image_url: ['Smoothie', 'Iced', 'Hot'].includes(item.category) ? (item.image_url || '🥤') : null,
       is_popular: !!item.is_popular,
       is_available: true,
       total_sold_count: 0
