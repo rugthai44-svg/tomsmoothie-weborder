@@ -535,26 +535,6 @@ export const AuthPortal = () => {
       </div>
 
 
-      {/* Help footnote with testing accounts */}
-      {!isRegister && (
-        <div style={{ 
-          textAlign: 'center', 
-          marginTop: '16px', 
-          fontSize: '0.7rem', 
-          color: 'var(--text-muted)',
-          lineHeight: 1.5,
-          backgroundColor: 'var(--brown-pale)',
-          padding: '10px',
-          borderRadius: 'var(--radius-md)',
-          border: '1px dashed var(--border)'
-        }}>
-          💡 <b>ข้อมูลทดสอบระบบ:</b><br />
-          • ลูกค้า: <code style={{ backgroundColor: '#fff', padding: '1px 3px', borderRadius: '3px' }}>customer1@tomsmoothie.com</code> (รหัส: cust123)<br />
-          • พนักงาน: <code style={{ backgroundColor: '#fff', padding: '1px 3px', borderRadius: '3px' }}>staff1@tomsmoothie.com</code> (รหัส: staff123)<br />
-          • แอดมิน: <code style={{ backgroundColor: '#fff', padding: '1px 3px', borderRadius: '3px' }}>admin@tomsmoothie.com</code> (รหัส: admin123)
-        </div>
-      )}
-
       {/* Simulated Google Accounts Chooser Modal */}
       {isGoogleModalOpen && (
         <div style={{
