@@ -350,7 +350,7 @@ export const StaffPortal = () => {
                     />
                   </div>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label>ผู้ปิดกะ (พนักงาน)</label>
+                    <label>พนักงาน</label>
                     <input 
                       type="text" 
                       className="form-input" 

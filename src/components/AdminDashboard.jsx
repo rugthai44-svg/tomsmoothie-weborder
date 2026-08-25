@@ -482,7 +482,7 @@ export const AdminDashboard = () => {
                   <thead>
                     <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--text-muted)' }}>
                       <th style={{ padding: '10px 8px' }}>วันที่</th>
-                      <th style={{ padding: '10px 8px' }}>ผู้ปิดกะ</th>
+                      <th style={{ padding: '10px 8px' }}>พนักงาน</th>
                       <th style={{ padding: '10px 8px', textAlign: 'center' }}>แก้วที่ขายได้</th>
                       <th style={{ padding: '10px 8px', textAlign: 'center' }}>แลกฟรี</th>
                       <th style={{ padding: '10px 8px', textAlign: 'right' }}>ยอดขายระบบ</th>

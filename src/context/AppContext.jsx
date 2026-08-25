@@ -1028,7 +1028,7 @@ export const AppProvider = ({ children }) => {
         }
       } catch (e) {}
 
-      const lineMessage = `🔔 สรุปยอดขายประจำวัน - ร้านน้ำปั่นพี่ต้อม\n📅 วันที่: ${formattedDate}\n👤 ผู้ปิดกะ: ${closingData.staff_name}\n🥤 ขายได้: ${closingData.cups_sold} แก้ว (แลกฟรี: ${closingData.free_cups_redeemed} แก้ว)\n💵 ยอดขายรวม: ${closingData.total_revenue} บาท\n📝 หมายเหตุ: ${closingData.notes || 'ไม่มี'}`;
+      const lineMessage = `🔔 สรุปยอดขายประจำวัน - ร้านน้ำปั่นพี่ต้อม\n📅 วันที่: ${formattedDate}\n👤 พนักงาน: ${closingData.staff_name}\n🥤 ขายได้: ${closingData.cups_sold} แก้ว (แลกฟรี: ${closingData.free_cups_redeemed} แก้ว)\n💵 ยอดขายรวม: ${closingData.total_revenue} บาท\n📝 หมายเหตุ: ${closingData.notes || 'ไม่มี'}`;
       
       sendLineNotification(adminUser.id, lineMessage);
     }
