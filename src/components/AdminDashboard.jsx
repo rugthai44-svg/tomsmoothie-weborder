@@ -156,14 +156,6 @@ export const AdminDashboard = () => {
             จัดการเครื่องดื่ม ตรวจสอบยอดขาย คิวออเดอร์ และสิทธิ์พนักงานหน้าร้าน
           </p>
         </div>
-        
-        <button 
-          onClick={resetDatabase}
-          className="btn btn-outline"
-          style={{ width: 'auto', fontSize: '0.75rem', padding: '8px 12px', borderStyle: 'dashed', borderColor: 'var(--primary)' }}
-        >
-          <RefreshCw size={12} /> รีเซ็ตฐานข้อมูลตั้งต้น
-        </button>
       </div>
 
       {/* Tabs */}
