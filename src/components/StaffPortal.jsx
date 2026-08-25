@@ -334,7 +334,7 @@ export const StaffPortal = () => {
             {/* ================= STAFF: CLOSE SHIFT FORM ================= */}
             <div className="card" style={{ margin: 0 }}>
               <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '1.1rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <CheckSquare size={18} /> รายงานปิดกะและยอดขายประจำวัน
+                <CheckSquare size={18} /> แสดงรายงานสรุปยอดขายประจำวัน
               </h4>
 
               <form onSubmit={handleCloseShiftSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

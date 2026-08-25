@@ -469,7 +469,7 @@ export const AdminDashboard = () => {
           {/* Recent Shift Closings Table */}
           <div className="card" style={{ marginTop: '20px', margin: '20px 0 0 0' }}>
             <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Clock size={16} /> ประวัติการปิดกะและยอดขายล่าสุด
+              <Clock size={16} /> แสดงรายงานสรุปยอดขายประจำวันล่าสุด
             </h4>
 
             {(!dailyClosings || dailyClosings.length === 0) ? (
