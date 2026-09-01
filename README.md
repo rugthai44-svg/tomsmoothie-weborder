@@ -1,16 +1,54 @@
-# React + Vite
+# 🍹 ร้านน้ำปั่นพี่ต้อม (TomSmoothie WebOrder & Points)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+ระบบสั่งเครื่องดื่มออนไลน์ สะสมแต้มดิจิทัล และระบบจัดการหน้าร้าน/หลังบ้าน พัฒนาด้วย **PHP + MySQL / SQLite + HTML5 + CSS + JavaScript**
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🌟 ฟีเจอร์หลักของระบบ (Key Features)
 
-## React Compiler
+1. **👤 หน้าลูกค้า (Customer Portal - `customer.php`)**:
+   - เลือกดูเมนูเครื่องดื่มแยกตามหมวดหมู่ (Smoothie, Iced, Hot) พร้อม 5 เมนูขายดี
+   - ปรับแต่งระดับความหวาน (0%, 25%, 50%, 100%, 125%) และเลือกท็อปปิ้ง (+10฿)
+   - ตะกร้าสินค้า และระบบแลกรับเครื่องดื่มฟรี 1 แก้วเมื่อสะสมครบ 10 แต้ม
+   - ติดตามสถานะออเดอร์แบบสด (Live Queue Tracker) พร้อม QR Code สำหรับรับสินค้า
+   - บัตรสะสมแต้มดิจิทัล 10 ช่อง (Digital Stamp Card) และ QR Code สมาชิก
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. **🧑‍🍳 หน้าพนักงานร้าน (Staff Portal - `staff.php`)**:
+   - คิวรับออเดอร์หน้าร้าน กดเปลี่ยนสถานะ "เริ่มปั่น" ➔ "พร้อมรับ" ➔ "ส่งมอบสำเร็จ (+แต้ม)"
+   - **กล้องสแกน QR Code (Camera Scanner)**: สแกนบัตรสมาชิกลูกค้าเพื่อเพิ่มแต้มสะสม (+1, +2, +3, +5) หรือกดแลกแก้วฟรี (หัก 10 แต้ม)
+   - ปิดยอดกะประจำวัน สรุปยอดขาย จำนวนแก้ว ยอดเงินสด
 
-## Expanding the Oxlint configuration
+3. **👑 หน้าแอดมิน (Admin Dashboard - `admin.php`)**:
+   - แดชบอร์ดสรุปสถิติรายได้, ลูกค้า, แก้วที่แลกฟรี, และกราฟอันดับเมนูขายดี
+   - จัดการเมนู (เพิ่ม/แก้ไข/ลบ และเปิด-ปิดสต็อกสินค้าหมด)
+   - จัดการพนักงาน (เพิ่มบัญชีพนักงานใหม่, เปิด-ปิดสถานะ)
+   - จัดการแต้มลูกค้า (ค้นหาและปรับแต้มด้วยมือ)
+   - ส่งออกรายงานปิดยอดประจำวันเป็นไฟล์ Excel (CSV)
+   - รีเซ็ตฐานข้อมูลเป็นค่าเริ่มต้น
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+---
+
+## 🚀 วิธีการติดตั้งและรันระบบ (How to Run)
+
+### 🔹 วิธีที่ 1: รันด้วย PHP Built-in Server
+```bash
+php -S localhost:8000
+```
+เปิดเบราว์เซอร์ไปที่: `http://localhost:8000`
+
+### 🔹 วิธีที่ 2: รันผ่าน XAMPP (Apache + MySQL)
+1. นำโฟลเดอร์โปรเจกต์นี้ไปวางไว้ใน `C:\xampp\htdocs\tomsmoothie\`
+2. เปิด **XAMPP Control Panel** และกด Start **Apache** และ **MySQL**
+3. เข้า **phpMyAdmin** (`http://localhost:8080/phpmyadmin/` หรือ `http://localhost/phpmyadmin/`)
+4. สร้างฐานข้อมูลชื่อ `tomsmoothie_db` และ Import ไฟล์ `config/schema.sql`
+5. เปิดเบราว์เซอร์ไปที่: `http://localhost:8080/tomsmoothie/` หรือ `http://localhost/tomsmoothie/`
+
+---
+
+## 🔑 บัญชีทดสอบระบบ (Demo Accounts)
+
+| บทบาท | อีเมล (Email) | รหัสผ่าน (Password) |
+| :--- | :--- | :--- |
+| **👑 แอดมิน (Admin)** | `admin@tomsmoothie.com` | `TomAdmin@99!` |
+| **🧑‍🍳 พนักงาน (Staff)** | `staff@tomsmoothie.com` | `staff123` |
+| **👤 ลูกค้า (Customer)** | `customer1@tomsmoothie.com` | `cust123` |
