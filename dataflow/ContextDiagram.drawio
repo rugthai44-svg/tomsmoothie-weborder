@@ -1,0 +1,445 @@
+<mxfile host="Electron" modified="2026-09-07T15:10:00.000Z" agent="Antigravity" version="21.0.0" type="device">
+  <diagram id="ContextDiagram-TomSmoothie" name="Context Diagram">
+    <mxGraphModel dx="1600" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1250" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ================= ENTITY 1: สมาชิก ================= -->
+        <mxCell id="entity_member" value="&lt;b style=&quot;font-size: 18px;&quot;&gt;สมาชิก&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="60" y="40" width="220" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- ================= ENTITY 2: ผู้ดูแลระบบ ================= -->
+        <mxCell id="entity_admin" value="&lt;b style=&quot;font-size: 18px;&quot;&gt;ผู้ดูแลระบบ&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="290" width="200" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- ================= ENTITY 3: พนักงาน ================= -->
+        <mxCell id="entity_staff" value="&lt;b style=&quot;font-size: 18px;&quot;&gt;พนักงาน&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="60" y="750" width="220" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- ================= CENTRAL PROCESS (PROCESS 0) ================= -->
+        <!-- Process 0 Outer Box with Rounded Corners -->
+        <mxCell id="process_0" value="" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="460" y="280" width="380" height="240" as="geometry" />
+        </mxCell>
+        <!-- Horizontal Divider Line -->
+        <mxCell id="process_0_line" value="" style="endArrow=none;html=1;strokeColor=#000000;strokeWidth=1.5;exitX=0;exitY=0.35;exitDx=0;exitDy=0;entryX=1;entryY=0.35;entryDx=0;entryDy=0;" edge="1" parent="1" source="process_0" target="process_0">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="364" as="sourcePoint" />
+            <mxPoint x="840" y="364" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <!-- Process 0 Top Label -->
+        <mxCell id="process_0_id" value="0" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="460" y="300" width="380" height="40" as="geometry" />
+        </mxCell>
+        <!-- Process 0 Name Label -->
+        <mxCell id="process_0_name" value="&lt;b style=&quot;font-size: 15px;&quot;&gt;ระบบสั่งจองเครื่องดื่มล่วงหน้าและสะสม&lt;br/&gt;แต้มสมาชิกดิจิทัลร้านน้ำปั่นพี่ต้อม&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="465" y="380" width="370" height="120" as="geometry" />
+        </mxCell>
+
+
+        <!-- ================= 1.5.1.1 สมาชิก -> PROCESS 0 (INFLOWS - 5 เส้น) ================= -->
+        <!-- 1. ข้อมูลการเข้าสู่ระบบสมาชิก -->
+        <mxCell id="flow_mem_in_1" value="ข้อมูลการเข้าสู่ระบบสมาชิก" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="10" relative="1" as="geometry">
+            <mxPoint x="280" y="40" as="sourcePoint" />
+            <mxPoint x="650" y="280" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="650" y="40" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. ข้อมูลสมาชิก -->
+        <mxCell id="flow_mem_in_2" value="ข้อมูลสมาชิก" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="10" relative="1" as="geometry">
+            <mxPoint x="280" y="70" as="sourcePoint" />
+            <mxPoint x="615" y="280" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="615" y="70" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. ข้อมูลรายการสั่งซื้อล่วงหน้า -->
+        <mxCell id="flow_mem_in_3" value="ข้อมูลรายการสั่งซื้อล่วงหน้า" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="10" relative="1" as="geometry">
+            <mxPoint x="280" y="100" as="sourcePoint" />
+            <mxPoint x="580" y="280" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="580" y="100" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. ข้อมูลการยกเลิกคำสั่งซื้อ -->
+        <mxCell id="flow_mem_in_4" value="ข้อมูลการยกเลิกคำสั่งซื้อ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="10" relative="1" as="geometry">
+            <mxPoint x="280" y="130" as="sourcePoint" />
+            <mxPoint x="545" y="280" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="545" y="130" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. ข้อมูลการใช้สิทธ์แลกแต้ม -->
+        <mxCell id="flow_mem_in_5" value="ข้อมูลการใช้สิทธ์แลกแต้ม" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="10" relative="1" as="geometry">
+            <mxPoint x="280" y="160" as="sourcePoint" />
+            <mxPoint x="510" y="280" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="510" y="160" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+
+        <!-- ================= 1.5.1.3 PROCESS 0 -> สมาชิก (OUTFLOWS - 7 เส้น) ================= -->
+        <!-- 1. แสดงผลการเข้าสู่ระบบสมาชิก -->
+        <mxCell id="flow_mem_out_1" value="แสดงผลการเข้าสู่ระบบสมาชิก" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.3" y="-10" relative="1" as="geometry">
+            <mxPoint x="460" y="500" as="sourcePoint" />
+            <mxPoint x="75" y="170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="75" y="500" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. แสดงยอดชำระเงินคำสั่งซื้อ -->
+        <mxCell id="flow_mem_out_2" value="แสดงยอดชำระเงินคำสั่งซื้อ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.3" y="-10" relative="1" as="geometry">
+            <mxPoint x="460" y="300" as="sourcePoint" />
+            <mxPoint x="260" y="170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="260" y="300" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. แสดงแต้มสะสม -->
+        <mxCell id="flow_mem_out_3" value="แสดงแต้มสะสม" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.2" y="-10" relative="1" as="geometry">
+            <mxPoint x="480" y="280" as="sourcePoint" />
+            <mxPoint x="280" y="170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="480" y="235" />
+              <mxPoint x="280" y="235" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. แสดงคิวอาร์โค้ดสมาชิก -->
+        <mxCell id="flow_mem_out_4" value="แสดงคิวอาร์โค้ดสมาชิก" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.3" y="-10" relative="1" as="geometry">
+            <mxPoint x="460" y="415" as="sourcePoint" />
+            <mxPoint x="170" y="170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="170" y="415" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. แสดงผลแจ้งเตือนสถานะคำสั่งซื้อ -->
+        <mxCell id="flow_mem_out_5" value="แสดงผลแจ้งเตือนสถานะคำสั่งซื้อ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.3" y="-10" relative="1" as="geometry">
+            <mxPoint x="460" y="450" as="sourcePoint" />
+            <mxPoint x="135" y="170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="135" y="450" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6. แสดงการยกเลิกคำสั่งซื้อ -->
+        <mxCell id="flow_mem_out_6" value="แสดงการยกเลิกคำสั่งซื้อ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.3" y="-10" relative="1" as="geometry">
+            <mxPoint x="460" y="340" as="sourcePoint" />
+            <mxPoint x="230" y="170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="230" y="340" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 7. แสดงผลการใช้สิทธ์แลกแต้ม -->
+        <mxCell id="flow_mem_out_7" value="แสดงผลการใช้สิทธ์แลกแต้ม" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.3" y="-10" relative="1" as="geometry">
+            <mxPoint x="460" y="380" as="sourcePoint" />
+            <mxPoint x="200" y="170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="200" y="380" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+
+        <!-- ================= 1.5.3.1 ผู้ดูแลระบบ -> PROCESS 0 (INFLOWS - 4 เส้น) ================= -->
+        <!-- 1. ข้อมูลการเข้าสู่ระบบผู้ดูแล -->
+        <mxCell id="flow_adm_in_1" value="ข้อมูลการเข้าสู่ระบบผู้ดูแล" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="-10" relative="1" as="geometry">
+            <mxPoint x="1410" y="290" as="sourcePoint" />
+            <mxPoint x="670" y="280" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1410" y="40" />
+              <mxPoint x="670" y="40" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. ข้อมูลสมาชิก -->
+        <mxCell id="flow_adm_in_2" value="ข้อมูลสมาชิก" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="-10" relative="1" as="geometry">
+            <mxPoint x="1360" y="290" as="sourcePoint" />
+            <mxPoint x="710" y="280" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1360" y="80" />
+              <mxPoint x="710" y="80" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. ข้อมูลจัดการเมนูรายการเครื่องดื่ม -->
+        <mxCell id="flow_adm_in_3" value="ข้อมูลจัดการเมนูรายการเครื่องดื่ม" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="-10" relative="1" as="geometry">
+            <mxPoint x="1310" y="290" as="sourcePoint" />
+            <mxPoint x="750" y="280" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1310" y="125" />
+              <mxPoint x="750" y="125" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. ข้อมูลสิทธิ์การใช้งานของบัญชีพนักงาน -->
+        <mxCell id="flow_adm_in_4" value="ข้อมูลสิทธิ์การใช้งานของบัญชีพนักงาน" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="-10" relative="1" as="geometry">
+            <mxPoint x="1260" y="290" as="sourcePoint" />
+            <mxPoint x="790" y="280" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1260" y="170" />
+              <mxPoint x="790" y="170" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+
+        <!-- ================= 1.5.3.3 PROCESS 0 -> ผู้ดูแลระบบ (OUTFLOWS - 5 เส้น) ================= -->
+        <!-- 1. แสดงผลการเข้าระบบผู้ดูแลระบบ -->
+        <mxCell id="flow_adm_out_1" value="แสดงผลการเข้าระบบผู้ดูแลระบบ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="840" y="325" as="sourcePoint" />
+            <mxPoint x="1240" y="325" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. แสดงผลยอดขายรายวัน/อาทิตย์/เดือน/ปี -->
+        <mxCell id="flow_adm_out_2" value="แสดงผลยอดขายรายวัน/อาทิตย์/เดือน/ปี" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="840" y="405" as="sourcePoint" />
+            <mxPoint x="1240" y="405" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. แสดงผลแต้มสะสมของสมาชิกในแต่ละราย -->
+        <mxCell id="flow_adm_out_3" value="แสดงผลแต้มสะสมของสมาชิกในแต่ละราย" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.3" y="10" relative="1" as="geometry">
+            <mxPoint x="840" y="495" as="sourcePoint" />
+            <mxPoint x="1270" y="480" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1270" y="495" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. แสดงผลประวัติการใช้สิทธ์แลกแต้มของสมาชิก -->
+        <mxCell id="flow_adm_out_4" value="แสดงผลประวัติการใช้สิทธ์แลกแต้มของสมาชิก" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.3" y="10" relative="1" as="geometry">
+            <mxPoint x="840" y="555" as="sourcePoint" />
+            <mxPoint x="1330" y="480" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1330" y="555" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. แสดงผลเรียงลำดับอาหารเครื่องดื่มขายดี 5 อันดับ -->
+        <mxCell id="flow_adm_out_5" value="แสดงผลเรียงลำดับอาหารเครื่องดื่มขายดี 5 อันดับ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.3" y="10" relative="1" as="geometry">
+            <mxPoint x="825" y="620" as="sourcePoint" />
+            <mxPoint x="1390" y="480" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1390" y="620" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <!-- Connector line to 620 -->
+        <mxCell id="flow_adm_out_5_seg" value="" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="825" y="520" as="sourcePoint" />
+            <mxPoint x="825" y="620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+
+        <!-- ================= 1.5.2.1 พนักงาน -> PROCESS 0 (INFLOWS - 5 เส้น) ================= -->
+        <!-- 1. ข้อมูลการเข้าสู่ระบบของพนักงาน -->
+        <mxCell id="flow_stf_in_1" value="ข้อมูลการเข้าสู่ระบบของพนักงาน" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.2" y="-10" relative="1" as="geometry">
+            <mxPoint x="60" y="540" as="sourcePoint" />
+            <mxPoint x="460" y="540" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <!-- Staff line to 540 -->
+        <mxCell id="flow_stf_in_1_seg" value="" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=none;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="60" y="750" as="sourcePoint" />
+            <mxPoint x="60" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. ข้อมูลการปรับเปลี่ยนสถานะคำสั่งซื้อ -->
+        <mxCell id="flow_stf_in_2" value="ข้อมูลการปรับเปลี่ยนสถานะคำสั่งซื้อ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="10" relative="1" as="geometry">
+            <mxPoint x="110" y="750" as="sourcePoint" />
+            <mxPoint x="500" y="520" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="110" y="585" />
+              <mxPoint x="500" y="585" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. ข้อมูลการปรับเปลี่ยนแต้มสะสมของสมาชิก -->
+        <mxCell id="flow_stf_in_3" value="ข้อมูลการปรับเปลี่ยนแต้มสะสมของสมาชิก" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="10" relative="1" as="geometry">
+            <mxPoint x="160" y="750" as="sourcePoint" />
+            <mxPoint x="545" y="520" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="160" y="630" />
+              <mxPoint x="545" y="630" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. ข้อมูลบันทึกสรุปยอดขายประจำวัน -->
+        <mxCell id="flow_stf_in_4" value="ข้อมูลบันทึกสรุปยอดขายประจำวัน" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="10" relative="1" as="geometry">
+            <mxPoint x="210" y="750" as="sourcePoint" />
+            <mxPoint x="590" y="520" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="210" y="675" />
+              <mxPoint x="590" y="675" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. ข้อมูลการใช้สิทธ์แลกแต้มของสมาชิก -->
+        <mxCell id="flow_stf_in_5" value="ข้อมูลการใช้สิทธ์แลกแต้มของสมาชิก" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="10" relative="1" as="geometry">
+            <mxPoint x="260" y="750" as="sourcePoint" />
+            <mxPoint x="635" y="520" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="260" y="720" />
+              <mxPoint x="635" y="720" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+
+        <!-- ================= 1.5.2.3 PROCESS 0 -> พนักงาน (OUTFLOWS - 5 เส้น) ================= -->
+        <!-- 1. แสดงผลการเข้าสู่ระบบข้อมูลพนักงาน -->
+        <mxCell id="flow_stf_out_1" value="แสดงผลการเข้าสู่ระบบข้อมูลพนักงาน" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.2" y="-10" relative="1" as="geometry">
+            <mxPoint x="675" y="520" as="sourcePoint" />
+            <mxPoint x="280" y="800" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="675" y="800" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. แสดงผลข้อมูลคำสั่งซื้อที่รอดำเนินการ -->
+        <mxCell id="flow_stf_out_2" value="แสดงผลข้อมูลคำสั่งซื้อที่รอดำเนินการ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.2" y="-10" relative="1" as="geometry">
+            <mxPoint x="705" y="520" as="sourcePoint" />
+            <mxPoint x="280" y="845" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="705" y="845" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. แสดงผลกระบวนการจัดเตรียมเครื่องดื่ม -->
+        <mxCell id="flow_stf_out_3" value="แสดงผลกระบวนการจัดเตรียมเครื่องดื่ม" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.2" y="-10" relative="1" as="geometry">
+            <mxPoint x="735" y="520" as="sourcePoint" />
+            <mxPoint x="280" y="890" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="735" y="890" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. แสดงผลแต้มสะสมของสมาชิกที่สแกนด้วยกล้อง -->
+        <mxCell id="flow_stf_out_4" value="แสดงผลแต้มสะสมของสมาชิกที่สแกนด้วยกล้อง" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.3" y="10" relative="1" as="geometry">
+            <mxPoint x="765" y="520" as="sourcePoint" />
+            <mxPoint x="245" y="930" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="765" y="960" />
+              <mxPoint x="245" y="960" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. รายงานข้อมูลการขาย ประจำวัน -->
+        <mxCell id="flow_stf_out_5" value="รายงานข้อมูลการขาย ประจำวัน" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="-0.3" y="10" relative="1" as="geometry">
+            <mxPoint x="795" y="520" as="sourcePoint" />
+            <mxPoint x="180" y="930" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="795" y="1010" />
+              <mxPoint x="180" y="1010" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

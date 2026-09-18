@@ -321,7 +321,7 @@ export const StaffPortal = () => {
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
           >
             <Clock size={16} />
-            ปิดกะประจำวัน
+            ปิดยอดขายประจำวัน
           </button>
         </div>
       </div>

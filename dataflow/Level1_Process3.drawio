@@ -1,0 +1,283 @@
+<mxfile host="Electron" modified="2026-09-08T08:50:00.000Z" agent="Antigravity" version="21.0.0" type="device">
+  <diagram id="DFD-Level1-Process3" name="Level 1 Process 3">
+    <mxGraphModel dx="1600" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1550" pageHeight="950" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ========================================================================= -->
+        <!-- PROCESS 3.1: การแสดงข้อมูลยอดขายและสถิติรายได้                                -->
+        <!-- ========================================================================= -->
+        <!-- Process 3.1 Box -->
+        <mxCell id="proc_3_1" value="" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="470" y="70" width="240" height="90" as="geometry" />
+        </mxCell>
+        <!-- Horizontal Divider Line -->
+        <mxCell id="proc_3_1_line" value="" style="endArrow=none;html=1;strokeColor=#000000;strokeWidth=1.5;exitX=0;exitY=0.333;exitDx=0;exitDy=0;entryX=1;entryY=0.333;entryDx=0;entryDy=0;" edge="1" parent="1" source="proc_3_1" target="proc_3_1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="100" as="sourcePoint" />
+            <mxPoint x="710" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <!-- Process 3.1 ID -->
+        <mxCell id="proc_3_1_id" value="3.1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="470" y="70" width="240" height="30" as="geometry" />
+        </mxCell>
+        <!-- Process 3.1 Name -->
+        <mxCell id="proc_3_1_name" value="&lt;b style=&quot;font-size: 13.5px;&quot;&gt;การแสดงข้อมูลยอดขาย&lt;br/&gt;และสถิติรายได้&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="475" y="100" width="230" height="60" as="geometry" />
+        </mxCell>
+
+
+        <!-- ========================================================================= -->
+        <!-- PROCESS 3.2: การแสดงข้อมูลอันดับเมนูขายดี                                   -->
+        <!-- ========================================================================= -->
+        <!-- Process 3.2 Box -->
+        <mxCell id="proc_3_2" value="" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="470" y="240" width="240" height="90" as="geometry" />
+        </mxCell>
+        <!-- Horizontal Divider Line -->
+        <mxCell id="proc_3_2_line" value="" style="endArrow=none;html=1;strokeColor=#000000;strokeWidth=1.5;exitX=0;exitY=0.333;exitDx=0;exitDy=0;entryX=1;entryY=0.333;entryDx=0;entryDy=0;" edge="1" parent="1" source="proc_3_2" target="proc_3_2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="270" as="sourcePoint" />
+            <mxPoint x="710" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <!-- Process 3.2 ID -->
+        <mxCell id="proc_3_2_id" value="3.2" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="470" y="240" width="240" height="30" as="geometry" />
+        </mxCell>
+        <!-- Process 3.2 Name -->
+        <mxCell id="proc_3_2_name" value="&lt;b style=&quot;font-size: 13.5px;&quot;&gt;การแสดงข้อมูล&lt;br/&gt;อันดับเมนูขายดี&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="475" y="270" width="230" height="60" as="geometry" />
+        </mxCell>
+
+
+        <!-- ========================================================================= -->
+        <!-- PROCESS 3.3: การแสดงข้อมูลปิดยอดขายประจำวัน                                 -->
+        <!-- ========================================================================= -->
+        <!-- Process 3.3 Box -->
+        <mxCell id="proc_3_3" value="" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="470" y="410" width="240" height="90" as="geometry" />
+        </mxCell>
+        <!-- Horizontal Divider Line -->
+        <mxCell id="proc_3_3_line" value="" style="endArrow=none;html=1;strokeColor=#000000;strokeWidth=1.5;exitX=0;exitY=0.333;exitDx=0;exitDy=0;entryX=1;entryY=0.333;entryDx=0;entryDy=0;" edge="1" parent="1" source="proc_3_3" target="proc_3_3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="440" as="sourcePoint" />
+            <mxPoint x="710" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <!-- Process 3.3 ID -->
+        <mxCell id="proc_3_3_id" value="3.3" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="470" y="410" width="240" height="30" as="geometry" />
+        </mxCell>
+        <!-- Process 3.3 Name -->
+        <mxCell id="proc_3_3_name" value="&lt;b style=&quot;font-size: 13.5px;&quot;&gt;การแสดงข้อมูล&lt;br/&gt;ปิดยอดขายประจำวัน&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="475" y="440" width="230" height="60" as="geometry" />
+        </mxCell>
+
+
+        <!-- ========================================================================= -->
+        <!-- PROCESS 3.4: การแสดงข้อมูลประวัติการสะสม/แลกแต้ม                              -->
+        <!-- ========================================================================= -->
+        <!-- Process 3.4 Box -->
+        <mxCell id="proc_3_4" value="" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="470" y="580" width="240" height="150" as="geometry" />
+        </mxCell>
+        <!-- Horizontal Divider Line -->
+        <mxCell id="proc_3_4_line" value="" style="endArrow=none;html=1;strokeColor=#000000;strokeWidth=1.5;exitX=0;exitY=0.22;exitDx=0;exitDy=0;entryX=1;entryY=0.22;entryDx=0;entryDy=0;" edge="1" parent="1" source="proc_3_4" target="proc_3_4">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="613" as="sourcePoint" />
+            <mxPoint x="710" y="613" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <!-- Process 3.4 ID -->
+        <mxCell id="proc_3_4_id" value="3.4" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="470" y="580" width="240" height="33" as="geometry" />
+        </mxCell>
+        <!-- Process 3.4 Name -->
+        <mxCell id="proc_3_4_name" value="&lt;b style=&quot;font-size: 13.5px;&quot;&gt;การแสดงข้อมูลประวัติ&lt;br/&gt;การสะสม/แลกแต้ม&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="475" y="613" width="230" height="117" as="geometry" />
+        </mxCell>
+
+
+        <!-- ========================================================================= -->
+        <!-- DATA STORES (RIGHT COLUMN)                                                -->
+        <!-- ========================================================================= -->
+        <!-- D3: แฟ้มข้อมูลการสั่งซื้อ -->
+        <mxCell id="ds_d3_id" value="D3" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=14;fontStyle=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="930" y="75" width="45" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_d3_name" value="แฟ้มข้อมูลการสั่งซื้อ" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;align=left;verticalAlign=middle;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="975" y="75" width="235" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- D4: แฟ้มข้อมูลรายละเอียดการสั่งซื้อ -->
+        <mxCell id="ds_d4_id" value="D4" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=14;fontStyle=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="930" y="200" width="45" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_d4_name" value="แฟ้มข้อมูลรายละเอียดการสั่งซื้อ" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;align=left;verticalAlign=middle;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="975" y="200" width="235" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- D6: แฟ้มข้อมูลการปิดยอดขายประจำวัน -->
+        <mxCell id="ds_d6_id" value="D6" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=14;fontStyle=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="930" y="436" width="45" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_d6_name" value="แฟ้มข้อมูลการปิดยอดขายประจำวัน" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;align=left;verticalAlign=middle;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="975" y="436" width="235" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- D1: แฟ้มข้อมูลผู้ใช้งาน -->
+        <mxCell id="ds_d1_id" value="D1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=14;fontStyle=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="930" y="595" width="45" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_d1_name" value="แฟ้มข้อมูลผู้ใช้งาน" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;align=left;verticalAlign=middle;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="975" y="595" width="235" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- D5: แฟ้มข้อมูลประวัติการสะสม/แลกแต้ม -->
+        <mxCell id="ds_d5_id" value="D5" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=14;fontStyle=1;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="930" y="675" width="45" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_d5_name" value="แฟ้มข้อมูลประวัติการสะสม/แลกแต้ม" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;fontSize=13;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;align=left;verticalAlign=middle;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="975" y="675" width="235" height="38" as="geometry" />
+        </mxCell>
+
+
+        <!-- ========================================================================= -->
+        <!-- LEFT SIDE FLOWS (ENTITIES / EXTERNAL INTERACTIONS)                        -->
+        <!-- ========================================================================= -->
+        
+        <!-- 3.1: แสดงผลยอดขายรายวัน/อาทิตย์/เดือน/ปี (3.1 -> ผู้ดูแลระบบ) -->
+        <mxCell id="flow_p31_out" value="แสดงผลยอดขายรายวัน/อาทิตย์/เดือน/ปี" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="115" as="sourcePoint" />
+            <mxPoint x="80" y="115" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3.2: แสดงผลเรียงลำดับอาหารเครื่องดื่มขายดี 5 อันดับ (3.2 -> ผู้ดูแลระบบ) -->
+        <mxCell id="flow_p32_out" value="แสดงผลเรียงลำดับอาหารเครื่องดื่มขายดี 5 อันดับ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="285" as="sourcePoint" />
+            <mxPoint x="80" y="285" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3.3: รายงานข้อมูลการขายประจำวัน (3.3 -> พนักงาน) -->
+        <mxCell id="flow_p33_out" value="รายงานข้อมูลการขายประจำวัน" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="455" as="sourcePoint" />
+            <mxPoint x="80" y="455" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3.4 Flows on Left Side (4 Lines) -->
+        <!-- 1. ตรวจสอบแต้มสะสมของสมาชิก (สมาชิก -> 3.4) -->
+        <mxCell id="flow_p34_in_1" value="ตรวจสอบแต้มสะสมของสมาชิก" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="605" as="sourcePoint" />
+            <mxPoint x="470" y="605" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. แสดงแต้มสะสมของสมาชิก (3.4 -> สมาชิก) -->
+        <mxCell id="flow_p34_out_1" value="แสดงแต้มสะสมของสมาชิก" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="640" as="sourcePoint" />
+            <mxPoint x="80" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. แสดงผลแต้มสะสมของสมาชิกในแต่ละราย (3.4 -> ผู้ดูแลระบบ) -->
+        <mxCell id="flow_p34_out_2" value="แสดงผลแต้มสะสมของสมาชิกในแต่ละราย" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="675" as="sourcePoint" />
+            <mxPoint x="80" y="675" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. แสดงผลประวัติการใช้สิทธิ์แลกแต้มของสมาชิก (3.4 -> ผู้ดูแลระบบ) -->
+        <mxCell id="flow_p34_out_3" value="แสดงผลประวัติการใช้สิทธิ์แลกแต้มของสมาชิก" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="710" as="sourcePoint" />
+            <mxPoint x="80" y="710" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+
+        <!-- ========================================================================= -->
+        <!-- RIGHT SIDE FLOWS (DATA STORES <-> PROCESSES)                               -->
+        <!-- ========================================================================= -->
+
+        <!-- D3 -> 3.1: เรียกดูข้อมูลคำสั่งซื้อและยอดขาย -->
+        <mxCell id="flow_ds_d3_p31" value="เรียกดูข้อมูลคำสั่งซื้อและยอดขาย" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="930" y="94" as="sourcePoint" />
+            <mxPoint x="710" y="94" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- D4 -> 3.1: เรียกดูข้อมูลยอดขายรายรายการเครื่องดื่ม -->
+        <mxCell id="flow_ds_d4_p31" value="เรียกดูข้อมูลยอดขายรายรายการเครื่องดื่ม" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.05" y="-10" relative="1" as="geometry">
+            <mxPoint x="930" y="210" as="sourcePoint" />
+            <mxPoint x="710" y="135" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="830" y="210" />
+              <mxPoint x="830" y="135" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- D4 -> 3.2: เรียกดูข้อมูลยอดขายรายรายการ -->
+        <mxCell id="flow_ds_d4_p32" value="เรียกดูข้อมูลยอดขายรายรายการ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry x="0.05" y="10" relative="1" as="geometry">
+            <mxPoint x="930" y="228" as="sourcePoint" />
+            <mxPoint x="710" y="285" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="830" y="228" />
+              <mxPoint x="830" y="285" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- D6 -> 3.3: เรียกดูข้อมูลการปิดยอดขายประจำวัน -->
+        <mxCell id="flow_ds_d6_p33" value="เรียกดูข้อมูลการปิดยอดขายประจำวัน" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="930" y="455" as="sourcePoint" />
+            <mxPoint x="710" y="455" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- D1 -> 3.4: เรียกดูยอดแต้มสะสมคงเหลือ -->
+        <mxCell id="flow_ds_d1_p34" value="เรียกดูยอดแต้มสะสมคงเหลือ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="930" y="614" as="sourcePoint" />
+            <mxPoint x="710" y="625" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="820" y="614" />
+              <mxPoint x="820" y="625" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- D5 -> 3.4: เรียกดูประวัติการสะสม/แลกแต้ม -->
+        <mxCell id="flow_ds_d5_p34" value="เรียกดูประวัติการสะสม/แลกแต้ม" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Sarabun, Kanit, Tahoma, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=#FFFFFF;labelBorderColor=none;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="930" y="694" as="sourcePoint" />
+            <mxPoint x="710" y="685" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="820" y="694" />
+              <mxPoint x="820" y="685" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

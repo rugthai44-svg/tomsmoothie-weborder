@@ -7,6 +7,7 @@ const DB_KEYS = {
   ORDERS: 'tomsmoothie_orders',
   TRANSACTIONS: 'tomsmoothie_point_transactions',
   DAILY_CLOSINGS: 'tomsmoothie_daily_closings',
+  PROMOTIONS: 'tomsmoothie_promotions',
 };
 
 // Initial Data definitions
@@ -217,6 +218,53 @@ const INITIAL_ORDERS = [];
 
 const INITIAL_TRANSACTIONS = [];
 
+const INITIAL_PROMOTIONS = [
+  {
+    id: 'promo-1',
+    title: '🎉 สะสมครบ 10 แต้ม แลกรับเครื่องดื่มฟรี 1 แก้ว',
+    description: 'สั่งซื้อเครื่องดื่มทุกแก้วรับ 1 แต้มสะสมดิจิทัล เมื่อครบ 10 แต้ม สามารถกดแลกเครื่องดื่มเมนูใดก็ได้ฟรี 1 แก้วทันที',
+    discount_type: 'FREE_ITEM',
+    discount_value: 'ฟรี 1 แก้ว',
+    badge_text: 'สิทธิประโยชน์สมาชิก',
+    is_active: true,
+    start_date: '2026-01-01',
+    end_date: '2026-12-31'
+  },
+  {
+    id: 'promo-2',
+    title: '🍓 สตรอว์เบอร์รีโยเกิร์ตปั่น ลดพิเศษ 10 บาท',
+    description: 'โปรโมชั่นเมนูยอดฮิตประจำสัปดาห์ ลดราคาพิเศษจากปกติ 70฿ เหลือเพียง 60฿',
+    discount_type: 'DISCOUNT_BAHT',
+    discount_value: 'ลด 10฿',
+    badge_text: 'เมนูยอดฮิต',
+    is_active: true,
+    start_date: '2026-08-01',
+    end_date: '2026-09-30'
+  },
+  {
+    id: 'promo-3',
+    title: '⚡ แต้มสะสม x2 วันเสาร์-อาทิตย์ (Double Points)',
+    description: 'สั่งซื้อเครื่องดื่มในวันหยุดเสาร์และอาทิตย์ รับแต้มสะสมดิจิทัลเพิ่มเป็น 2 เท่าทุกแก้ว',
+    discount_type: 'DOUBLE_POINTS',
+    discount_value: 'แต้ม x2',
+    badge_text: 'Weekend Special',
+    is_active: true,
+    start_date: '2026-08-15',
+    end_date: '2026-10-31'
+  },
+  {
+    id: 'promo-4',
+    title: '☕ Happy Hour บ่าย 2 ถึง 4 โมงเย็น ลด 5 บาท',
+    description: 'ลดราคาเครื่องดื่มหมวดร้อนและเย็นแก้วละ 5 บาท ในช่วงเวลา 14:00 - 16:00 น.',
+    discount_type: 'HAPPY_HOUR',
+    discount_value: 'ลด 5฿',
+    badge_text: 'Happy Hour',
+    is_active: false,
+    start_date: '2026-09-01',
+    end_date: '2026-09-15'
+  }
+];
+
 // Load helper
 function loadData(key, initial) {
   const raw = localStorage.getItem(key);
@@ -258,6 +306,10 @@ export const mockDb = {
   // DAILY CLOSINGS
   getDailyClosings: () => loadData(DB_KEYS.DAILY_CLOSINGS, []),
   saveDailyClosings: (closings) => saveData(DB_KEYS.DAILY_CLOSINGS, closings),
+
+  // PROMOTIONS
+  getPromotions: () => loadData(DB_KEYS.PROMOTIONS, INITIAL_PROMOTIONS),
+  savePromotions: (promos) => saveData(DB_KEYS.PROMOTIONS, promos),
   
   // Clean all database data back to defaults
   resetAll: () => {
@@ -266,12 +318,14 @@ export const mockDb = {
     localStorage.removeItem(DB_KEYS.ORDERS);
     localStorage.removeItem(DB_KEYS.TRANSACTIONS);
     localStorage.removeItem(DB_KEYS.DAILY_CLOSINGS);
+    localStorage.removeItem(DB_KEYS.PROMOTIONS);
     return {
       users: loadData(DB_KEYS.USERS, INITIAL_USERS),
       menu: loadData(DB_KEYS.MENU, INITIAL_MENU),
       orders: loadData(DB_KEYS.ORDERS, INITIAL_ORDERS),
       transactions: loadData(DB_KEYS.TRANSACTIONS, INITIAL_TRANSACTIONS),
       dailyClosings: loadData(DB_KEYS.DAILY_CLOSINGS, []),
+      promotions: loadData(DB_KEYS.PROMOTIONS, INITIAL_PROMOTIONS),
     };
   }
 };

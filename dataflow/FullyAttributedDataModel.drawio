@@ -1,0 +1,184 @@
+<mxfile host="Electron" modified="2026-09-08T09:22:00.000Z" agent="Antigravity" version="21.0.0" type="device">
+  <diagram id="FullyAttributedDataModel-TomSmoothie" name="Fully-Attributed Data Model">
+    <mxGraphModel dx="1600" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1550" pageHeight="950" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ========================================================================= -->
+        <!-- DIAGRAM TITLE                                                             -->
+        <!-- ========================================================================= -->
+        <mxCell id="title" value="&lt;b style=&quot;font-size: 20px;&quot;&gt;3.7 การออกแบบข้อมูลแบบระบุคุณลักษณะครบถ้วน (Fully-Attributed Data Model)&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Sarabun, Kanit, Arial, Helvetica, sans-serif;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="60" y="25" width="750" height="40" as="geometry" />
+        </mxCell>
+
+
+        <!-- ========================================================================= -->
+        <!-- ENTITIES (FULLY-ATTRIBUTED WITH PK, FK, ATTRIBUTES)                       -->
+        <!-- ========================================================================= -->
+
+        <!-- 1. customer -->
+        <mxCell id="ent_customer" value="&lt;table style=&quot;width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:12px;&quot;&gt;&lt;tr style=&quot;background-color:#F0F2F5;border-bottom:1.5px solid #000;&quot;&gt;&lt;td colspan=&quot;2&quot; style=&quot;text-align:center;font-weight:bold;font-size:13px;padding:6px;&quot;&gt;customer&lt;/td&gt;&lt;/tr&gt;&lt;tr style=&quot;border-bottom:1px solid #000;&quot;&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;PK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;font-weight:bold;&quot;&gt;customer_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;border-right:1px solid #000;&quot;&gt;&amp;nbsp;&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;line-height:1.5;&quot;&gt;email&lt;br/&gt;password_hash&lt;br/&gt;full_name&lt;br/&gt;phone&lt;br/&gt;member_code&lt;br/&gt;current_points&lt;br/&gt;created_at&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;verticalAlign=top;align=left;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="70" y="95" width="175" height="195" as="geometry" />
+        </mxCell>
+
+        <!-- 2. employee -->
+        <mxCell id="ent_employee" value="&lt;table style=&quot;width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:12px;&quot;&gt;&lt;tr style=&quot;background-color:#F0F2F5;border-bottom:1.5px solid #000;&quot;&gt;&lt;td colspan=&quot;2&quot; style=&quot;text-align:center;font-weight:bold;font-size:13px;padding:6px;&quot;&gt;employee&lt;/td&gt;&lt;/tr&gt;&lt;tr style=&quot;border-bottom:1px solid #000;&quot;&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;PK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;font-weight:bold;&quot;&gt;employee_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;border-right:1px solid #000;&quot;&gt;&amp;nbsp;&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;line-height:1.5;&quot;&gt;email&lt;br/&gt;password_hash&lt;br/&gt;full_name&lt;br/&gt;phone&lt;br/&gt;role&lt;br/&gt;is_active&lt;br/&gt;created_at&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;verticalAlign=top;align=left;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="70" y="360" width="175" height="195" as="geometry" />
+        </mxCell>
+
+        <!-- 3. orders -->
+        <mxCell id="ent_orders" value="&lt;table style=&quot;width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:12px;&quot;&gt;&lt;tr style=&quot;background-color:#F0F2F5;border-bottom:1.5px solid #000;&quot;&gt;&lt;td colspan=&quot;2&quot; style=&quot;text-align:center;font-weight:bold;font-size:13px;padding:6px;&quot;&gt;orders&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;PK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;font-weight:bold;&quot;&gt;order_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;FK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;&quot;&gt;customer_id&lt;/td&gt;&lt;/tr&gt;&lt;tr style=&quot;border-bottom:1px solid #000;&quot;&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;FK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;&quot;&gt;employee_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;border-right:1px solid #000;&quot;&gt;&amp;nbsp;&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;line-height:1.5;&quot;&gt;total_price&lt;br/&gt;order_status&lt;br/&gt;pickup_time&lt;br/&gt;is_redeemed_free_cup&lt;br/&gt;payment_method&lt;br/&gt;created_at&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;verticalAlign=top;align=left;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="470" y="85" width="185" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- 4. point_transactions -->
+        <mxCell id="ent_points" value="&lt;table style=&quot;width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:12px;&quot;&gt;&lt;tr style=&quot;background-color:#F0F2F5;border-bottom:1.5px solid #000;&quot;&gt;&lt;td colspan=&quot;2&quot; style=&quot;text-align:center;font-weight:bold;font-size:13px;padding:6px;&quot;&gt;point_transactions&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;PK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;font-weight:bold;&quot;&gt;transaction_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;FK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;&quot;&gt;customer_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;FK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;&quot;&gt;order_id&lt;/td&gt;&lt;/tr&gt;&lt;tr style=&quot;border-bottom:1px solid #000;&quot;&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;FK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;&quot;&gt;employee_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;border-right:1px solid #000;&quot;&gt;&amp;nbsp;&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;line-height:1.5;&quot;&gt;points_change&lt;br/&gt;transaction_type&lt;br/&gt;description&lt;br/&gt;created_at&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;verticalAlign=top;align=left;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="470" y="355" width="185" height="210" as="geometry" />
+        </mxCell>
+
+        <!-- 5. daily_closings -->
+        <mxCell id="ent_closings" value="&lt;table style=&quot;width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:12px;&quot;&gt;&lt;tr style=&quot;background-color:#F0F2F5;border-bottom:1.5px solid #000;&quot;&gt;&lt;td colspan=&quot;2&quot; style=&quot;text-align:center;font-weight:bold;font-size:13px;padding:6px;&quot;&gt;daily_closings&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;PK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;font-weight:bold;&quot;&gt;closing_id&lt;/td&gt;&lt;/tr&gt;&lt;tr style=&quot;border-bottom:1px solid #000;&quot;&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;FK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;&quot;&gt;employee_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;border-right:1px solid #000;&quot;&gt;&amp;nbsp;&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;line-height:1.5;&quot;&gt;date&lt;br/&gt;cups_sold&lt;br/&gt;free_cups_redeemed&lt;br/&gt;total_revenue&lt;br/&gt;cash_actual&lt;br/&gt;notes&lt;br/&gt;created_at&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;verticalAlign=top;align=left;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="470" y="625" width="185" height="205" as="geometry" />
+        </mxCell>
+
+        <!-- 6. order_items -->
+        <mxCell id="ent_order_items" value="&lt;table style=&quot;width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:12px;&quot;&gt;&lt;tr style=&quot;background-color:#F0F2F5;border-bottom:1.5px solid #000;&quot;&gt;&lt;td colspan=&quot;2&quot; style=&quot;text-align:center;font-weight:bold;font-size:13px;padding:6px;&quot;&gt;order_items&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;PK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;font-weight:bold;&quot;&gt;item_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;FK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;&quot;&gt;order_id&lt;/td&gt;&lt;/tr&gt;&lt;tr style=&quot;border-bottom:1px solid #000;&quot;&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;FK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;&quot;&gt;menu_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;border-right:1px solid #000;&quot;&gt;&amp;nbsp;&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;line-height:1.5;&quot;&gt;name&lt;br/&gt;sweetness_level&lt;br/&gt;toppings&lt;br/&gt;quantity&lt;br/&gt;subtotal_price&lt;br/&gt;notes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;verticalAlign=top;align=left;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="870" y="85" width="185" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- 7. menu_items -->
+        <mxCell id="ent_menu_items" value="&lt;table style=&quot;width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:12px;&quot;&gt;&lt;tr style=&quot;background-color:#F0F2F5;border-bottom:1.5px solid #000;&quot;&gt;&lt;td colspan=&quot;2&quot; style=&quot;text-align:center;font-weight:bold;font-size:13px;padding:6px;&quot;&gt;menu_items&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;PK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;font-weight:bold;&quot;&gt;menu_id&lt;/td&gt;&lt;/tr&gt;&lt;tr style=&quot;border-bottom:1px solid #000;&quot;&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;FK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;&quot;&gt;category_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;border-right:1px solid #000;&quot;&gt;&amp;nbsp;&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;line-height:1.5;&quot;&gt;name&lt;br/&gt;base_price&lt;br/&gt;image_url&lt;br/&gt;is_popular&lt;br/&gt;is_available&lt;br/&gt;total_sold_count&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;verticalAlign=top;align=left;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="870" y="355" width="185" height="210" as="geometry" />
+        </mxCell>
+
+        <!-- 8. category -->
+        <mxCell id="ent_category" value="&lt;table style=&quot;width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:12px;&quot;&gt;&lt;tr style=&quot;background-color:#F0F2F5;border-bottom:1.5px solid #000;&quot;&gt;&lt;td colspan=&quot;2&quot; style=&quot;text-align:center;font-weight:bold;font-size:13px;padding:6px;&quot;&gt;category&lt;/td&gt;&lt;/tr&gt;&lt;tr style=&quot;border-bottom:1px solid #000;&quot;&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;PK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;font-weight:bold;&quot;&gt;category_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;border-right:1px solid #000;&quot;&gt;&amp;nbsp;&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;line-height:1.5;&quot;&gt;category_name&lt;br/&gt;description&lt;br/&gt;is_active&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;verticalAlign=top;align=left;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="390" width="175" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- 9. admin -->
+        <mxCell id="ent_admin" value="&lt;table style=&quot;width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:12px;&quot;&gt;&lt;tr style=&quot;background-color:#F0F2F5;border-bottom:1.5px solid #000;&quot;&gt;&lt;td colspan=&quot;2&quot; style=&quot;text-align:center;font-weight:bold;font-size:13px;padding:6px;&quot;&gt;admin&lt;/td&gt;&lt;/tr&gt;&lt;tr style=&quot;border-bottom:1px solid #000;&quot;&gt;&lt;td style=&quot;width:32px;font-weight:bold;padding:4px 6px;border-right:1px solid #000;&quot;&gt;PK&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;font-weight:bold;&quot;&gt;admin_id&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;border-right:1px solid #000;&quot;&gt;&amp;nbsp;&lt;/td&gt;&lt;td style=&quot;padding:4px 8px;line-height:1.5;&quot;&gt;email&lt;br/&gt;password_hash&lt;br/&gt;full_name&lt;br/&gt;phone&lt;br/&gt;role&lt;br/&gt;created_at&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.5;verticalAlign=top;align=left;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="870" y="640" width="185" height="175" as="geometry" />
+        </mxCell>
+
+
+        <!-- ========================================================================= -->
+        <!-- RELATIONSHIPS / EDGES (WITH CROW'S FOOT NOTATION & ZERO CROSSINGS)        -->
+        <!-- ========================================================================= -->
+
+        <!-- 1. has 1 (customer || -> >o orders) -->
+        <mxCell id="rel_1_order" value="&lt;div style=&quot;text-align: center;&quot;&gt;&lt;div style=&quot;margin-bottom: 3px;&quot;&gt;has&lt;/div&gt;&lt;div style=&quot;margin-top: 3px;&quot;&gt;1&lt;/div&gt;&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Arial, Helvetica, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=none;labelBorderColor=none;startArrow=ERmandOne;startFill=0;endArrow=ERzeroToMany;endFill=0;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="245" y="140" as="sourcePoint" />
+            <mxPoint x="470" y="140" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. has 2 (employee || -> >o orders) -->
+        <mxCell id="rel_2_process" value="&lt;div style=&quot;text-align: center;&quot;&gt;&lt;div style=&quot;margin-bottom: 3px;&quot;&gt;has&lt;/div&gt;&lt;div style=&quot;margin-top: 3px;&quot;&gt;2&lt;/div&gt;&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Arial, Helvetica, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=none;labelBorderColor=none;startArrow=ERmandOne;startFill=0;endArrow=ERzeroToMany;endFill=0;" edge="1" parent="1">
+          <mxGeometry x="-0.55" y="0" relative="1" as="geometry">
+            <mxPoint x="245" y="380" as="sourcePoint" />
+            <mxPoint x="470" y="175" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="360" y="380" />
+              <mxPoint x="360" y="175" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. has 3 (employee || -> >o point_transactions) -->
+        <mxCell id="rel_3_scan_points" value="&lt;div style=&quot;text-align: center;&quot;&gt;&lt;div style=&quot;margin-bottom: 3px;&quot;&gt;has&lt;/div&gt;&lt;div style=&quot;margin-top: 3px;&quot;&gt;3&lt;/div&gt;&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Arial, Helvetica, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=none;labelBorderColor=none;startArrow=ERmandOne;startFill=0;endArrow=ERzeroToMany;endFill=0;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="245" y="410" as="sourcePoint" />
+            <mxPoint x="470" y="410" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. has 4 (employee || -> >o daily_closings) -->
+        <mxCell id="rel_4_record_closing" value="&lt;div style=&quot;text-align: center;&quot;&gt;&lt;div style=&quot;margin-bottom: 3px;&quot;&gt;has&lt;/div&gt;&lt;div style=&quot;margin-top: 3px;&quot;&gt;4&lt;/div&gt;&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Arial, Helvetica, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=none;labelBorderColor=none;startArrow=ERmandOne;startFill=0;endArrow=ERzeroToMany;endFill=0;" edge="1" parent="1">
+          <mxGeometry x="-0.55" y="0" relative="1" as="geometry">
+            <mxPoint x="245" y="440" as="sourcePoint" />
+            <mxPoint x="470" y="650" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="360" y="440" />
+              <mxPoint x="360" y="650" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. has 5 (orders || -> >| order_items) -->
+        <mxCell id="rel_5_contains" value="&lt;div style=&quot;text-align: center;&quot;&gt;&lt;div style=&quot;margin-bottom: 3px;&quot;&gt;has&lt;/div&gt;&lt;div style=&quot;margin-top: 3px;&quot;&gt;5&lt;/div&gt;&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Arial, Helvetica, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=none;labelBorderColor=none;startArrow=ERmandOne;startFill=0;endArrow=ERoneToMany;endFill=0;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="655" y="140" as="sourcePoint" />
+            <mxPoint x="870" y="140" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6. has 6 (orders || -> >o point_transactions) -->
+        <mxCell id="rel_6_generate" value="&lt;table style=&quot;border-collapse:collapse;font-size:12.5px;margin:0;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;padding-right:6px;text-align:right;&quot;&gt;has&lt;/td&gt;&lt;td style=&quot;padding-left:6px;text-align:left;&quot;&gt;6&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Arial, Helvetica, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=none;labelBorderColor=none;startArrow=ERmandOne;startFill=0;endArrow=ERzeroToMany;endFill=0;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="562.5" y="305" as="sourcePoint" />
+            <mxPoint x="562.5" y="355" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 7. has 7 (menu_items || -> >o order_items) -->
+        <mxCell id="rel_7_ordered_as" value="&lt;table style=&quot;border-collapse:collapse;font-size:12.5px;margin:0;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;padding-right:6px;text-align:right;&quot;&gt;has&lt;/td&gt;&lt;td style=&quot;padding-left:6px;text-align:left;&quot;&gt;7&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Arial, Helvetica, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=none;labelBorderColor=none;startArrow=ERmandOne;startFill=0;endArrow=ERzeroToMany;endFill=0;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="962.5" y="355" as="sourcePoint" />
+            <mxPoint x="962.5" y="305" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 8. has 8 (category || -> >| menu_items) -->
+        <mxCell id="rel_8_classified_by" value="&lt;div style=&quot;text-align: center;&quot;&gt;&lt;div style=&quot;margin-bottom: 3px;&quot;&gt;has&lt;/div&gt;&lt;div style=&quot;margin-top: 3px;&quot;&gt;8&lt;/div&gt;&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Arial, Helvetica, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=none;labelBorderColor=none;startArrow=ERmandOne;startFill=0;endArrow=ERoneToMany;endFill=0;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="1230" y="440" as="sourcePoint" />
+            <mxPoint x="1055" y="440" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 9. has 9 (admin || -> >o menu_items) -->
+        <mxCell id="rel_9_manage_menu" value="&lt;table style=&quot;border-collapse:collapse;font-size:12.5px;margin:0;&quot;&gt;&lt;tr&gt;&lt;td style=&quot;padding-right:6px;text-align:right;&quot;&gt;has&lt;/td&gt;&lt;td style=&quot;padding-left:6px;text-align:left;&quot;&gt;9&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Arial, Helvetica, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=none;labelBorderColor=none;startArrow=ERmandOne;startFill=0;endArrow=ERzeroToMany;endFill=0;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="962.5" y="640" as="sourcePoint" />
+            <mxPoint x="962.5" y="565" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 10. has 10 (admin || -> >o daily_closings) -->
+        <mxCell id="rel_10_audit_closing" value="&lt;div style=&quot;text-align: center;&quot;&gt;&lt;div style=&quot;margin-bottom: 3px;&quot;&gt;has&lt;/div&gt;&lt;div style=&quot;margin-top: 3px;&quot;&gt;10&lt;/div&gt;&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Arial, Helvetica, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=none;labelBorderColor=none;startArrow=ERmandOne;startFill=0;endArrow=ERzeroToMany;endFill=0;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="870" y="680" as="sourcePoint" />
+            <mxPoint x="655" y="680" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 11. has 11 (admin || -> >o point_transactions) -->
+        <mxCell id="rel_11_adjust_points" value="&lt;div style=&quot;text-align: center;&quot;&gt;&lt;div style=&quot;margin-bottom: 3px;&quot;&gt;has&lt;/div&gt;&lt;div style=&quot;margin-top: 3px;&quot;&gt;11&lt;/div&gt;&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;fontFamily=Arial, Helvetica, sans-serif;fontSize=12.5;fontColor=#000000;labelBackgroundColor=none;labelBorderColor=none;startArrow=ERmandOne;startFill=0;endArrow=ERzeroToMany;endFill=0;" edge="1" parent="1">
+          <mxGeometry x="-0.55" y="0" relative="1" as="geometry">
+            <mxPoint x="870" y="650" as="sourcePoint" />
+            <mxPoint x="655" y="440" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="765" y="650" />
+              <mxPoint x="765" y="440" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
