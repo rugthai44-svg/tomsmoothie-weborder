@@ -289,6 +289,55 @@ export const AppProvider = ({ children }) => {
     return { success: true, user: dbUser };
   };
 
+  const registerAdmin = async (data) => {
+    // Check if email exists
+    const { data: existing } = await supabase
+      .from('tomsmoothie_users')
+      .select('id')
+      .eq('email', data.email)
+      .maybeSingle();
+
+    if (existing) {
+      triggerToast('อีเมลนี้ถูกใช้งานแล้วในระบบ', 'danger');
+      return { success: false, message: 'อีเมลนี้ถูกใช้งานแล้วในระบบ' };
+    }
+    
+    const randCode = 'ADMIN' + Math.floor(100 + Math.random() * 900);
+    const newAdmin = {
+      id: 'u-admin-' + Date.now(),
+      email: data.email,
+      password_hash: data.password,
+      full_name: data.full_name,
+      phone: data.phone_number || '',
+      role: 'ADMIN',
+      current_points: 0,
+      line_user_id: null,
+      member_code: randCode,
+      created_at: new Date().toISOString(),
+      is_active: true
+    };
+    
+    const { data: dbUser, error } = await supabase
+      .from('tomsmoothie_users')
+      .insert([newAdmin])
+      .select()
+      .single();
+
+    if (error || !dbUser) {
+      console.error('Error registering admin:', error);
+      triggerToast('เกิดข้อผิดพลาดในการลงทะเบียนผู้ดูแลระบบ', 'danger');
+      return { success: false, message: 'เกิดข้อผิดพลาดในการลงทะเบียนผู้ดูแลระบบ' };
+    }
+
+    const updatedUsers = [...users, dbUser];
+    setUsers(updatedUsers);
+    mockDb.saveUsers(updatedUsers);
+    setCurrentUser(dbUser);
+    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+    triggerToast(`ยินดีต้อนรับผู้ดูแลระบบท่านใหม่ คุณ ${dbUser.full_name}`, 'success');
+    return { success: true, user: dbUser };
+  };
+
   const logout = async () => {
     await supabase.auth.signOut();
     setCurrentUser(null);
@@ -1185,6 +1234,7 @@ export const AppProvider = ({ children }) => {
         sendLineNotification,
         login,
         registerCustomer,
+        registerAdmin,
         logout,
         loginWithGoogle: loginWithGoogleRedirect,
         updateUserPhone,

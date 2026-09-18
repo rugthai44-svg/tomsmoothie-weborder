@@ -3,11 +3,13 @@ import { useApp } from '../context/AppContext';
 import { Mail, Lock, User, Phone, CheckCircle, ShieldAlert } from 'lucide-react';
 
 export const AuthPortal = () => {
-  const { login, registerCustomer, logout, loginWithGoogle, updateUserPhone, users } = useApp();
+  const { login, registerCustomer, registerAdmin, logout, loginWithGoogle, updateUserPhone, users } = useApp();
   const [isRegister, setIsRegister] = useState(false);
   const [loginRole, setLoginRole] = useState('CUSTOMER'); // 'CUSTOMER' | 'STAFF' | 'ADMIN'
   const [email, setEmail] = useState('customer1@tomsmoothie.com');
   const [password, setPassword] = useState('cust123');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [adminSecurityKey, setAdminSecurityKey] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
@@ -164,14 +166,42 @@ export const AuthPortal = () => {
         setError('กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง');
         return;
       }
-      const res = await registerCustomer({
-        email,
-        password,
-        full_name: fullName,
-        phone_number: phone
-      });
-      if (!res.success) {
-        setError(res.message);
+      if (password.length < 6) {
+        setError('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
+        return;
+      }
+
+      if (loginRole === 'ADMIN') {
+        if (confirmPassword && password !== confirmPassword) {
+          setError('รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน');
+          return;
+        }
+
+        const res = await registerAdmin({
+          email,
+          password,
+          full_name: fullName,
+          phone_number: phone
+        });
+
+        if (!res.success) {
+          setError(res.message);
+        } else {
+          saveCredentials(email, password, true);
+          localStorage.setItem(`tomsmoothie_last_email_ADMIN`, email);
+          localStorage.setItem('tomsmoothie_last_email', email);
+          localStorage.setItem('tomsmoothie_last_role', 'ADMIN');
+        }
+      } else {
+        const res = await registerCustomer({
+          email,
+          password,
+          full_name: fullName,
+          phone_number: phone
+        });
+        if (!res.success) {
+          setError(res.message);
+        }
       }
     } else {
       if (!email || !password) {
@@ -207,8 +237,6 @@ export const AuthPortal = () => {
           TomSmoothie WebOrder & Digital Points
         </p>
       </div>
-
-      {/* 2. Global Role Selection Tabs Removed */}
 
       <div className="card" style={{ padding: '28px 24px', margin: 0 }}>
         {loginRole === 'CUSTOMER' ? (
@@ -248,10 +276,47 @@ export const AuthPortal = () => {
               สมัครสมาชิก (Register)
             </button>
           </div>
+        ) : loginRole === 'ADMIN' ? (
+          <div style={{ display: 'flex', borderBottom: '2px solid var(--border)', marginBottom: '24px' }}>
+            <button 
+              type="button" 
+              onClick={() => { setIsRegister(false); setError(''); }}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: 'none',
+                border: 'none',
+                borderBottom: !isRegister ? '3px solid var(--primary)' : '3px solid transparent',
+                color: !isRegister ? 'var(--primary)' : 'var(--text-muted)',
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                cursor: 'pointer'
+              }}
+            >
+              👑 ล็อกอินผู้ดูแลระบบ
+            </button>
+            <button 
+              type="button" 
+              onClick={() => { setIsRegister(true); setError(''); }}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: 'none',
+                border: 'none',
+                borderBottom: isRegister ? '3px solid var(--primary)' : '3px solid transparent',
+                color: isRegister ? 'var(--primary)' : 'var(--text-muted)',
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                cursor: 'pointer'
+              }}
+            >
+              ➕ สมัครสมาชิกผู้ดูแลระบบ
+            </button>
+          </div>
         ) : (
           <div style={{ borderBottom: '2px solid var(--border)', marginBottom: '24px', paddingBottom: '12px', textAlign: 'center' }}>
             <h3 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '1.2rem', margin: 0 }}>
-              {loginRole === 'STAFF' ? '🧑‍🍳 ล็อกอินพนักงานร้าน (Staff Portal)' : '👑 ล็อกอินผู้ดูแลระบบ (Admin Dashboard)'}
+              🧑‍🍳 ล็อกอินพนักงานร้าน (Staff Portal)
             </h3>
           </div>
         )}
@@ -337,13 +402,13 @@ export const AuthPortal = () => {
           {isRegister && (
             <>
               <div className="form-group" style={{ margin: 0 }}>
-                <label>ชื่อ-นามสกุล</label>
+                <label>{loginRole === 'ADMIN' ? '👑 ชื่อ-นามสกุล ผู้ดูแลระบบ' : 'ชื่อ-นามสกุล'}</label>
                 <div style={{ position: 'relative' }}>
                   <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                   <input 
                     type="text" 
                     className="form-input" 
-                    placeholder="เช่น สมชาย รักน้ำปั่น"
+                    placeholder={loginRole === 'ADMIN' ? "เช่น คุณต้อม (ผู้ดูแลระบบ)" : "เช่น สมชาย รักน้ำปั่น"}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     style={{ paddingLeft: '40px' }}
@@ -353,13 +418,13 @@ export const AuthPortal = () => {
               </div>
 
               <div className="form-group" style={{ margin: 0 }}>
-                <label>เบอร์โทรศัพท์</label>
+                <label>{loginRole === 'ADMIN' ? 'เบอร์โทรศัพท์ติดต่อผู้ดูแลระบบ' : 'เบอร์โทรศัพท์'}</label>
                 <div style={{ position: 'relative' }}>
                   <Phone size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                   <input 
                     type="tel" 
                     className="form-input" 
-                    placeholder="เช่น 081-234-5678"
+                    placeholder="เช่น 089-999-9999"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     style={{ paddingLeft: '40px' }}
@@ -396,7 +461,7 @@ export const AuthPortal = () => {
               <input 
                 type="password" 
                 className="form-input" 
-                placeholder="รหัสผ่านเข้าใช้งาน"
+                placeholder={isRegister ? "กำหนดรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)" : "รหัสผ่านเข้าใช้งาน"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ paddingLeft: '40px' }}
@@ -404,6 +469,24 @@ export const AuthPortal = () => {
               />
             </div>
           </div>
+
+          {isRegister && loginRole === 'ADMIN' && (
+            <div className="form-group" style={{ margin: 0 }}>
+              <label>ยืนยันรหัสผ่าน (Confirm Password)</label>
+              <div style={{ position: 'relative' }}>
+                <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <input 
+                  type="password" 
+                  className="form-input" 
+                  placeholder="กรอกรหัสผ่านอีกครั้งเพื่อยืนยัน"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  style={{ paddingLeft: '40px' }}
+                  required
+                />
+              </div>
+            </div>
+          )}
 
           {/* Remember Password Checkbox */}
           {!isRegister && (
@@ -427,9 +510,32 @@ export const AuthPortal = () => {
           )}
 
           <button type="submit" className="btn btn-primary" style={{ marginTop: '8px' }}>
-            {isRegister ? 'ยืนยันสมัครสมาชิก' : 'เข้าสู่ระบบ'}
+            {isRegister ? (
+              loginRole === 'ADMIN' ? '👑 ยืนยันสมัครสมาชิกผู้ดูแลระบบ' : 'ยืนยันสมัครสมาชิก & เริ่มสะสมแต้ม'
+            ) : 'เข้าสู่ระบบ'}
           </button>
         </form>
+
+        {/* Toggle between login and register text link for Admin */}
+        {loginRole === 'ADMIN' && (
+          <div style={{ marginTop: '16px', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => { setIsRegister(!isRegister); setError(''); }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--primary)',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                textDecoration: 'underline'
+              }}
+            >
+              {isRegister ? '👑 มีบัญชีผู้ดูแลระบบอยู่แล้ว? เข้าสู่ระบบ' : '➕ ยังไม่มีบัญชีผู้ดูแลระบบ? สมัครสมาชิกผู้ดูแลระบบใหม่'}
+            </button>
+          </div>
+        )}
 
         {/* Staff/Admin buttons below Customer Login form */}
         {loginRole === 'CUSTOMER' && !isRegister && (
