@@ -502,7 +502,52 @@ export const AdminDashboard = () => {
                         }
                       } catch (e) {}
 
-                                 {/* 1. SMOOTHIES TABLE */}
+                      return (
+                        <tr key={c.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                          <td style={{ padding: '10px 8px', fontWeight: 600 }}>{formattedDate}</td>
+                          <td style={{ padding: '10px 8px' }}>{c.staff_name}</td>
+                          <td style={{ padding: '10px 8px', textAlign: 'center' }}>{c.cups_sold}</td>
+                          <td style={{ padding: '10px 8px', textAlign: 'center' }}>{c.free_cups_redeemed}</td>
+                          <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 700, color: 'var(--brown)' }}>
+                            ฿{c.total_revenue.toLocaleString('th-TH')}
+                          </td>
+                          <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 700, color: 'var(--primary)' }}>
+                            ฿{(c.cash_actual || c.total_revenue).toLocaleString('th-TH')}
+                          </td>
+                          <td style={{ padding: '10px 8px', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                            {c.notes || '-'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+        </div>
+      )}
+
+      {/* ================= ADMIN TAB: MENU MANAGEMENT CRUD ================= */}
+      {adminTab === 'menu' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+            <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem' }}>
+              รายการเครื่องดื่ม & ท็อปปิ้งทั้งหมด ในระบบร้านค้า
+            </h4>
+            <button 
+              onClick={() => handleOpenMenuModal(null)}
+              className="btn btn-primary"
+              style={{ width: 'auto', padding: '8px 16px', fontSize: '0.8rem', borderRadius: '10px' }}
+            >
+              <Plus size={14} /> เพิ่มเครื่องดื่ม/ท็อปปิ้งใหม่
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
+            
+            {/* 1. SMOOTHIES TABLE */}
             <div className="card" style={{ padding: '16px 20px', margin: 0 }}>
               <h5 style={{ color: 'var(--brown)', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '12px' }}>
                 🥤 รายการเครื่องดื่มทั้งหมด (ร้อน / เย็น / ปั่น)
