@@ -34,36 +34,46 @@ const AppContent = () => {
 
         {/* Current user badge & Logout display */}
         {currentUser && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
             <span style={{
               fontSize: '0.75rem', 
               fontWeight: 700,
               backgroundColor: 'var(--brown-pale)',
               color: 'var(--brown)',
-              padding: '4px 10px',
-              borderRadius: '20px'
+              padding: '4px 8px',
+              borderRadius: '20px',
+              maxWidth: '150px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: 'inline-block'
             }}>
-              {currentUser.role === 'CUSTOMER' && `👤 ${currentUser.full_name.split(' ')[0]} (${currentUser.current_points} แต้ม)`}
-              {currentUser.role === 'STAFF' && `🧑‍🍳 พนักงาน: ${currentUser.full_name.split(' ')[0]}`}
-              {currentUser.role === 'ADMIN' && `👑 แอดมิน: พี่ต้อม`}
+              {currentUser.role === 'CUSTOMER' && `👤 ${currentUser.full_name.split(' ')[0]} (${currentUser.current_points}⭐)`}
+              {currentUser.role === 'STAFF' && `🧑‍🍳 ${currentUser.full_name.split(' ')[0]}`}
+              {currentUser.role === 'ADMIN' && `👑 พี่ต้อม`}
             </span>
             <button 
               onClick={logout} 
+              aria-label="ออกจากระบบ"
+              title="ออกจากระบบ"
               style={{ 
                 backgroundColor: 'var(--danger)', 
                 color: 'white', 
-                display: 'flex', 
+                display: 'inline-flex', 
                 alignItems: 'center', 
+                justifyContent: 'center',
                 gap: '4px', 
                 padding: '4px 10px',
                 fontSize: '0.75rem',
                 border: 'none',
                 borderRadius: '20px',
                 cursor: 'pointer',
-                fontWeight: 700
+                fontWeight: 700,
+                whiteSpace: 'nowrap',
+                touchAction: 'manipulation'
               }}
             >
-              <LogOut size={11} /> ออกจากระบบ
+              <LogOut size={12} /> ออก
             </button>
           </div>
         )}

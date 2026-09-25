@@ -10,9 +10,8 @@ import {
 export const CustomerPortal = () => {
   const { 
     menuItems, 
-    promotions,
     orders, 
-    transactions,
+    transactions, 
     users,
     currentUser, 
     createOrder, 
@@ -56,7 +55,7 @@ export const CustomerPortal = () => {
 
   // Filter smoothies and toppings
   const smoothies = menuItems.filter(item => ['Smoothie', 'Iced', 'Hot'].includes(item.category));
-  const toppings = menuItems.filter(item => item.category === 'Topping' && item.is_available);
+  const toppings = menuItems.filter(item => item.category === 'Topping');
 
   // Calculate 5 Best Sellers
   const bestSellers = [...smoothies]
@@ -65,10 +64,6 @@ export const CustomerPortal = () => {
 
   // Cart Management
   const openCustomizer = (item) => {
-    if (!item.is_available) {
-      triggerToast('ขออภัย รายการนี้สินค้าหมดชั่วคราว', 'danger');
-      return;
-    }
     setSelectedItem(item);
     setSweetness('100%');
     setSelectedToppings([]);
@@ -459,64 +454,6 @@ export const CustomerPortal = () => {
           <div className="desktop-grid-2col">
             {/* Left Column: Menu Items */}
             <div>
-              {/* Active Promotions Banner Section */}
-              {((promotions || []).filter(p => p.is_active).length > 0) && (
-                <div style={{ marginBottom: '20px' }}>
-                  <div style={{
-                    background: 'linear-gradient(135deg, #fff3e0, #ffe0b2)',
-                    border: '1.5px solid #ffb74d',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '12px 14px',
-                    boxShadow: 'var(--shadow-sm)'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '1.1rem' }}>🎉</span>
-                      <h4 style={{ color: '#e65100', fontWeight: 800, fontSize: '0.9rem', margin: 0 }}>
-                        โปรโมชั่นและสิทธิพิเศษวันนี้
-                      </h4>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
-                      {(promotions || []).filter(p => p.is_active).map(promo => (
-                        <div 
-                          key={promo.id}
-                          style={{
-                            flex: '0 0 240px',
-                            backgroundColor: 'white',
-                            borderRadius: '10px',
-                            padding: '10px 12px',
-                            border: '1px solid rgba(255, 152, 0, 0.3)',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.04)'
-                          }}
-                        >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                            <span style={{
-                              backgroundColor: 'var(--primary-light)',
-                              color: 'var(--primary)',
-                              fontSize: '0.65rem',
-                              fontWeight: 700,
-                              padding: '2px 6px',
-                              borderRadius: '4px'
-                            }}>
-                              {promo.badge_text || 'โปรโมชั่น'}
-                            </span>
-                            <span style={{ fontWeight: 800, color: '#e65100', fontSize: '0.75rem' }}>
-                              {promo.discount_value}
-                            </span>
-                          </div>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--brown)', margin: '2px 0' }}>
-                            {promo.title}
-                          </div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', lineHeight: 1.3 }}>
-                            {promo.description}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Best Sellers Carousel Section */}
               <div style={{ marginBottom: '24px' }}>
                 <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -644,8 +581,7 @@ export const CustomerPortal = () => {
                       justifyContent: 'space-between',
                       padding: '12px 14px',
                       margin: 0,
-                      cursor: item.is_available ? 'pointer' : 'not-allowed',
-                      opacity: item.is_available ? 1 : 0.6
+                      cursor: 'pointer'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
@@ -681,11 +617,6 @@ export const CustomerPortal = () => {
                           {item.is_popular && (
                             <span style={{ fontSize: '0.65rem', backgroundColor: 'var(--warning-light)', color: 'var(--warning)', padding: '1px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
                               ยอดฮิต
-                            </span>
-                          )}
-                          {!item.is_available && (
-                            <span style={{ fontSize: '0.65rem', backgroundColor: 'var(--danger-light)', color: 'var(--danger)', padding: '1px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
-                              สินค้าหมด
                             </span>
                           )}
                         </div>

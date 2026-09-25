@@ -4,25 +4,19 @@ import {
   TrendingUp, Users, Coffee, ListFilter, Plus, Trash2, 
   Edit3, ShieldCheck, Power, RefreshCw, BarChart2, 
   Calendar, Check, UserPlus, FileSpreadsheet, PlayCircle, Sparkles, Clock,
-  Tag, Percent, Flame, Search, SlidersHorizontal, Gift, ToggleLeft, ToggleRight, AlertCircle
+  Percent
 } from 'lucide-react';
 
 export const AdminDashboard = () => {
   const {
     menuItems,
-    promotions,
     orders,
     users,
     transactions,
     addMenuItem,
     updateMenuItem,
     deleteMenuItem,
-    toggleMenuItemAvailability,
     togglePopularStatus,
-    addPromotion,
-    updatePromotion,
-    deletePromotion,
-    togglePromotionActive,
     registerStaff,
     toggleStaffStatus,
     triggerToast,
@@ -31,7 +25,7 @@ export const AdminDashboard = () => {
     updateCustomerPoints
   } = useApp();
 
-  const [adminTab, setAdminTab] = useState('analytics'); // 'analytics' | 'menu' | 'promotions' | 'members' | 'staff' | 'logs'
+  const [adminTab, setAdminTab] = useState('analytics'); // 'analytics' | 'menu' | 'members' | 'staff' | 'logs'
   const [hoveredBarIndex, setHoveredBarIndex] = useState(null);
   
   // Menu form states
@@ -42,23 +36,6 @@ export const AdminDashboard = () => {
   const [menuFormPrice, setMenuFormPrice] = useState(0);
   const [menuFormEmoji, setMenuFormEmoji] = useState('🥤');
   const [menuFormPopular, setMenuFormPopular] = useState(false);
-
-  // Promotion form states
-  const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
-  const [editingPromo, setEditingPromo] = useState(null);
-  const [promoTitle, setPromoTitle] = useState('');
-  const [promoDesc, setPromoDesc] = useState('');
-  const [promoType, setPromoType] = useState('DISCOUNT_BAHT');
-  const [promoValue, setPromoValue] = useState('ลด 10฿');
-  const [promoBadge, setPromoBadge] = useState('โปรโมชั่นพิเศษ');
-  const [promoIsActive, setPromoIsActive] = useState(true);
-  const [promoStartDate, setPromoStartDate] = useState('');
-  const [promoEndDate, setPromoEndDate] = useState('');
-
-  // Stock Hub filter states
-  const [stockSearch, setStockSearch] = useState('');
-  const [stockCategory, setStockCategory] = useState('ALL');
-  const [stockStatusFilter, setStockStatusFilter] = useState('ALL'); // 'ALL' | 'IN_STOCK' | 'OUT_OF_STOCK' | 'POPULAR'
 
   // Staff form states
   const [isStaffFormOpen, setIsStaffFormOpen] = useState(false);
@@ -135,56 +112,6 @@ export const AdminDashboard = () => {
     setIsMenuModalOpen(false);
   };
 
-  const handleOpenPromoModal = (promo = null) => {
-    if (promo) {
-      setEditingPromo(promo);
-      setPromoTitle(promo.title);
-      setPromoDesc(promo.description);
-      setPromoType(promo.discount_type || 'DISCOUNT_BAHT');
-      setPromoValue(promo.discount_value || '');
-      setPromoBadge(promo.badge_text || 'โปรโมชั่น');
-      setPromoIsActive(promo.is_active !== undefined ? promo.is_active : true);
-      setPromoStartDate(promo.start_date || '');
-      setPromoEndDate(promo.end_date || '');
-    } else {
-      setEditingPromo(null);
-      setPromoTitle('');
-      setPromoDesc('');
-      setPromoType('DISCOUNT_BAHT');
-      setPromoValue('ลด 10฿');
-      setPromoBadge('โปรโมชั่นพิเศษ');
-      setPromoIsActive(true);
-      setPromoStartDate(new Date().toISOString().split('T')[0]);
-      setPromoEndDate('2026-12-31');
-    }
-    setIsPromoModalOpen(true);
-  };
-
-  const handlePromoSubmit = (e) => {
-    e.preventDefault();
-    if (!promoTitle.trim()) {
-      triggerToast('กรุณากรอกชื่อโปรโมชั่น', 'danger');
-      return;
-    }
-    const payload = {
-      id: editingPromo?.id,
-      title: promoTitle,
-      description: promoDesc,
-      discount_type: promoType,
-      discount_value: promoValue,
-      badge_text: promoBadge,
-      is_active: promoIsActive,
-      start_date: promoStartDate,
-      end_date: promoEndDate
-    };
-    if (editingPromo) {
-      updatePromotion(payload);
-    } else {
-      addPromotion(payload);
-    }
-    setIsPromoModalOpen(false);
-  };
-
   const handleStaffSubmit = async (e) => {
     e.preventDefault();
     if (!staffEmail || !staffPassword || !staffName) {
@@ -249,14 +176,6 @@ export const AdminDashboard = () => {
         >
           <Coffee size={16} />
           จัดการเมนูเครื่องดื่ม
-        </button>
-        <button 
-          className={`tab-btn ${adminTab === 'promotions' ? 'active' : ''}`}
-          onClick={() => setAdminTab('promotions')}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-        >
-          <Tag size={16} />
-          จัดการโปรโมชั่น/สถานะสินค้า
         </button>
         <button 
           className={`tab-btn ${adminTab === 'members' ? 'active' : ''}`}
@@ -404,7 +323,7 @@ export const AdminDashboard = () => {
                 lineHeight: 1.5,
                 fontWeight: 500
               }}>
-                💡 <b>คำแนะนำร้านค้า:</b> มะม่วงเสาวรสปั่น และสตรอว์เบอร์รีโยเกิร์ตเป็นเมนูที่สร้างรายได้ดีที่สุด แอดมินสามารถเปิด/ปิดสต๊อกวัตถุดิบและปรับราคาขายได้ทันทีในหน้าเครื่องดื่มถัดไป
+                💡 <b>คำแนะนำร้านค้า:</b> มะม่วงเสาวรสปั่น และสตรอว์เบอร์รีโยเกิร์ตเป็นเมนูที่สร้างรายได้ดีที่สุด แอดมินสามารถปรับราคาขายและแก้ไขรายการได้ในหน้าเครื่องดื่มถัดไป
               </div>
             </div>
 
@@ -583,52 +502,7 @@ export const AdminDashboard = () => {
                         }
                       } catch (e) {}
 
-                      return (
-                        <tr key={c.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                          <td style={{ padding: '10px 8px', fontWeight: 600 }}>{formattedDate}</td>
-                          <td style={{ padding: '10px 8px' }}>{c.staff_name}</td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center' }}>{c.cups_sold}</td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center' }}>{c.free_cups_redeemed}</td>
-                          <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 700, color: 'var(--brown)' }}>
-                            ฿{c.total_revenue.toLocaleString('th-TH')}
-                          </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 700, color: 'var(--primary)' }}>
-                            ฿{(c.cash_actual || c.total_revenue).toLocaleString('th-TH')}
-                          </td>
-                          <td style={{ padding: '10px 8px', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                            {c.notes || '-'}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-        </div>
-      )}
-
-      {/* ================= ADMIN TAB: MENU MANAGEMENT CRUD ================= */}
-      {adminTab === 'menu' && (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-            <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem' }}>
-              รายการเครื่องดื่ม & ท็อปปิ้งทั้งหมด ในระบบร้านค้า
-            </h4>
-            <button 
-              onClick={() => handleOpenMenuModal(null)}
-              className="btn btn-primary"
-              style={{ width: 'auto', padding: '8px 16px', fontSize: '0.8rem', borderRadius: '10px' }}
-            >
-              <Plus size={14} /> เพิ่มเครื่องดื่ม/ท็อปปิ้งใหม่
-            </button>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
-            
-            {/* 1. SMOOTHIES TABLE */}
+                                 {/* 1. SMOOTHIES TABLE */}
             <div className="card" style={{ padding: '16px 20px', margin: 0 }}>
               <h5 style={{ color: 'var(--brown)', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '12px' }}>
                 🥤 รายการเครื่องดื่มทั้งหมด (ร้อน / เย็น / ปั่น)
@@ -644,7 +518,6 @@ export const AdminDashboard = () => {
                       <th style={{ padding: '8px' }}>ราคาตั้งต้น</th>
                       <th style={{ padding: '8px' }}>ยอดขายรวม</th>
                       <th style={{ padding: '8px' }}>ความนิยม</th>
-                      <th style={{ padding: '8px' }}>สถานะสินค้า</th>
                       <th style={{ padding: '8px', textAlign: 'right' }}>เครื่องมือ</th>
                     </tr>
                   </thead>
@@ -673,23 +546,6 @@ export const AdminDashboard = () => {
                           {item.is_popular ? (
                             <span className="badge badge-pending" style={{ fontSize: '0.65rem', padding: '2px 8px' }}>ยอดฮิต 🔥</span>
                           ) : '-'}
-                        </td>
-                        <td style={{ padding: '8px' }}>
-                          <button
-                            onClick={() => toggleMenuItemAvailability(item.id)}
-                            style={{
-                              backgroundColor: item.is_available ? 'var(--success-light)' : 'var(--danger-light)',
-                              color: item.is_available ? 'var(--success)' : 'var(--danger)',
-                              border: 'none',
-                              padding: '4px 8px',
-                              borderRadius: '6px',
-                              fontSize: '0.7rem',
-                              fontWeight: 700,
-                              cursor: 'pointer'
-                            }}
-                          >
-                            {item.is_available ? 'พร้อมขาย (In-Stock)' : 'สินค้าหมด (Out-of-Stock)'}
-                          </button>
                         </td>
                         <td style={{ padding: '8px', textAlign: 'right' }}>
                           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
@@ -732,7 +588,6 @@ export const AdminDashboard = () => {
                     <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--text-muted)' }}>
                       <th style={{ padding: '8px' }}>ชื่อท็อปปิ้ง</th>
                       <th style={{ padding: '8px' }}>ราคาเพิ่มเติม</th>
-                      <th style={{ padding: '8px' }}>สถานะท็อปปิ้ง</th>
                       <th style={{ padding: '8px', textAlign: 'right' }}>เครื่องมือ</th>
                     </tr>
                   </thead>
@@ -741,23 +596,6 @@ export const AdminDashboard = () => {
                       <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
                         <td style={{ padding: '8px', fontWeight: 'bold', color: 'var(--brown)' }}>{item.name}</td>
                         <td style={{ padding: '8px' }}>+฿{item.base_price}</td>
-                        <td style={{ padding: '8px' }}>
-                          <button
-                            onClick={() => toggleMenuItemAvailability(item.id)}
-                            style={{
-                              backgroundColor: item.is_available ? 'var(--success-light)' : 'var(--danger-light)',
-                              color: item.is_available ? 'var(--success)' : 'var(--danger)',
-                              border: 'none',
-                              padding: '4px 8px',
-                              borderRadius: '6px',
-                              fontSize: '0.7rem',
-                              fontWeight: 700,
-                              cursor: 'pointer'
-                            }}
-                          >
-                            {item.is_available ? 'พร้อมให้บริการ' : 'หมด (ชั่วคราว)'}
-                          </button>
-                        </td>
                         <td style={{ padding: '8px', textAlign: 'right' }}>
                           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                             <button 
@@ -786,393 +624,6 @@ export const AdminDashboard = () => {
             </div>
 
           </div>
-        </div>
-      )}
-
-      {/* ================= ADMIN TAB: PROMOTIONS & STOCK STATUS ================= */}
-      {adminTab === 'promotions' && (
-        <div style={{ animation: 'pop-in 0.3s ease', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          
-          {/* 1. Header Overview KPI Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-            <div className="card" style={{ borderLeft: '4px solid var(--primary)', margin: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
-                <span>แคมเปญโปรโมชั่นเปิดใช้งาน</span>
-                <Gift size={15} color="var(--primary)" />
-              </div>
-              <p style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--brown)', margin: '4px 0' }}>
-                {(promotions || []).filter(p => p.is_active).length} <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-muted)' }}>/ {(promotions || []).length} แคมเปญ</span>
-              </p>
-              <span style={{ fontSize: '0.7rem', color: 'var(--success)' }}>
-                🎉 แสดงผลบนหน้าสั่งซื้อของลูกค้า
-              </span>
-            </div>
-
-            <div className="card" style={{ borderLeft: '4px solid var(--success)', margin: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
-                <span>สินค้าพร้อมจำหน่าย (In-Stock)</span>
-                <Check size={15} color="var(--success)" />
-              </div>
-              <p style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--success)', margin: '4px 0' }}>
-                {menuItems.filter(i => i.is_available).length} <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-muted)' }}>/ {menuItems.length} รายการ</span>
-              </p>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                รวมเครื่องดื่มทุกหมวดและท็อปปิ้ง
-              </span>
-            </div>
-
-            <div className="card" style={{ borderLeft: '4px solid var(--danger)', margin: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
-                <span>สินค้าหมดชั่วคราว (Out of Stock)</span>
-                <AlertCircle size={15} color="var(--danger)" />
-              </div>
-              <p style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--danger)', margin: '4px 0' }}>
-                {menuItems.filter(i => !i.is_available).length} <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-muted)' }}>รายการ</span>
-              </p>
-              <span style={{ fontSize: '0.7rem', color: 'var(--danger)' }}>
-                ⚠️ ลูกค้าไม่สามารถกดสั่งซื้อได้
-              </span>
-            </div>
-
-            <div className="card" style={{ borderLeft: '4px solid #ff9800', margin: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
-                <span>เมนูยอดฮิตประจำร้าน (Popular)</span>
-                <Flame size={15} color="#ff9800" />
-              </div>
-              <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#e65100', margin: '4px 0' }}>
-                {menuItems.filter(i => i.is_popular).length} <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-muted)' }}>รายการ</span>
-              </p>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                🔥 ติดป้ายยอดนิยมหน้าแรก
-              </span>
-            </div>
-          </div>
-
-          {/* 2. PROMOTIONS SECTION */}
-          <div className="card" style={{ margin: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-              <div>
-                <h4 style={{ color: 'var(--brown)', fontWeight: 800, fontSize: '1.1rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Tag size={18} color="var(--primary)" /> จัดการแคมเปญโปรโมชั่นและส่วนลด
-                </h4>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', margin: '2px 0 0 0' }}>
-                  เปิด-ปิด หรือสร้างแคมเปญโปรโมชั่น สิทธิประโยชน์แต้มสะสม และส่วนลดเมนูพิเศษ
-                </p>
-              </div>
-              <button 
-                onClick={() => handleOpenPromoModal(null)}
-                className="btn btn-primary"
-                style={{ width: 'auto', padding: '8px 16px', fontSize: '0.8rem', borderRadius: '10px' }}
-              >
-                <Plus size={14} /> เพิ่มโปรโมชั่นใหม่
-              </button>
-            </div>
-
-            {/* Promotions Cards Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
-              {(promotions || []).length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)', gridColumn: '1 / -1' }}>
-                  ยังไม่มีโปรโมชั่นในระบบ กดปุ่ม "เพิ่มโปรโมชั่นใหม่" เพื่อเริ่มต้น
-                </div>
-              ) : (
-                (promotions || []).map(promo => {
-                  const isActive = promo.is_active;
-                  return (
-                    <div 
-                      key={promo.id}
-                      style={{
-                        backgroundColor: isActive ? 'var(--bg-card)' : 'var(--bg)',
-                        border: isActive ? '1.5px solid var(--primary-light)' : '1px solid var(--border)',
-                        borderRadius: '12px',
-                        padding: '16px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
-                        position: 'relative',
-                        transition: 'var(--transition)'
-                      }}
-                    >
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                          <span style={{
-                            backgroundColor: isActive ? 'var(--primary-light)' : 'var(--brown-pale)',
-                            color: isActive ? 'var(--primary)' : 'var(--text-muted)',
-                            padding: '3px 8px',
-                            borderRadius: '6px',
-                            fontSize: '0.7rem',
-                            fontWeight: 700
-                          }}>
-                            {promo.badge_text || 'โปรโมชั่น'}
-                          </span>
-
-                          {/* Quick Toggle Active Status */}
-                          <button
-                            onClick={() => togglePromotionActive(promo.id)}
-                            style={{
-                              backgroundColor: isActive ? 'var(--success-light)' : 'var(--danger-light)',
-                              color: isActive ? 'var(--success)' : 'var(--danger)',
-                              border: 'none',
-                              padding: '4px 10px',
-                              borderRadius: '20px',
-                              fontSize: '0.7rem',
-                              fontWeight: 700,
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px'
-                            }}
-                          >
-                            {isActive ? '🟢 เปิดใช้งาน' : '⚪ ปิดใช้งาน'}
-                          </button>
-                        </div>
-
-                        <h5 style={{ color: 'var(--brown)', fontSize: '0.95rem', fontWeight: 800, margin: '4px 0 6px 0' }}>
-                          {promo.title}
-                        </h5>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', lineHeight: 1.4, margin: '0 0 12px 0' }}>
-                          {promo.description}
-                        </p>
-                      </div>
-
-                      <div style={{ borderTop: '1px solid var(--border)', paddingTop: '10px', marginTop: '10px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', marginBottom: '8px' }}>
-                          <span style={{ color: 'var(--text-muted)' }}>สิทธิพิเศษ:</span>
-                          <span style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '0.85rem' }}>
-                            🏷️ {promo.discount_value || 'พิเศษ'}
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                          <span>ระยะเวลา:</span>
-                          <span>{promo.start_date} ถึง {promo.end_date}</span>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                          <button
-                            onClick={() => handleOpenPromoModal(promo)}
-                            className="btn btn-outline"
-                            style={{ width: 'auto', padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
-                          >
-                            <Edit3 size={13} /> แก้ไข
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (confirm(`ยืนยันการลบโปรโมชั่น "${promo.title}"?`)) {
-                                deletePromotion(promo.id);
-                              }
-                            }}
-                            className="btn btn-danger"
-                            style={{ width: 'auto', padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
-                          >
-                            <Trash2 size={13} /> ลบ
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-
-          {/* 3. LIVE STOCK & AVAILABILITY CONTROL HUB */}
-          <div className="card" style={{ margin: 0 }}>
-            <div style={{ marginBottom: '16px' }}>
-              <h4 style={{ color: 'var(--brown)', fontWeight: 800, fontSize: '1.1rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <SlidersHorizontal size={18} color="var(--primary)" /> ศูนย์จัดการสถานะสินค้า & สต็อกวัตถุดิบ (Live Stock Hub)
-              </h4>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', margin: '2px 0 0 0' }}>
-                เปิด-ปิดสต็อกสินค้าทันทีเมื่อวัตถุดิบหมด หรือกำหนดป้ายเมนูยอดฮิต (Best Sellers) ให้แสดงเด่นหน้าร้าน
-              </p>
-            </div>
-
-            {/* Filter and Search Controls */}
-            <div style={{ 
-              display: 'flex', 
-              flexWrap: 'wrap', 
-              gap: '12px', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              backgroundColor: 'var(--bg)', 
-              padding: '12px 16px', 
-              borderRadius: '10px', 
-              marginBottom: '16px' 
-            }}>
-              {/* Search input */}
-              <div style={{ position: 'relative', minWidth: '220px', flex: 1 }}>
-                <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input 
-                  type="text"
-                  className="form-input"
-                  placeholder="ค้นหาชื่อเครื่องดื่ม หรือท็อปปิ้ง..."
-                  value={stockSearch}
-                  onChange={e => setStockSearch(e.target.value)}
-                  style={{ paddingLeft: '32px', fontSize: '0.8rem', height: '36px' }}
-                />
-              </div>
-
-              {/* Category Pills */}
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                {[
-                  { id: 'ALL', label: 'ทั้งหมด' },
-                  { id: 'Smoothie', label: '🥤 ปั่น' },
-                  { id: 'Iced', label: '🍹 เย็น' },
-                  { id: 'Hot', label: '☕ ร้อน' },
-                  { id: 'Topping', label: '🍒 ท็อปปิ้ง' }
-                ].map(cat => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setStockCategory(cat.id)}
-                    style={{
-                      padding: '4px 10px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      borderRadius: '20px',
-                      border: '1px solid var(--border)',
-                      backgroundColor: stockCategory === cat.id ? 'var(--brown)' : 'var(--bg-card)',
-                      color: stockCategory === cat.id ? 'white' : 'var(--brown)',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Status Filter */}
-              <select
-                className="form-input"
-                value={stockStatusFilter}
-                onChange={e => setStockStatusFilter(e.target.value)}
-                style={{ width: 'auto', minWidth: '150px', fontSize: '0.8rem', height: '36px', appearance: 'auto' }}
-              >
-                <option value="ALL">สถานะ: ทั้งหมด</option>
-                <option value="IN_STOCK">เฉพาะ: พร้อมขาย (In-Stock)</option>
-                <option value="OUT_OF_STOCK">เฉพาะ: สินค้าหมด (Out-of-Stock)</option>
-                <option value="POPULAR">เฉพาะ: เมนูยอดฮิต 🔥</option>
-              </select>
-            </div>
-
-            {/* Items Live Table */}
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--text-muted)', backgroundColor: 'var(--bg)' }}>
-                    <th style={{ padding: '12px 10px', width: '50px', textAlign: 'center' }}>ไอคอน</th>
-                    <th style={{ padding: '12px 10px' }}>ชื่อรายการสินค้า</th>
-                    <th style={{ padding: '12px 10px', textAlign: 'center' }}>หมวดหมู่</th>
-                    <th style={{ padding: '12px 10px' }}>ราคา</th>
-                    <th style={{ padding: '12px 10px', textAlign: 'center' }}>ยอดขายสะสม</th>
-                    <th style={{ padding: '12px 10px', textAlign: 'center' }}>ป้ายยอดนิยม 🔥</th>
-                    <th style={{ padding: '12px 10px', textAlign: 'center' }}>สถานะสต็อกสินค้า</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(() => {
-                    const allItems = [
-                      ...smoothies.map(s => ({ ...s, isTopping: false })),
-                      ...toppings.map(t => ({ ...t, isTopping: true, image_url: '🍒' }))
-                    ];
-                    const filtered = allItems.filter(item => {
-                      const matchSearch = item.name.toLowerCase().includes(stockSearch.toLowerCase());
-                      const matchCat = stockCategory === 'ALL' || (stockCategory === 'Topping' ? item.isTopping : item.category === stockCategory);
-                      let matchStatus = true;
-                      if (stockStatusFilter === 'IN_STOCK') matchStatus = item.is_available;
-                      if (stockStatusFilter === 'OUT_OF_STOCK') matchStatus = !item.is_available;
-                      if (stockStatusFilter === 'POPULAR') matchStatus = item.is_popular;
-                      return matchSearch && matchCat && matchStatus;
-                    });
-
-                    if (filtered.length === 0) {
-                      return (
-                        <tr>
-                          <td colSpan={7} style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
-                            ไม่พบรายการสินค้าตรงกับเงื่อนไขการค้นหา
-                          </td>
-                        </tr>
-                      );
-                    }
-
-                    return filtered.map(item => (
-                      <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                        <td style={{ padding: '10px', fontSize: '1.4rem', textAlign: 'center' }}>
-                          {item.image_url || '🥤'}
-                        </td>
-                        <td style={{ padding: '10px', fontWeight: 700, color: 'var(--brown)' }}>
-                          {item.name}
-                        </td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>
-                          <span style={{
-                            backgroundColor: 'var(--brown-pale)',
-                            color: 'var(--brown)',
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            fontSize: '0.72rem',
-                            fontWeight: 700
-                          }}>
-                            {item.isTopping ? 'ท็อปปิ้ง' : item.category}
-                          </span>
-                        </td>
-                        <td style={{ padding: '10px', fontWeight: 700, color: 'var(--primary)' }}>
-                          ฿{item.base_price}
-                        </td>
-                        <td style={{ padding: '10px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                          {item.total_sold_count !== undefined ? `${item.total_sold_count} แก้ว` : '-'}
-                        </td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>
-                          {!item.isTopping ? (
-                            <button
-                              type="button"
-                              onClick={() => togglePopularStatus(item.id)}
-                              style={{
-                                backgroundColor: item.is_popular ? '#fff3e0' : 'var(--bg)',
-                                color: item.is_popular ? '#e65100' : 'var(--text-muted)',
-                                border: item.is_popular ? '1.5px solid #ff9800' : '1px solid var(--border)',
-                                padding: '4px 10px',
-                                borderRadius: '16px',
-                                fontSize: '0.75rem',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                transition: 'var(--transition)'
-                              }}
-                            >
-                              {item.is_popular ? '🔥 ยอดฮิต' : 'ปกติ'}
-                            </button>
-                          ) : (
-                            <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>-</span>
-                          )}
-                        </td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>
-                          <button
-                            type="button"
-                            onClick={() => toggleMenuItemAvailability(item.id)}
-                            style={{
-                              backgroundColor: item.is_available ? 'var(--success-light)' : 'var(--danger-light)',
-                              color: item.is_available ? 'var(--success)' : 'var(--danger)',
-                              border: item.is_available ? '1.5px solid var(--success)' : '1.5px solid var(--danger)',
-                              padding: '6px 14px',
-                              borderRadius: '20px',
-                              fontSize: '0.78rem',
-                              fontWeight: 800,
-                              cursor: 'pointer',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              boxShadow: item.is_available ? '0 2px 6px rgba(46, 125, 50, 0.15)' : 'none',
-                              transition: 'var(--transition)'
-                            }}
-                          >
-                            {item.is_available ? '🟢 พร้อมขาย (In-Stock)' : '🔴 สินค้าหมด (Out-of-Stock)'}
-                          </button>
-                        </td>
-                      </tr>
-                    ));
-                  })()}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
         </div>
       )}
 
@@ -1559,128 +1010,6 @@ export const AdminDashboard = () => {
               <button 
                 type="button"
                 onClick={() => setIsMenuModalOpen(false)}
-                className="btn btn-outline"
-              >
-                ยกเลิก
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ================= ADD/EDIT PROMOTION MODAL DIALOG ================= */}
-      {isPromoModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsPromoModalOpen(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '440px' }}>
-            <h3 style={{ color: 'var(--brown)', fontWeight: 800, fontSize: '1.2rem', marginBottom: '16px' }}>
-              {editingPromo ? 'แก้ไขแคมเปญโปรโมชั่น' : 'สร้างแคมเปญโปรโมชั่นใหม่'}
-            </h3>
-
-            <form onSubmit={handlePromoSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              
-              <div className="form-group" style={{ margin: 0 }}>
-                <label>ชื่อแคมเปญโปรโมชั่น</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="เช่น ลด 10฿ ชาไทยและชาเขียว"
-                  value={promoTitle}
-                  onChange={e => setPromoTitle(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-group" style={{ margin: 0 }}>
-                <label>ป้ายข้อความกำกับ (Badge Label)</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="เช่น เมนูยอดฮิต, Special, Flash Sale"
-                  value={promoBadge}
-                  onChange={e => setPromoBadge(e.target.value)}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label>ประเภทโปรโมชั่น</label>
-                  <select 
-                    className="form-input" 
-                    value={promoType} 
-                    onChange={e => setPromoType(e.target.value)}
-                    style={{ appearance: 'auto' }}
-                  >
-                    <option value="DISCOUNT_BAHT">ส่วนลดบาท (Baht)</option>
-                    <option value="DOUBLE_POINTS">แต้มคูณสอง (Points x2)</option>
-                    <option value="FREE_ITEM">แลกรับฟรี (Free Drink)</option>
-                    <option value="HAPPY_HOUR">Happy Hour ช่วงเวลา</option>
-                  </select>
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label>มูลค่าส่วนลด / สิทธิ์</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
-                    placeholder="เช่น ลด 10฿ หรือ แต้ม x2"
-                    value={promoValue}
-                    onChange={e => setPromoValue(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="form-group" style={{ margin: 0 }}>
-                <label>คำอธิบายรายละเอียดโปรโมชั่น</label>
-                <textarea 
-                  className="form-input" 
-                  placeholder="ระบุเงื่อนไขและรายละเอียดโปรโมชั่นให้ลูกค้าทราบ..."
-                  value={promoDesc}
-                  onChange={e => setPromoDesc(e.target.value)}
-                  rows={3}
-                  style={{ resize: 'vertical' }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label>วันที่เริ่มต้น</label>
-                  <input 
-                    type="date" 
-                    className="form-input" 
-                    value={promoStartDate}
-                    onChange={e => setPromoStartDate(e.target.value)}
-                  />
-                </div>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label>วันที่สิ้นสุด</label>
-                  <input 
-                    type="date" 
-                    className="form-input" 
-                    value={promoEndDate}
-                    onChange={e => setPromoEndDate(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input 
-                    type="checkbox" 
-                    checked={promoIsActive}
-                    onChange={e => setPromoIsActive(e.target.checked)}
-                    style={{ width: '16px', height: '16px', accentColor: 'var(--primary)' }}
-                  />
-                  <span>เปิดใช้งานแคมเปญทันที (Active)</span>
-                </label>
-              </div>
-
-              <button type="submit" className="btn btn-primary" style={{ marginTop: '10px' }}>
-                <Check size={16} /> ยืนยันบันทึกโปรโมชั่น
-              </button>
-
-              <button 
-                type="button"
-                onClick={() => setIsPromoModalOpen(false)}
                 className="btn btn-outline"
               >
                 ยกเลิก

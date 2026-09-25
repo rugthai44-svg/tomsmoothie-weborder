@@ -7,7 +7,6 @@ const AppContext = createContext(null);
 export const AppProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
-  const [promotions, setPromotions] = useState([]);
   const [orders, setOrders] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [currentUser, setCurrentUser] = useState(() => {
@@ -67,9 +66,8 @@ export const AppProvider = ({ children }) => {
       
       if (dbUsers) setUsers(dbUsers);
       
-      // 2. Fetch Menu Items and Promotions (Local mock db)
+      // 2. Fetch Menu Items (Local mock db)
       setMenuItems(mockDb.getMenu());
-      setPromotions(mockDb.getPromotions());
       
       // 3. Fetch Orders (with nested items)
       const { data: dbOrders, error: ordersErr } = await supabase
@@ -860,7 +858,6 @@ export const AppProvider = ({ children }) => {
       base_price: Number(item.base_price),
       image_url: ['Smoothie', 'Iced', 'Hot'].includes(item.category) ? (item.image_url || '🥤') : null,
       is_popular: !!item.is_popular,
-      is_available: true,
       total_sold_count: 0
     };
     const updatedMenu = [...menuItems, newItem];
@@ -895,19 +892,6 @@ export const AppProvider = ({ children }) => {
     triggerToast(`ลบรายการ "${target?.name || ''}" สำเร็จ`, 'success');
   };
 
-  const toggleMenuItemAvailability = (id) => {
-    const updatedMenu = menuItems.map(item => {
-      if (item.id === id) {
-        const nextState = !item.is_available;
-        triggerToast(`เปลี่ยนสถานะ "${item.name}" เป็น [${nextState ? 'พร้อมขาย' : 'หมด'}]`, 'info');
-        return { ...item, is_available: nextState };
-      }
-      return item;
-    });
-    setMenuItems(updatedMenu);
-    mockDb.saveMenu(updatedMenu);
-  };
-
   const togglePopularStatus = (id) => {
     const updatedMenu = menuItems.map(item => {
       if (item.id === id) {
@@ -919,58 +903,6 @@ export const AppProvider = ({ children }) => {
     });
     setMenuItems(updatedMenu);
     mockDb.saveMenu(updatedMenu);
-  };
-
-  // ADMIN: Promotions Management
-  const addPromotion = (promo) => {
-    const newPromo = {
-      id: 'promo-' + Date.now(),
-      title: promo.title,
-      description: promo.description,
-      discount_type: promo.discount_type || 'DISCOUNT_BAHT',
-      discount_value: promo.discount_value || 'ลดพิเศษ',
-      badge_text: promo.badge_text || 'โปรโมชั่น',
-      is_active: promo.is_active !== undefined ? promo.is_active : true,
-      start_date: promo.start_date || new Date().toISOString().split('T')[0],
-      end_date: promo.end_date || '2026-12-31'
-    };
-    const updated = [newPromo, ...promotions];
-    setPromotions(updated);
-    mockDb.savePromotions(updated);
-    triggerToast(`เพิ่มโปรโมชั่น "${promo.title}" สำเร็จ`, 'success');
-  };
-
-  const updatePromotion = (updatedPromo) => {
-    const updated = promotions.map(p => {
-      if (p.id === updatedPromo.id) {
-        return { ...p, ...updatedPromo };
-      }
-      return p;
-    });
-    setPromotions(updated);
-    mockDb.savePromotions(updated);
-    triggerToast(`อัปเดตโปรโมชั่น "${updatedPromo.title}" สำเร็จ`, 'success');
-  };
-
-  const deletePromotion = (id) => {
-    const target = promotions.find(p => p.id === id);
-    const updated = promotions.filter(p => p.id !== id);
-    setPromotions(updated);
-    mockDb.savePromotions(updated);
-    triggerToast(`ลบโปรโมชั่น "${target?.title || ''}" สำเร็จ`, 'success');
-  };
-
-  const togglePromotionActive = (id) => {
-    const updated = promotions.map(p => {
-      if (p.id === id) {
-        const next = !p.is_active;
-        triggerToast(`เปลี่ยนสถานะโปรโมชั่น "${p.title}" เป็น [${next ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}]`, 'info');
-        return { ...p, is_active: next };
-      }
-      return p;
-    });
-    setPromotions(updated);
-    mockDb.savePromotions(updated);
   };
 
   // ADMIN: Staff Management CRUD
@@ -1192,7 +1124,6 @@ export const AppProvider = ({ children }) => {
       // 4. Update local states
       setUsers(res.users);
       setMenuItems(res.menu);
-      setPromotions(res.promotions || []);
       setOrders(res.orders);
       setTransactions(res.transactions);
       setDailyClosings(res.dailyClosings || []);
@@ -1224,7 +1155,6 @@ export const AppProvider = ({ children }) => {
       value={{
         users,
         menuItems,
-        promotions,
         orders,
         transactions,
         currentUser,
@@ -1246,12 +1176,7 @@ export const AppProvider = ({ children }) => {
         addMenuItem,
         updateMenuItem,
         deleteMenuItem,
-        toggleMenuItemAvailability,
         togglePopularStatus,
-        addPromotion,
-        updatePromotion,
-        deletePromotion,
-        togglePromotionActive,
         registerStaff,
         toggleStaffStatus,
         resetDatabase,

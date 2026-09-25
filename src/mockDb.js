@@ -7,7 +7,6 @@ const DB_KEYS = {
   ORDERS: 'tomsmoothie_orders',
   TRANSACTIONS: 'tomsmoothie_point_transactions',
   DAILY_CLOSINGS: 'tomsmoothie_daily_closings',
-  PROMOTIONS: 'tomsmoothie_promotions',
 };
 
 // Initial Data definitions
@@ -38,7 +37,6 @@ const INITIAL_MENU = [
     base_price: 65,
     image_url: '🍊', // Emoji shorthand representation
     is_popular: true,
-    is_available: true,
     total_sold_count: 145
   },
   {
@@ -48,7 +46,6 @@ const INITIAL_MENU = [
     base_price: 70,
     image_url: '🍓',
     is_popular: true,
-    is_available: true,
     total_sold_count: 180
   },
   {
@@ -58,7 +55,6 @@ const INITIAL_MENU = [
     base_price: 60,
     image_url: '🥥',
     is_popular: true,
-    is_available: true,
     total_sold_count: 120
   },
   {
@@ -68,7 +64,6 @@ const INITIAL_MENU = [
     base_price: 55,
     image_url: '🍫',
     is_popular: true,
-    is_available: true,
     total_sold_count: 95
   },
   {
@@ -78,7 +73,6 @@ const INITIAL_MENU = [
     base_price: 85,
     image_url: '🥑',
     is_popular: true,
-    is_available: true,
     total_sold_count: 110
   },
   {
@@ -88,7 +82,6 @@ const INITIAL_MENU = [
     base_price: 50,
     image_url: '🍊',
     is_popular: false,
-    is_available: true,
     total_sold_count: 40
   },
   {
@@ -98,7 +91,6 @@ const INITIAL_MENU = [
     base_price: 45,
     image_url: '🍉',
     is_popular: false,
-    is_available: false, // Out of stock to show toggle
     total_sold_count: 50
   },
   {
@@ -108,7 +100,6 @@ const INITIAL_MENU = [
     base_price: 75,
     image_url: '🫐',
     is_popular: false,
-    is_available: true,
     total_sold_count: 65
   },
   // Iced drinks
@@ -119,151 +110,93 @@ const INITIAL_MENU = [
     base_price: 50,
     image_url: '🍹',
     is_popular: true,
-    is_available: true,
     total_sold_count: 85
   },
   {
     id: 'm-iced-2',
-    name: 'ชาเขียวมัทฉะเย็น (Iced Matcha Latte)',
+    name: 'ชาเขียวมัทฉะลาเต้เย็น (Iced Matcha Latte)',
     category: 'Iced',
     base_price: 55,
     image_url: '🍵',
-    is_popular: false,
-    is_available: true,
-    total_sold_count: 60
+    is_popular: true,
+    total_sold_count: 90
   },
   {
     id: 'm-iced-3',
-    name: 'กาแฟเอสเปรสโซ่เย็น (Iced Espresso)',
+    name: 'ชามะนาวเย็น (Iced Lemon Tea)',
     category: 'Iced',
-    base_price: 55,
-    image_url: '🥤',
+    base_price: 45,
+    image_url: '🍋',
     is_popular: false,
-    is_available: true,
-    total_sold_count: 70
+    total_sold_count: 60
   },
   {
     id: 'm-iced-4',
-    name: 'นมสดสตรอว์เบอร์รีเย็น (Iced Strawberry Milk)',
+    name: 'อเมริกาโน่เย็น (Iced Americano)',
     category: 'Iced',
     base_price: 50,
-    image_url: '🥛',
-    is_popular: true,
-    is_available: true,
-    total_sold_count: 90
+    image_url: '☕',
+    is_popular: false,
+    total_sold_count: 45
   },
   // Hot drinks
   {
     id: 'm-hot-1',
-    name: 'โกโก้ร้อน (Hot Cocoa)',
+    name: 'ชาไทยร้อน (Hot Thai Tea)',
     category: 'Hot',
     base_price: 45,
     image_url: '☕',
     is_popular: false,
-    is_available: true,
-    total_sold_count: 35
+    total_sold_count: 25
   },
   {
     id: 'm-hot-2',
-    name: 'กาแฟคาปูชิโน่ร้อน (Hot Cappuccino)',
+    name: 'ชาเขียวมัทฉะร้อน (Hot Matcha Latte)',
     category: 'Hot',
     base_price: 50,
-    image_url: '☕',
-    is_popular: true,
-    is_available: true,
-    total_sold_count: 45
+    image_url: '🍵',
+    is_popular: false,
+    total_sold_count: 30
   },
   {
     id: 'm-hot-3',
-    name: 'นมสดน้ำผึ้งร้อน (Hot Honey Milk)',
+    name: 'โกโก้ร้อน (Hot Cocoa)',
     category: 'Hot',
-    base_price: 40,
-    image_url: '🥛',
+    base_price: 45,
+    image_url: '🍫',
     is_popular: false,
-    is_available: true,
     total_sold_count: 20
   },
-  // Toppings (stored as distinct entities)
+  // Toppings
   {
     id: 't-1',
-    name: 'วุ้นว่านหางจระเข้ (Aloe Vera)',
+    name: 'ไข่มุกบราวน์ชูการ์ (Brown Sugar Pearls)',
     category: 'Topping',
-    base_price: 10,
-    is_available: true
+    base_price: 10
   },
   {
     id: 't-2',
-    name: 'ไข่มุกบุก (Konjac Pearl)',
+    name: 'ว่านหางจระเข้ (Aloe Vera)',
     category: 'Topping',
-    base_price: 10,
-    is_available: true
+    base_price: 10
   },
   {
     id: 't-3',
     name: 'เยลลี่สีรุ้ง (Rainbow Jelly)',
     category: 'Topping',
-    base_price: 10,
-    is_available: true
+    base_price: 10
   },
   {
     id: 't-4',
     name: 'วิปครีมทิปปิ้ง (Whipped Cream)',
     category: 'Topping',
-    base_price: 10,
-    is_available: true
+    base_price: 10
   }
 ];
 
 const INITIAL_ORDERS = [];
 
 const INITIAL_TRANSACTIONS = [];
-
-const INITIAL_PROMOTIONS = [
-  {
-    id: 'promo-1',
-    title: '🎉 สะสมครบ 10 แต้ม แลกรับเครื่องดื่มฟรี 1 แก้ว',
-    description: 'สั่งซื้อเครื่องดื่มทุกแก้วรับ 1 แต้มสะสมดิจิทัล เมื่อครบ 10 แต้ม สามารถกดแลกเครื่องดื่มเมนูใดก็ได้ฟรี 1 แก้วทันที',
-    discount_type: 'FREE_ITEM',
-    discount_value: 'ฟรี 1 แก้ว',
-    badge_text: 'สิทธิประโยชน์สมาชิก',
-    is_active: true,
-    start_date: '2026-01-01',
-    end_date: '2026-12-31'
-  },
-  {
-    id: 'promo-2',
-    title: '🍓 สตรอว์เบอร์รีโยเกิร์ตปั่น ลดพิเศษ 10 บาท',
-    description: 'โปรโมชั่นเมนูยอดฮิตประจำสัปดาห์ ลดราคาพิเศษจากปกติ 70฿ เหลือเพียง 60฿',
-    discount_type: 'DISCOUNT_BAHT',
-    discount_value: 'ลด 10฿',
-    badge_text: 'เมนูยอดฮิต',
-    is_active: true,
-    start_date: '2026-08-01',
-    end_date: '2026-09-30'
-  },
-  {
-    id: 'promo-3',
-    title: '⚡ แต้มสะสม x2 วันเสาร์-อาทิตย์ (Double Points)',
-    description: 'สั่งซื้อเครื่องดื่มในวันหยุดเสาร์และอาทิตย์ รับแต้มสะสมดิจิทัลเพิ่มเป็น 2 เท่าทุกแก้ว',
-    discount_type: 'DOUBLE_POINTS',
-    discount_value: 'แต้ม x2',
-    badge_text: 'Weekend Special',
-    is_active: true,
-    start_date: '2026-08-15',
-    end_date: '2026-10-31'
-  },
-  {
-    id: 'promo-4',
-    title: '☕ Happy Hour บ่าย 2 ถึง 4 โมงเย็น ลด 5 บาท',
-    description: 'ลดราคาเครื่องดื่มหมวดร้อนและเย็นแก้วละ 5 บาท ในช่วงเวลา 14:00 - 16:00 น.',
-    discount_type: 'HAPPY_HOUR',
-    discount_value: 'ลด 5฿',
-    badge_text: 'Happy Hour',
-    is_active: false,
-    start_date: '2026-09-01',
-    end_date: '2026-09-15'
-  }
-];
 
 // Load helper
 function loadData(key, initial) {
@@ -306,10 +239,6 @@ export const mockDb = {
   // DAILY CLOSINGS
   getDailyClosings: () => loadData(DB_KEYS.DAILY_CLOSINGS, []),
   saveDailyClosings: (closings) => saveData(DB_KEYS.DAILY_CLOSINGS, closings),
-
-  // PROMOTIONS
-  getPromotions: () => loadData(DB_KEYS.PROMOTIONS, INITIAL_PROMOTIONS),
-  savePromotions: (promos) => saveData(DB_KEYS.PROMOTIONS, promos),
   
   // Clean all database data back to defaults
   resetAll: () => {
@@ -318,14 +247,12 @@ export const mockDb = {
     localStorage.removeItem(DB_KEYS.ORDERS);
     localStorage.removeItem(DB_KEYS.TRANSACTIONS);
     localStorage.removeItem(DB_KEYS.DAILY_CLOSINGS);
-    localStorage.removeItem(DB_KEYS.PROMOTIONS);
     return {
       users: loadData(DB_KEYS.USERS, INITIAL_USERS),
       menu: loadData(DB_KEYS.MENU, INITIAL_MENU),
       orders: loadData(DB_KEYS.ORDERS, INITIAL_ORDERS),
       transactions: loadData(DB_KEYS.TRANSACTIONS, INITIAL_TRANSACTIONS),
       dailyClosings: loadData(DB_KEYS.DAILY_CLOSINGS, []),
-      promotions: loadData(DB_KEYS.PROMOTIONS, INITIAL_PROMOTIONS),
     };
   }
 };
