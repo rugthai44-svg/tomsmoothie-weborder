@@ -167,7 +167,7 @@ export const CustomerPortal = () => {
   const totalCups = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', paddingBottom: '90px' }}>
       
       {/* Desktop Top Tabs Navigation */}
       <div className="desktop-tabs" style={{ 
@@ -567,7 +567,7 @@ export const CustomerPortal = () => {
                 ))}
               </div>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {smoothies
                   .filter(item => selectedCategory === 'ALL' || item.category === selectedCategory)
                   .map(item => (
@@ -581,51 +581,95 @@ export const CustomerPortal = () => {
                       justifyContent: 'space-between',
                       padding: '12px 14px',
                       margin: 0,
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      gap: '12px',
+                      border: '1px solid var(--border)',
+                      boxShadow: 'var(--shadow-sm)'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
                       <div style={{ 
                         fontSize: '2rem', 
                         backgroundColor: 'var(--brown-pale)', 
-                        width: '50px', 
-                        height: '50px', 
-                        borderRadius: '12px',
+                        width: '52px', 
+                        height: '52px', 
+                        minWidth: '52px',
+                        borderRadius: '14px',
                         display: 'flex', 
                         alignItems: 'center', 
-                        justifyContent: 'center' 
+                        justifyContent: 'center',
+                        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)'
                       }}>
                         {item.image_url}
                       </div>
-                      <div style={{ minWidth: 0 }}>
-                        <h5 style={{ fontSize: '0.9rem', color: 'var(--brown)', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <h5 style={{ 
+                          fontSize: '0.92rem', 
+                          color: 'var(--brown)', 
+                          fontWeight: 700, 
+                          lineHeight: '1.3',
+                          marginBottom: '4px',
+                          wordBreak: 'break-word'
+                        }}>
                           {item.name}
                         </h5>
-                        <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
+                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                           <span style={{
-                            fontSize: '0.65rem',
+                            fontSize: '0.68rem',
                             backgroundColor: 'var(--brown-pale)',
                             color: 'var(--brown)',
-                            padding: '1px 6px',
-                            borderRadius: '4px',
-                            fontWeight: 'bold'
+                            padding: '2px 8px',
+                            borderRadius: '6px',
+                            fontWeight: '600'
                           }}>
                             {item.category === 'Smoothie' && 'ปั่น'}
                             {item.category === 'Iced' && 'เย็น'}
                             {item.category === 'Hot' && 'ร้อน'}
                           </span>
                           {item.is_popular && (
-                            <span style={{ fontSize: '0.65rem', backgroundColor: 'var(--warning-light)', color: 'var(--warning)', padding: '1px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
-                              ยอดฮิต
+                            <span style={{ 
+                              fontSize: '0.68rem', 
+                              backgroundColor: 'var(--warning-light)', 
+                              color: 'var(--warning)', 
+                              padding: '2px 8px', 
+                              borderRadius: '6px', 
+                              fontWeight: '700' 
+                            }}>
+                              🔥 ยอดฮิต
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
                     
-                    <div style={{ textAlign: 'right', marginLeft: '12px' }}>
-                      <span style={{ color: 'var(--primary)', fontWeight: 800, fontSize: '1rem' }}>
+                    {/* Price and Action button - Always clearly visible and never shrinks */}
+                    <div style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      alignItems: 'flex-end', 
+                      justifyContent: 'center',
+                      gap: '4px', 
+                      flexShrink: 0,
+                      minWidth: '60px'
+                    }}>
+                      <span style={{ 
+                        color: 'var(--primary)', 
+                        fontWeight: 800, 
+                        fontSize: '1.15rem',
+                        lineHeight: 1
+                      }}>
                         ฿{item.base_price}
+                      </span>
+                      <span style={{
+                        backgroundColor: 'var(--primary-light)',
+                        color: 'var(--primary)',
+                        padding: '3px 10px',
+                        borderRadius: '20px',
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        border: '1px solid rgba(255, 120, 46, 0.2)'
+                      }}>
+                        + สั่ง
                       </span>
                     </div>
                   </div>
