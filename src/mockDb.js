@@ -14,7 +14,7 @@ const INITIAL_USERS = [
   {
     id: 'u-admin-1',
     email: 'admin@tomsmoothie.com',
-    password_hash: 'TomAdmin@99!', // Secure and unique password to avoid Chrome leak warning
+    password_hash: 'TomAdmin@99!', // Also accepts 'admin123'
     full_name: 'แอดมิน พี่ต้อม',
     phone_number: '089-999-9999',
     role: 'ADMIN',
@@ -22,6 +22,48 @@ const INITIAL_USERS = [
     google_id: null,
     auth_provider: 'LOCAL',
     member_code: 'ADMIN001',
+    created_at: new Date(2026, 7, 1).toISOString(),
+    is_active: true
+  },
+  {
+    id: 'u-staff-1',
+    email: 'staff@tomsmoothie.com',
+    password_hash: 'staff123',
+    full_name: 'น้องตอง พนักงานบริการ',
+    phone_number: '082-345-6789',
+    role: 'STAFF',
+    current_points: 0,
+    google_id: null,
+    auth_provider: 'LOCAL',
+    member_code: 'STAFF001',
+    created_at: new Date(2026, 7, 1).toISOString(),
+    is_active: true
+  },
+  {
+    id: 'u-staff-2',
+    email: 'staff1@tomsmoothie.com',
+    password_hash: 'staff123',
+    full_name: 'น้องแป้ง พนักงานชง',
+    phone_number: '083-456-7890',
+    role: 'STAFF',
+    current_points: 0,
+    google_id: null,
+    auth_provider: 'LOCAL',
+    member_code: 'STAFF002',
+    created_at: new Date(2026, 7, 1).toISOString(),
+    is_active: true
+  },
+  {
+    id: 'u-cust-1',
+    email: 'customer1@tomsmoothie.com',
+    password_hash: 'cust123',
+    full_name: 'สมชาย รักสุขภาพ',
+    phone_number: '081-234-5678',
+    role: 'CUSTOMER',
+    current_points: 15,
+    google_id: null,
+    auth_provider: 'LOCAL',
+    member_code: 'TOM-CUST-1001',
     created_at: new Date(2026, 7, 1).toISOString(),
     is_active: true
   }
@@ -197,7 +239,6 @@ const INITIAL_ORDERS = [];
 
 const INITIAL_TRANSACTIONS = [];
 
-// Load helper
 function loadData(key, initial) {
   const raw = localStorage.getItem(key);
   if (!raw) {
@@ -205,7 +246,20 @@ function loadData(key, initial) {
     return initial;
   }
   try {
-    return JSON.parse(raw);
+    const data = JSON.parse(raw);
+    if (key === DB_KEYS.USERS && Array.isArray(data) && Array.isArray(initial)) {
+      let modified = false;
+      initial.forEach(initUser => {
+        if (!data.some(u => u.email.toLowerCase() === initUser.email.toLowerCase())) {
+          data.push(initUser);
+          modified = true;
+        }
+      });
+      if (modified) {
+        localStorage.setItem(key, JSON.stringify(data));
+      }
+    }
+    return data;
   } catch (e) {
     localStorage.setItem(key, JSON.stringify(initial));
     return initial;
