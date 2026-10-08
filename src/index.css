@@ -837,35 +837,6 @@ header, .app-header {
   background: #000;
 }
 
-/* Mock Line notification bar */
-.line-notif-bar {
-  background-color: #06c755;
-  color: white;
-  padding: 8px 16px;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  animation: slide-down-notif 0.3s ease-out;
-}
-
-@keyframes slide-down-notif {
-  from { transform: translateY(-100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.line-notif-bar button {
-  background: white;
-  border: none;
-  color: #06c755;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-weight: bold;
-  font-size: 0.75rem;
-  cursor: pointer;
-  font-family: var(--font-family);
-}
-
 /* Responsive Desktop-First layout utilities */
 .desktop-grid-2col {
   display: grid;

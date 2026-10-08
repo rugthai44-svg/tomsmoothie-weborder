@@ -3,8 +3,8 @@ import { useApp } from '../context/AppContext';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   Flame, ShoppingBag, Clock, User, Gift, RefreshCw, 
-  Check, MessageSquare, AlertCircle, ShoppingCart, 
-  MapPin, Plus, Minus, ArrowRight, CheckCircle2 
+  AlertCircle, ShoppingCart, 
+  Plus, Minus, ArrowRight, CheckCircle2 
 } from 'lucide-react';
 
 export const CustomerPortal = () => {
@@ -15,7 +15,6 @@ export const CustomerPortal = () => {
     users,
     currentUser, 
     createOrder, 
-    linkLineAccount, 
     triggerToast,
     cancelOrder
   } = useApp();
@@ -198,7 +197,7 @@ export const CustomerPortal = () => {
         </button>
       </div>
 
-      {/* 1. Header Information & LINE Toggle */}
+      {/* 1. Header Information */}
       <div style={{
         background: 'linear-gradient(135deg, var(--brown), var(--brown-hover))',
         color: 'white',
@@ -690,7 +689,7 @@ export const CustomerPortal = () => {
                   {currentUser.full_name}
                 </h4>
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                  รหัส: {currentUser.member_code} | เบอร์: {currentUser.phone_number}
+                  รหัส: {currentUser.member_code} | เบอร์: {currentUser.phone || currentUser.phone_number || '-'}
                 </p>
                 
                 {/* loyalty cups progress */}

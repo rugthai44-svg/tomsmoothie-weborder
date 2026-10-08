@@ -11,7 +11,6 @@ const AppContent = () => {
     currentUser, 
     devSwitchRole, 
     logout, 
-    lineNotifications, 
     toast 
   } = useApp();
 

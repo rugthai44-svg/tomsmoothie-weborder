@@ -20,9 +20,7 @@ export const AppProvider = ({ children }) => {
   const [dailyClosings, setDailyClosings] = useState([]);
   
   // Custom states for notifications and simulator experience
-  const [lineNotifications, setLineNotifications] = useState([]);
   const [toast, setToast] = useState(null);
-  const [isLiffInitialized, setIsLiffInitialized] = useState(false);
 
   // Sync database state from Supabase on load
   useEffect(() => {
@@ -50,7 +48,6 @@ export const AppProvider = ({ children }) => {
             role: u.role,
             member_code: u.member_code,
             current_points: u.current_points,
-            line_user_id: u.line_user_id,
             google_id: u.google_id,
             auth_provider: u.auth_provider,
             is_active: u.is_active
@@ -64,7 +61,14 @@ export const AppProvider = ({ children }) => {
         }
       }
       
-      if (dbUsers) setUsers(dbUsers);
+      if (dbUsers) {
+        dbUsers = dbUsers.map(u => ({
+          ...u,
+          phone: u.phone || u.phone_number || '',
+          phone_number: u.phone || u.phone_number || ''
+        }));
+        setUsers(dbUsers);
+      }
       
       // 2. Fetch Menu Items (Local mock db)
       setMenuItems(mockDb.getMenu());
@@ -120,101 +124,10 @@ export const AppProvider = ({ children }) => {
     initData();
   }, []);
  
-  // Real LINE LIFF Initialization
-  useEffect(() => {
-    const liffId = import.meta.env.VITE_LIFF_ID || "";
-    if (window.liff && liffId) {
-      window.liff.init({ liffId })
-        .then(() => {
-          console.log("LIFF SDK Initialized successfully");
-          setIsLiffInitialized(true);
-        })
-        .catch(err => {
-          console.error("LIFF initialization failed:", err);
-          setIsLiffInitialized(false);
-        });
-    }
-  }, []);
-
-  // Listen for Supabase OAuth redirects and sign-ins
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        const googleUser = session.user;
-        const email = googleUser.email;
-        const fullName = googleUser.user_metadata?.full_name || googleUser.user_metadata?.name || 'ลูกค้า Google';
-        const googleId = googleUser.id;
-
-        // Skip if already logged in locally to avoid session collision and loops on reload
-        const saved = localStorage.getItem('tomsmoothie_current_user');
-        if (saved) return;
-
-        const res = await loginWithGoogle({
-          email: email,
-          name: fullName,
-          google_id: googleId
-        });
-        
-        if (!res?.success) {
-          await supabase.auth.signOut();
-        }
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [users]);
-
   // Quick helper to display a brief visual toast
   const triggerToast = (message, type = 'info') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3500);
-  };
-
-  // Helper to send mock LINE notifications (and real push if token configured)
-  const sendLineNotification = (targetUserId, message) => {
-    const targetUser = users.find(u => u.id === targetUserId);
-    if (!targetUser || !targetUser.line_user_id) return; // Only notify if LINE is linked
-    
-    const newNotif = {
-      id: 'notif-' + Date.now() + Math.random().toString(36).substr(2, 5),
-      user_name: targetUser.full_name,
-      message,
-      timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
-    };
-    
-    setLineNotifications(prev => [newNotif, ...prev]);
-    // Auto-remove notification after 8 seconds
-    setTimeout(() => {
-      setLineNotifications(prev => prev.filter(n => n.id !== newNotif.id));
-    }, 8000);
-
-    // Real LINE Messaging API Push (if VITE_LINE_ACCESS_TOKEN is configured)
-    const channelAccessToken = import.meta.env.VITE_LINE_ACCESS_TOKEN || "";
-    if (channelAccessToken && !targetUser.line_user_id.startsWith('U-LINE-')) {
-      const payload = {
-        to: targetUser.line_user_id,
-        messages: [
-          {
-            type: "text",
-            text: message
-          }
-        ]
-      };
-
-      fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.line.me/v2/bot/message/push'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${channelAccessToken}`
-        },
-        body: JSON.stringify(payload)
-      })
-      .then(res => res.json())
-      .then(data => console.log('Real LINE push notification sent:', data))
-      .catch(err => console.error('Error sending real LINE notification:', err));
-    }
   };
 
   // Auth Operations
@@ -234,10 +147,15 @@ export const AppProvider = ({ children }) => {
       triggerToast('บัญชีนี้ถูกปิดใช้งานชั่วคราว', 'danger');
       return { success: false, message: 'บัญชีนี้ถูกปิดใช้งาน' };
     }
-    setCurrentUser(user);
-    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(user));
-    triggerToast(`ยินดีต้อนรับคุณ ${user.full_name}`, 'success');
-    return { success: true, user };
+    const normalizedUser = {
+      ...user,
+      phone: user.phone || user.phone_number || '',
+      phone_number: user.phone || user.phone_number || ''
+    };
+    setCurrentUser(normalizedUser);
+    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(normalizedUser));
+    triggerToast(`ยินดีต้อนรับคุณ ${normalizedUser.full_name}`, 'success');
+    return { success: true, user: normalizedUser };
   };
 
   const registerCustomer = async (data) => {
@@ -259,10 +177,9 @@ export const AppProvider = ({ children }) => {
       email: data.email,
       password_hash: data.password,
       full_name: data.full_name,
-      phone: data.phone_number || '',
+      phone: data.phone_number || data.phone || '',
       role: 'CUSTOMER',
       current_points: 0,
-      line_user_id: null,
       member_code: randCode,
       created_at: new Date().toISOString(),
       is_active: true
@@ -280,11 +197,17 @@ export const AppProvider = ({ children }) => {
       return { success: false };
     }
 
-    setUsers(prev => [...prev, dbUser]);
-    setCurrentUser(dbUser);
-    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+    const normalizedUser = {
+      ...dbUser,
+      phone: dbUser.phone || dbUser.phone_number || '',
+      phone_number: dbUser.phone || dbUser.phone_number || ''
+    };
+
+    setUsers(prev => [...prev, normalizedUser]);
+    setCurrentUser(normalizedUser);
+    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(normalizedUser));
     triggerToast('ลงทะเบียนและเข้าสู่ระบบสำเร็จ', 'success');
-    return { success: true, user: dbUser };
+    return { success: true, user: normalizedUser };
   };
 
   const registerAdmin = async (data) => {
@@ -306,10 +229,9 @@ export const AppProvider = ({ children }) => {
       email: data.email,
       password_hash: data.password,
       full_name: data.full_name,
-      phone: data.phone_number || '',
+      phone: data.phone_number || data.phone || '',
       role: 'ADMIN',
       current_points: 0,
-      line_user_id: null,
       member_code: randCode,
       created_at: new Date().toISOString(),
       is_active: true
@@ -327,13 +249,19 @@ export const AppProvider = ({ children }) => {
       return { success: false, message: 'เกิดข้อผิดพลาดในการลงทะเบียนผู้ดูแลระบบ' };
     }
 
-    const updatedUsers = [...users, dbUser];
+    const normalizedUser = {
+      ...dbUser,
+      phone: dbUser.phone || dbUser.phone_number || '',
+      phone_number: dbUser.phone || dbUser.phone_number || ''
+    };
+
+    const updatedUsers = [...users, normalizedUser];
     setUsers(updatedUsers);
     mockDb.saveUsers(updatedUsers);
-    setCurrentUser(dbUser);
-    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
-    triggerToast(`ยินดีต้อนรับผู้ดูแลระบบท่านใหม่ คุณ ${dbUser.full_name}`, 'success');
-    return { success: true, user: dbUser };
+    setCurrentUser(normalizedUser);
+    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(normalizedUser));
+    triggerToast(`ยินดีต้อนรับผู้ดูแลระบบท่านใหม่ คุณ ${normalizedUser.full_name}`, 'success');
+    return { success: true, user: normalizedUser };
   };
 
   const logout = async () => {
@@ -373,9 +301,11 @@ export const AppProvider = ({ children }) => {
           .select()
           .single();
         if (freshUser) {
-          user = freshUser;
+          user = { ...freshUser, phone_number: freshUser.phone || freshUser.phone_number || '', phone: freshUser.phone || freshUser.phone_number || '' };
           setUsers(prev => prev.map(u => u.id === user.id ? user : u));
         }
+      } else {
+        user = { ...user, phone_number: user.phone || user.phone_number || '', phone: user.phone || user.phone_number || '' };
       }
       
       if (!user.is_active) {
@@ -397,7 +327,6 @@ export const AppProvider = ({ children }) => {
         phone: '',
         role: selectedRole,
         current_points: 0,
-        line_user_id: null,
         google_id: profile.google_id,
         auth_provider: 'GOOGLE',
         member_code: randCode,
@@ -417,7 +346,7 @@ export const AppProvider = ({ children }) => {
         return { success: false };
       }
 
-      user = dbUser;
+      user = { ...dbUser, phone_number: dbUser.phone || dbUser.phone_number || '', phone: dbUser.phone || dbUser.phone_number || '' };
       setUsers(prev => [...prev, user]);
     }
 
@@ -442,6 +371,36 @@ export const AppProvider = ({ children }) => {
       triggerToast('เกิดข้อผิดพลาดในการลงชื่อเข้าใช้งานด้วย Google', 'danger');
     }
   };
+
+  // Listen for Supabase OAuth redirects and sign-ins
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const googleUser = session.user;
+        const email = googleUser.email;
+        const fullName = googleUser.user_metadata?.full_name || googleUser.user_metadata?.name || 'ลูกค้า Google';
+        const googleId = googleUser.id;
+
+        // Skip if already logged in locally to avoid session collision and loops on reload
+        const saved = localStorage.getItem('tomsmoothie_current_user');
+        if (saved) return;
+
+        const res = await loginWithGoogle({
+          email: email,
+          name: fullName,
+          google_id: googleId
+        });
+        
+        if (!res?.success) {
+          await supabase.auth.signOut();
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [users]);
 
   const updateUserPhone = async (userId, phone) => {
     const { data: dbUser, error } = await supabase
@@ -476,65 +435,6 @@ export const AppProvider = ({ children }) => {
       setCurrentUser(target);
       localStorage.setItem('tomsmoothie_current_user', JSON.stringify(target));
       triggerToast(`สลับบทบาทเป็น: ${role}`, 'success');
-    }
-  };
-
-  // Link Customer LINE account (hybrid real LIFF & simulation fallback)
-  const linkLineAccount = () => {
-    if (!currentUser || currentUser.role !== 'CUSTOMER') return;
-
-    const isCurrentlyLinked = !!currentUser.line_user_id;
-
-    if (isCurrentlyLinked) {
-      saveLinkedLineId(null);
-    } else {
-      if (window.liff && isLiffInitialized) {
-        if (!window.liff.isLoggedIn()) {
-          triggerToast('กำลังนำคุณไปยังหน้าเข้าสู่ระบบ LINE...', 'info');
-          window.liff.login();
-          return;
-        }
-
-        window.liff.getProfile()
-          .then(profile => {
-            const lineUserId = profile.userId;
-            saveLinkedLineId(lineUserId);
-          })
-          .catch(err => {
-            console.error("LIFF profile fetch error:", err);
-            triggerToast('การเชื่อมต่อกับ LINE ล้มเหลว กรุณาลองใหม่อีกครั้ง', 'danger');
-          });
-      } else {
-        const simulatedId = 'U-LINE-' + Math.floor(100000 + Math.random() * 900000);
-        saveLinkedLineId(simulatedId);
-      }
-    }
-  };
-
-  const saveLinkedLineId = async (newId) => {
-    const { data: dbUser, error } = await supabase
-      .from('tomsmoothie_users')
-      .update({ line_user_id: newId })
-      .eq('id', currentUser.id)
-      .select()
-      .single();
-
-    if (error || !dbUser) {
-      triggerToast('เกิดข้อผิดพลาดในการบันทึกบัญชี LINE', 'danger');
-      return;
-    }
-
-    setUsers(prev => prev.map(u => u.id === currentUser.id ? dbUser : u));
-    setCurrentUser(dbUser);
-    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
-    
-    if (newId) {
-      triggerToast('เชื่อมต่อบัญชี LINE สำเร็จแล้ว!', 'success');
-      setTimeout(() => {
-        sendLineNotification(currentUser.id, '💬 ขอบคุณที่เชื่อมต่อ LINE แจ้งเตือน! คุณจะได้รับข้อความสถานะออเดอร์และแต้มสะสมที่ห้องแชทนี้');
-      }, 800);
-    } else {
-      triggerToast('ยกเลิกการเชื่อมต่อ LINE แล้ว', 'info');
     }
   };
 
@@ -642,10 +542,6 @@ export const AppProvider = ({ children }) => {
       if (dbTx) {
         setTransactions(prev => [dbTx, ...prev]);
       }
-      
-      sendLineNotification(currentUser.id, `🍹 แลกน้ำปั่นฟรีสำเร็จ! หักคะแนน 10 แต้ม คงเหลือ ${updatedSelf.current_points} แต้ม`);
-    } else {
-      sendLineNotification(currentUser.id, `🛒 สั่งซื้อสำเร็จ! ออเดอร์ของคุณกำลังรอดำเนินการ รับสินค้าเวลา ${pickupTime}`);
     }
 
     setOrders(prev => [fullOrder, ...prev]);
@@ -720,10 +616,6 @@ export const AppProvider = ({ children }) => {
       if (dbTx) {
         setTransactions(prev => [dbTx, ...prev]);
       }
-      
-      sendLineNotification(order.customer_id, `🚫 ยกเลิกออเดอร์ #${orderId} คืนแต้มสะสม 10 แต้ม เรียบร้อยแล้ว (สะสมรวม: ${updatedSelf.current_points} แต้ม)`);
-    } else {
-      sendLineNotification(order.customer_id, `🚫 คำสั่งซื้อหมายเลข #${orderId} ถูกยกเลิกแล้ว`);
     }
 
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, order_status: 'Cancelled' } : o));
@@ -746,13 +638,6 @@ export const AppProvider = ({ children }) => {
 
     const updatedOrders = orders.map(ord => {
       if (ord.id === orderId) {
-        if (newStatus === 'Preparing') {
-          sendLineNotification(ord.customer_id, `🍓 ร้านกำลังเริ่มปั่นเครื่องดื่มของคุณแล้ว! (เตรียมรับสินค้าตามเวลาที่ระบุ)`);
-        } else if (newStatus === 'Ready') {
-          sendLineNotification(ord.customer_id, `🔔 เครื่องดื่มปั่นเสร็จเรียบร้อย! พร้อมให้คุณเข้ามารับที่เคาน์เตอร์แล้วครับ`);
-        } else if (newStatus === 'Completed') {
-          sendLineNotification(ord.customer_id, `🤝 ขอบคุณที่อุดหนุน TomSmoothie! รับสินค้าเรียบร้อยแล้ว หวังว่าจะชอบแก้วนี้นะครับ`);
-        }
         return { ...ord, order_status: newStatus };
       }
       return ord;
@@ -826,19 +711,6 @@ export const AppProvider = ({ children }) => {
 
     setUsers(prev => prev.map(u => u.id === customerUser.id ? dbUser : u));
 
-    // Send LINE alerts
-    const finalPoints = dbUser.current_points;
-    if (actionType === 'EARN') {
-      sendLineNotification(customerUser.id, `🎉 ได้รับแต้มสะสม +${pointsChange} แต้ม! ปัจจุบันคุณมีสะสม ${finalPoints}/10 แต้ม`);
-      if (finalPoints >= 10) {
-        setTimeout(() => {
-          sendLineNotification(customerUser.id, `🌟 ยินดีด้วยครับ! แต้มสะสมครบ 10 แต้มแล้ว สามารถแลกเครื่องดื่มฟรีได้ในครั้งถัดไป!`);
-        }, 1500);
-      }
-    } else {
-      sendLineNotification(customerUser.id, `🍹 พนักงานบันทึกการแลกน้ำปั่นฟรี หักแต้ม -10 คะแนน คงเหลือ ${finalPoints} แต้ม`);
-    }
-
     // Sync logged in user if currently viewing customer simulation
     if (currentUser && currentUser.id === customerUser.id) {
       setCurrentUser(dbUser);
@@ -846,7 +718,7 @@ export const AppProvider = ({ children }) => {
     }
 
     triggerToast(`บันทึกแต้มให้คุณ ${customerUser.full_name} (${pointsChange > 0 ? '+' : ''}${pointsChange} แต้ม) สำเร็จ`, 'success');
-    return { success: true, customer: dbUser, finalPoints };
+    return { success: true, customer: dbUser, finalPoints: dbUser.current_points };
   };
 
   // ADMIN: Menu Management CRUD (Locally kept for static catalog demo)
@@ -928,7 +800,6 @@ export const AppProvider = ({ children }) => {
       phone: data.phone_number || '',
       role: 'STAFF',
       current_points: 0,
-      line_user_id: null,
       member_code: randCode,
       created_at: new Date().toISOString(),
       is_active: true
@@ -978,7 +849,8 @@ export const AppProvider = ({ children }) => {
     });
     setUsers(updatedUsers);
     mockDb.saveUsers(updatedUsers);
-    triggerToast(`${nextState ? 'เปิดใช้งาน' : 'ระงับใช้งาน'} พนักงาน "${targetUser.full_name}" เรียบร้อย`, 'info');
+    const roleLabel = targetUser.role === 'CUSTOMER' ? 'สมาชิก' : (targetUser.role === 'ADMIN' ? 'ผู้ดูแลระบบ' : 'พนักงาน');
+    triggerToast(`${nextState ? 'เปิดใช้งาน' : 'ระงับใช้งาน'} ${roleLabel} "${targetUser.full_name}" เรียบร้อย`, 'info');
   };
 
   // ADMIN: Adjust Customer Points directly
@@ -1029,7 +901,6 @@ export const AppProvider = ({ children }) => {
 
     setUsers(prev => prev.map(u => u.id === userId ? dbUser : u));
     
-    sendLineNotification(userId, `⭐ แอดมินปรับคะแนนสะสมของคุณ: คะแนนปัจจุบันคือ ${nextPoints}/10 แต้ม`);
     triggerToast(`ปรับแต้มของคุณ ${customerUser.full_name} เป็น ${nextPoints} แต้ม สำเร็จ`, 'success');
     return { success: true };
   };
@@ -1064,24 +935,7 @@ export const AppProvider = ({ children }) => {
     setDailyClosings(updatedClosings);
     mockDb.saveDailyClosings(updatedClosings);
 
-    // Trigger LINE push notification to Admin
-    const adminUser = users.find(u => u.role === 'ADMIN');
-    if (adminUser) {
-      const rawDate = closingData.date;
-      let formattedDate = rawDate;
-      try {
-        const parts = rawDate.split('-');
-        if (parts.length === 3) {
-          formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-        }
-      } catch (e) {}
-
-      const lineMessage = `🔔 สรุปยอดขายประจำวัน - ร้านน้ำปั่นพี่ต้อม\n📅 วันที่: ${formattedDate}\n👤 พนักงาน: ${closingData.staff_name}\n🥤 ขายได้: ${closingData.cups_sold} แก้ว (แลกฟรี: ${closingData.free_cups_redeemed} แก้ว)\n💵 ยอดขายรวม: ${closingData.total_revenue} บาท\n📝 หมายเหตุ: ${closingData.notes || 'ไม่มี'}`;
-      
-      sendLineNotification(adminUser.id, lineMessage);
-    }
-
-    triggerToast('บันทึกปิดยอดขายและส่งแจ้งเตือน LINE เรียบร้อย!', 'success');
+    triggerToast('บันทึกปิดยอดขายเรียบร้อย!', 'success');
     return { success: true };
   };
 
@@ -1110,7 +964,6 @@ export const AppProvider = ({ children }) => {
           role: u.role,
           member_code: u.member_code,
           current_points: u.current_points,
-          line_user_id: u.line_user_id,
           google_id: u.google_id,
           auth_provider: u.auth_provider,
           is_active: u.is_active
@@ -1142,7 +995,6 @@ export const AppProvider = ({ children }) => {
       setCurrentUser(nextCurrentUser);
       localStorage.setItem('tomsmoothie_current_user', JSON.stringify(nextCurrentUser));
       
-      setLineNotifications([]);
       triggerToast('รีเซ็ตฐานข้อมูลเป็นค่าตั้งต้นเรียบร้อยแล้ว!', 'warning');
     } catch (error) {
       console.error('Error resetting database:', error);
@@ -1158,18 +1010,16 @@ export const AppProvider = ({ children }) => {
         orders,
         transactions,
         currentUser,
-        lineNotifications,
         toast,
         triggerToast,
-        sendLineNotification,
         login,
         registerCustomer,
         registerAdmin,
         logout,
-        loginWithGoogle: loginWithGoogleRedirect,
+        loginWithGoogle,
+        loginWithGoogleRedirect,
         updateUserPhone,
         devSwitchRole,
-        linkLineAccount,
         createOrder,
         updateOrderStatus,
         scanLoyaltyQR,

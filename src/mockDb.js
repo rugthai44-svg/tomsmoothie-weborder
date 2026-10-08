@@ -19,7 +19,6 @@ const INITIAL_USERS = [
     phone_number: '089-999-9999',
     role: 'ADMIN',
     current_points: 0,
-    line_user_id: 'U-ADMIN-LINE',
     google_id: null,
     auth_provider: 'LOCAL',
     member_code: 'ADMIN001',

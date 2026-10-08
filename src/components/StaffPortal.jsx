@@ -87,7 +87,7 @@ export const StaffPortal = () => {
       return;
     }
 
-    if (confirm('ยืนยันความถูกต้องและต้องการส่งรายงานปิดยอดขายให้แอดมินทาง LINE หรือไม่?')) {
+    if (confirm('ยืนยันความถูกต้องและต้องการบันทึกรายงานปิดยอดขายหรือไม่?')) {
       const res = await submitDailyClosing({
         date: closeDate,
         staff_id: currentUser.id,
@@ -116,54 +116,10 @@ export const StaffPortal = () => {
   const [cupsCount, setCupsCount] = useState(1);
   const [orderCupsCount, setOrderCupsCount] = useState(1);
 
-  // Real Camera Scanner Initialization
-  useEffect(() => {
-    let scanner = null;
-    if (cameraMode) {
-      // Small timeout to ensure DOM container is rendered
-      const timeout = setTimeout(() => {
-        try {
-          scanner = new Html5QrcodeScanner(
-            'qr-reader-container', 
-            { 
-              fps: 10, 
-              qrbox: { width: 250, height: 250 },
-              rememberLastUsedCamera: true
-            }, 
-            /* verbose= */ false
-          );
-          
-          scanner.render(
-            (decodedText) => {
-              // Successfully decoded member code
-              triggerToast(`พบรหัสสมาชิกจากการสแกน: ${decodedText}`, 'success');
-              handleFindCustomerByCode(decodedText);
-              setCameraMode(false);
-            },
-            (error) => {
-              // Silence error logs for scanner frame updates
-            }
-          );
-        } catch (err) {
-          console.error("Scanner startup failed", err);
-          triggerToast('กล้องไม่พร้อมทำงาน หรือติดสิทธิ์ความปลอดภัย (กล้องจะเข้าสู่โหมดจำลองอัตโนมัติ)', 'warning');
-        }
-      }, 300);
-
-      return () => {
-        clearTimeout(timeout);
-        if (scanner) {
-          scanner.clear().catch(err => console.error("Scanner clear error", err));
-        }
-      };
-    }
-  }, [cameraMode]);
-
-  if (!currentUser || currentUser.role !== 'STAFF') return null;
-
   // Find customer or order logic
   const handleFindCustomerByCode = (code) => {
-    const codeClean = code.trim();
+    const codeClean = (code || '').trim();
+    if (!codeClean) return;
     
     // Check if it's an Order QR Code (starts with TOM-ORDER:)
     if (codeClean.toUpperCase().startsWith('TOM-ORDER:')) {
@@ -189,7 +145,7 @@ export const StaffPortal = () => {
     // Standard member search
     const customer = users.find(
       u => u.role === 'CUSTOMER' && 
-      (u.member_code.toLowerCase() === codeClean.toLowerCase() || u.phone_number === codeClean)
+      (u.member_code.toLowerCase() === codeClean.toLowerCase() || (u.phone && u.phone === codeClean) || (u.phone_number && u.phone_number === codeClean))
     );
 
     if (customer) {
@@ -203,14 +159,57 @@ export const StaffPortal = () => {
     }
   };
 
+  // Real Camera Scanner Initialization
+  useEffect(() => {
+    let scanner = null;
+    if (cameraMode) {
+      // Small timeout to ensure DOM container is rendered
+      const timeout = setTimeout(() => {
+        try {
+          scanner = new Html5QrcodeScanner(
+            'qr-reader-container', 
+            { 
+              fps: 10, 
+              qrbox: { width: 250, height: 250 },
+              rememberLastUsedCamera: true
+            }, 
+            /* verbose= */ false
+          );
+          
+          scanner.render(
+            (decodedText) => {
+              // Successfully decoded member code
+              triggerToast(`พบรหัสสมาชิกจากการสแกน: ${decodedText}`, 'success');
+              handleFindCustomerByCode(decodedText);
+              setCameraMode(false);
+            },
+            (_error) => {
+              // Silence error logs for scanner frame updates
+            }
+          );
+        } catch (err) {
+          console.error("Scanner startup failed", err);
+          triggerToast('กล้องไม่พร้อมทำงาน หรือติดสิทธิ์ความปลอดภัย (กล้องจะเข้าสู่โหมดจำลองอัตโนมัติ)', 'warning');
+        }
+      }, 300);
+
+      return () => {
+        clearTimeout(timeout);
+        if (scanner) {
+          scanner.clear().catch(err => console.error("Scanner clear error", err));
+        }
+      };
+    }
+  }, [cameraMode]);
+
+  if (!currentUser || currentUser.role !== 'STAFF') return null;
+
   // Perform Loyalty Action (EARN points)
   const handleCreditPoints = async () => {
     if (!foundCustomer) return;
     const res = await scanLoyaltyQR(foundCustomer.member_code, 'EARN', cupsCount);
-    if (res.success) {
-      // Re-fetch customer information to sync displayed points
-      const updatedCust = users.find(u => u.id === foundCustomer.id);
-      setFoundCustomer(updatedCust);
+    if (res.success && res.customer) {
+      setFoundCustomer(res.customer);
       setCupsCount(1);
     }
   };
@@ -238,9 +237,8 @@ export const StaffPortal = () => {
     
     if (confirm(`ยืนยันการใช้สิทธิ์แลกน้ำปั่นฟรี 1 แก้ว? (หักลบ 10 แต้มจากคุณ ${foundCustomer.full_name})`)) {
       const res = await scanLoyaltyQR(foundCustomer.member_code, 'REDEEM');
-      if (res.success) {
-        const updatedCust = users.find(u => u.id === foundCustomer.id);
-        setFoundCustomer(updatedCust);
+      if (res.success && res.customer) {
+        setFoundCustomer(res.customer);
       }
     }
   };
@@ -652,7 +650,7 @@ export const StaffPortal = () => {
                     >
                       <div>
                         <b>{cust.full_name}</b> ({cust.member_code})
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>เบอร์: {cust.phone_number}</div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>เบอร์: {cust.phone || cust.phone_number || '-'}</div>
                       </div>
                       <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--primary)' }}>
                         {cust.current_points} แต้ม
@@ -885,7 +883,7 @@ export const StaffPortal = () => {
                       {foundCustomer.full_name}
                     </h4>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      รหัส: {foundCustomer.member_code} | โทร: {foundCustomer.phone_number}
+                      รหัส: {foundCustomer.member_code} | โทร: {foundCustomer.phone || foundCustomer.phone_number || '-'}
                     </p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
