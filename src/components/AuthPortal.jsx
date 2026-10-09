@@ -230,12 +230,9 @@ export const AuthPortal = () => {
       
       <div style={{ textAlign: 'center', margin: '20px 0 10px' }}>
         <div className="logo-icon" style={{ margin: '0 auto 16px', width: '60px', height: '60px', fontSize: '30px' }}>🍹</div>
-        <h2 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '1.05rem', lineHeight: '1.5' }}>
-          เว็บแอปพลิเคชันสั่งจองเครื่องดื่มล่วงหน้า<br/>และสะสมแต้มสมาชิกดิจิทัล
+        <h2 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.85rem', lineHeight: '1.5' }}>
+          เว็บแอปพลิเคชันสั่งจองเครื่องดื่มล่วงหน้าและสะสมแต้มสมาชิกดิจิทัล ร้านน้ำปั่นพี่ต้อม
         </h2>
-        <p style={{ color: 'var(--brown)', fontSize: '1rem', fontWeight: 700, marginTop: '4px' }}>
-          ร้านน้ำปั่นพี่ต้อม
-        </p>
       </div>
 
       <div className="card" style={{ padding: '28px 24px', margin: 0 }}>
