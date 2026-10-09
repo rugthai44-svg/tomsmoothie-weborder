@@ -295,23 +295,7 @@ export const AuthPortal = () => {
             >
               👑 ล็อกอินผู้ดูแลระบบ
             </button>
-            <button 
-              type="button" 
-              onClick={() => { setIsRegister(true); setError(''); }}
-              style={{
-                flex: 1,
-                padding: '12px',
-                background: 'none',
-                border: 'none',
-                borderBottom: isRegister ? '3px solid var(--primary)' : '3px solid transparent',
-                color: isRegister ? 'var(--primary)' : 'var(--text-muted)',
-                fontWeight: 700,
-                fontSize: '0.95rem',
-                cursor: 'pointer'
-              }}
-            >
-              ➕ สมัครสมาชิกผู้ดูแลระบบ
-            </button>
+
           </div>
         ) : (
           <div style={{ borderBottom: '2px solid var(--border)', marginBottom: '24px', paddingBottom: '12px', textAlign: 'center' }}>

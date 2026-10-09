@@ -471,23 +471,34 @@ export const AppProvider = ({ children }) => {
   }, [users]);
 
   const updateUserPhone = async (userId, phone) => {
-    const { data: dbUser, error } = await supabase
-      .from('tomsmoothie_users')
-      .update({ phone: phone })
-      .eq('id', userId)
-      .select()
-      .single();
+    const cleanPhone = (phone || '').trim();
+    
+    // 1. Update in local state & mockDb immediately
+    const updatedUsers = users.map(u => {
+      if (u.id === userId) {
+        return { ...u, phone: cleanPhone, phone_number: cleanPhone };
+      }
+      return u;
+    });
+    setUsers(updatedUsers);
+    mockDb.saveUsers(updatedUsers);
 
-    if (error || !dbUser) {
-      triggerToast('เกิดข้อผิดพลาดในการบันทึกเบอร์โทรศัพท์', 'danger');
-      return { success: false };
-    }
-
-    setUsers(prev => prev.map(u => u.id === userId ? dbUser : u));
     if (currentUser && currentUser.id === userId) {
-      setCurrentUser(dbUser);
-      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+      const updatedCurrent = { ...currentUser, phone: cleanPhone, phone_number: cleanPhone };
+      setCurrentUser(updatedCurrent);
+      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(updatedCurrent));
     }
+
+    // 2. Sync to Supabase in background
+    try {
+      await supabase
+        .from('tomsmoothie_users')
+        .update({ phone: cleanPhone })
+        .eq('id', userId);
+    } catch (e) {
+      console.warn('Supabase updateUserPhone sync warning:', e);
+    }
+
     triggerToast('บันทึกเบอร์โทรศัพท์สำเร็จ!', 'success');
     return { success: true };
   };
@@ -526,30 +537,6 @@ export const AppProvider = ({ children }) => {
     }
 
     const orderId = 'ord-' + Math.floor(1000 + Math.random() * 9000);
-    const newOrder = {
-      id: orderId,
-      customer_id: currentUser.id,
-      customer_name: currentUser.full_name,
-      customer_phone: currentUser.phone || '',
-      pickup_time: pickupTime,
-      order_status: 'Pending', // Pending -> Preparing -> Ready -> Completed
-      total_price: isRedeemedFreeCup ? 0 : cartTotal,
-      is_redeemed_free_cup: isRedeemedFreeCup,
-      created_at: new Date().toISOString()
-    };
-
-    // 1. Insert order to Supabase
-    const { error: orderErr } = await supabase
-      .from('tomsmoothie_orders')
-      .insert([newOrder]);
-
-    if (orderErr) {
-      console.error('Error creating order in Supabase:', orderErr);
-      triggerToast('เกิดข้อผิดพลาดในการสั่งซื้อ', 'danger');
-      return null;
-    }
-
-    // 2. Insert items
     const itemsPayload = orderCart.map((item) => ({
       order_id: orderId,
       menu_item_id: item.menu_id,
@@ -560,35 +547,35 @@ export const AppProvider = ({ children }) => {
       subtotal_price: isRedeemedFreeCup ? 0 : item.subtotal_price
     }));
 
-    const { error: itemsErr } = await supabase
-      .from('tomsmoothie_order_items')
-      .insert(itemsPayload);
+    const newOrder = {
+      id: orderId,
+      customer_id: currentUser.id,
+      customer_name: currentUser.full_name,
+      customer_phone: currentUser.phone || '',
+      pickup_time: pickupTime,
+      order_status: 'Pending', // Pending -> Preparing -> Ready -> Completed
+      total_price: isRedeemedFreeCup ? 0 : cartTotal,
+      is_redeemed_free_cup: isRedeemedFreeCup,
+      created_at: new Date().toISOString(),
+      items: itemsPayload
+    };
 
-    if (itemsErr) {
-      console.error('Error creating order items in Supabase:', itemsErr);
-    }
+    // 1. Update local orders
+    const updatedOrders = [newOrder, ...orders];
+    setOrders(updatedOrders);
+    mockDb.saveOrders(updatedOrders);
 
-    const fullOrder = { ...newOrder, items: itemsPayload };
-
-    // 3. Deduct points if free cup redeemed
-    let updatedSelf = { ...currentUser };
+    // 2. Deduct points locally if free cup redeemed
     if (isRedeemedFreeCup) {
-      const nextPoints = currentUser.current_points - 10;
-      const { data: dbUser } = await supabase
-        .from('tomsmoothie_users')
-        .update({ current_points: nextPoints })
-        .eq('id', currentUser.id)
-        .select()
-        .single();
+      const nextPoints = Math.max(0, currentUser.current_points - 10);
+      const updatedUser = { ...currentUser, current_points: nextPoints };
+      
+      const nextUsers = users.map(u => u.id === currentUser.id ? updatedUser : u);
+      setUsers(nextUsers);
+      mockDb.saveUsers(nextUsers);
+      setCurrentUser(updatedUser);
+      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(updatedUser));
 
-      if (dbUser) {
-        updatedSelf = dbUser;
-        setUsers(prev => prev.map(u => u.id === currentUser.id ? dbUser : u));
-        setCurrentUser(dbUser);
-        localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
-      }
-
-      // Append transaction to Supabase
       const newTx = {
         id: 'tx-' + Date.now(),
         customer_id: currentUser.id,
@@ -601,20 +588,47 @@ export const AppProvider = ({ children }) => {
         created_at: new Date().toISOString()
       };
 
-      const { data: dbTx } = await supabase
-        .from('tomsmoothie_point_transactions')
-        .insert([newTx])
-        .select()
-        .single();
+      const updatedTxs = [newTx, ...transactions];
+      setTransactions(updatedTxs);
+      mockDb.saveTransactions(updatedTxs);
 
-      if (dbTx) {
-        setTransactions(prev => [dbTx, ...prev]);
+      // Async sync points & transaction to Supabase
+      try {
+        await supabase
+          .from('tomsmoothie_users')
+          .update({ current_points: nextPoints })
+          .eq('id', currentUser.id);
+
+        await supabase
+          .from('tomsmoothie_point_transactions')
+          .insert([newTx]);
+      } catch (e) {
+        console.warn('Supabase point deduction sync warning:', e);
       }
     }
 
-    setOrders(prev => [fullOrder, ...prev]);
+    // 3. Async sync order to Supabase
+    try {
+      const orderDbPayload = {
+        id: newOrder.id,
+        customer_id: newOrder.customer_id,
+        customer_name: newOrder.customer_name,
+        customer_phone: newOrder.customer_phone,
+        pickup_time: newOrder.pickup_time,
+        order_status: newOrder.order_status,
+        total_price: newOrder.total_price,
+        is_redeemed_free_cup: newOrder.is_redeemed_free_cup,
+        created_at: newOrder.created_at
+      };
+
+      await supabase.from('tomsmoothie_orders').insert([orderDbPayload]);
+      await supabase.from('tomsmoothie_order_items').insert(itemsPayload);
+    } catch (e) {
+      console.warn('Supabase createOrder sync warning:', e);
+    }
+
     triggerToast('ส่งคำสั่งซื้อล่วงหน้าเรียบร้อยแล้ว!', 'success');
-    return fullOrder;
+    return newOrder;
   };
 
   // CUSTOMER: Cancel pending order
@@ -630,36 +644,24 @@ export const AppProvider = ({ children }) => {
       return { success: false, message: 'ไม่สามารถยกเลิกได้' };
     }
 
-    // 1. Update order status to Cancelled in Supabase
-    const { error } = await supabase
-      .from('tomsmoothie_orders')
-      .update({ order_status: 'Cancelled' })
-      .eq('id', orderId);
-
-    if (error) {
-      console.error('Error cancelling order:', error);
-      triggerToast('เกิดข้อผิดพลาดในการยกเลิกออเดอร์', 'danger');
-      return { success: false };
-    }
+    // 1. Update order status locally
+    const updatedOrders = orders.map(o => o.id === orderId ? { ...o, order_status: 'Cancelled' } : o);
+    setOrders(updatedOrders);
+    mockDb.saveOrders(updatedOrders);
 
     // 2. Refund points if free cup was redeemed
-    let updatedSelf = { ...currentUser };
     if (order.is_redeemed_free_cup) {
-      const nextPoints = currentUser.current_points + 10;
-      const { data: dbUser, error: userErr } = await supabase
-        .from('tomsmoothie_users')
-        .update({ current_points: nextPoints })
-        .eq('id', order.customer_id)
-        .select()
-        .single();
+      const customer = users.find(u => u.id === order.customer_id) || currentUser;
+      const nextPoints = (customer?.current_points || 0) + 10;
+      
+      const nextUsers = users.map(u => u.id === order.customer_id ? { ...u, current_points: nextPoints } : u);
+      setUsers(nextUsers);
+      mockDb.saveUsers(nextUsers);
 
-      if (!userErr && dbUser) {
-        updatedSelf = dbUser;
-        setUsers(prev => prev.map(u => u.id === order.customer_id ? dbUser : u));
-        if (currentUser && currentUser.id === order.customer_id) {
-          setCurrentUser(dbUser);
-          localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
-        }
+      if (currentUser && currentUser.id === order.customer_id) {
+        const updatedCurrent = { ...currentUser, current_points: nextPoints };
+        setCurrentUser(updatedCurrent);
+        localStorage.setItem('tomsmoothie_current_user', JSON.stringify(updatedCurrent));
       }
 
       // Record refund point transaction
@@ -675,35 +677,42 @@ export const AppProvider = ({ children }) => {
         created_at: new Date().toISOString()
       };
 
-      const { data: dbTx } = await supabase
-        .from('tomsmoothie_point_transactions')
-        .insert([newTx])
-        .select()
-        .single();
+      const nextTxs = [newTx, ...transactions];
+      setTransactions(nextTxs);
+      mockDb.saveTransactions(nextTxs);
 
-      if (dbTx) {
-        setTransactions(prev => [dbTx, ...prev]);
+      // Async sync refund to Supabase
+      try {
+        await supabase
+          .from('tomsmoothie_users')
+          .update({ current_points: nextPoints })
+          .eq('id', order.customer_id);
+
+        await supabase
+          .from('tomsmoothie_point_transactions')
+          .insert([newTx]);
+      } catch (e) {
+        console.warn('Supabase points refund sync warning:', e);
       }
     }
 
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, order_status: 'Cancelled' } : o));
+    // 3. Async sync cancel status to Supabase
+    try {
+      await supabase
+        .from('tomsmoothie_orders')
+        .update({ order_status: 'Cancelled' })
+        .eq('id', orderId);
+    } catch (e) {
+      console.warn('Supabase cancelOrder sync warning:', e);
+    }
+
     triggerToast(`ยกเลิกออเดอร์ #${orderId} เรียบร้อยแล้ว`, 'success');
     return { success: true };
   };
 
   // STAFF: Update order status
-
   const updateOrderStatus = async (orderId, newStatus) => {
-    const { error } = await supabase
-      .from('tomsmoothie_orders')
-      .update({ order_status: newStatus })
-      .eq('id', orderId);
-
-    if (error) {
-      triggerToast('เกิดข้อผิดพลาดในการอัปเดตสถานะ', 'danger');
-      return;
-    }
-
+    // 1. Update in local state & mockDb immediately
     const updatedOrders = orders.map(ord => {
       if (ord.id === orderId) {
         return { ...ord, order_status: newStatus };
@@ -712,6 +721,18 @@ export const AppProvider = ({ children }) => {
     });
 
     setOrders(updatedOrders);
+    mockDb.saveOrders(updatedOrders);
+
+    // 2. Sync to Supabase in background
+    try {
+      await supabase
+        .from('tomsmoothie_orders')
+        .update({ order_status: newStatus })
+        .eq('id', orderId);
+    } catch (e) {
+      console.warn('Supabase updateOrderStatus sync warning:', e);
+    }
+
     triggerToast(`อัปเดตสถานะออเดอร์เป็น [${newStatus}]`, 'success');
   };
 
@@ -740,21 +761,14 @@ export const AppProvider = ({ children }) => {
     }
 
     const nextPoints = Math.max(0, customerUser.current_points + pointsChange);
+    const updatedCustomer = { ...customerUser, current_points: nextPoints };
 
-    // 1. Update user points in Supabase
-    const { data: dbUser, error: userErr } = await supabase
-      .from('tomsmoothie_users')
-      .update({ current_points: nextPoints })
-      .eq('id', customerUser.id)
-      .select()
-      .single();
+    // 1. Update local users
+    const updatedUsers = users.map(u => u.id === customerUser.id ? updatedCustomer : u);
+    setUsers(updatedUsers);
+    mockDb.saveUsers(updatedUsers);
 
-    if (userErr || !dbUser) {
-      triggerToast('เกิดข้อผิดพลาดในการอัปเดตแต้ม', 'danger');
-      return { success: false };
-    }
-
-    // 2. Record transaction in Supabase
+    // 2. Record transaction locally
     const newTx = {
       id: 'tx-' + Date.now(),
       customer_id: customerUser.id,
@@ -767,29 +781,35 @@ export const AppProvider = ({ children }) => {
       created_at: new Date().toISOString()
     };
 
-    const { data: dbTx } = await supabase
-      .from('tomsmoothie_point_transactions')
-      .insert([newTx])
-      .select()
-      .single();
-
-    if (dbTx) {
-      setTransactions(prev => [dbTx, ...prev]);
-    }
-
-    setUsers(prev => prev.map(u => u.id === customerUser.id ? dbUser : u));
+    const updatedTxs = [newTx, ...transactions];
+    setTransactions(updatedTxs);
+    mockDb.saveTransactions(updatedTxs);
 
     // Sync logged in user if currently viewing customer simulation
     if (currentUser && currentUser.id === customerUser.id) {
-      setCurrentUser(dbUser);
-      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(dbUser));
+      setCurrentUser(updatedCustomer);
+      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(updatedCustomer));
+    }
+
+    // 3. Sync to Supabase in background
+    try {
+      await supabase
+        .from('tomsmoothie_users')
+        .update({ current_points: nextPoints })
+        .eq('id', customerUser.id);
+
+      await supabase
+        .from('tomsmoothie_point_transactions')
+        .insert([newTx]);
+    } catch (e) {
+      console.warn('Supabase scanLoyaltyQR sync warning:', e);
     }
 
     triggerToast(`บันทึกแต้มให้คุณ ${customerUser.full_name} (${pointsChange > 0 ? '+' : ''}${pointsChange} แต้ม) สำเร็จ`, 'success');
-    return { success: true, customer: dbUser, finalPoints: dbUser.current_points };
+    return { success: true, customer: updatedCustomer, finalPoints: nextPoints };
   };
 
-  // ADMIN: Menu Management CRUD (Locally kept for static catalog demo)
+  // ADMIN: Menu Management CRUD
   const addMenuItem = (item) => {
     const newItem = {
       id: 'm-' + Date.now(),
@@ -847,14 +867,10 @@ export const AppProvider = ({ children }) => {
 
   // ADMIN: Staff Management CRUD
   const registerStaff = async (data) => {
-    // Check email exists
-    const { data: existing } = await supabase
-      .from('tomsmoothie_users')
-      .select('id')
-      .eq('email', data.email)
-      .maybeSingle();
+    const trimmedEmail = (data.email || '').trim().toLowerCase();
 
-    if (existing) {
+    // Check email exists locally
+    if (users.some(u => (u.email || '').toLowerCase() === trimmedEmail)) {
       triggerToast('อีเมลนี้ถูกใช้งานแล้ว', 'danger');
       return { success: false, message: 'อีเมลนี้มีอยู่แล้ว' };
     }
@@ -862,10 +878,11 @@ export const AppProvider = ({ children }) => {
     const randCode = 'STAFF' + Math.floor(100 + Math.random() * 900);
     const newStaff = {
       id: 'u-' + Date.now(),
-      email: data.email,
+      email: data.email.trim(),
       password_hash: data.password,
-      full_name: data.full_name,
+      full_name: data.full_name.trim(),
       phone: data.phone_number || '',
+      phone_number: data.phone_number || '',
       role: 'STAFF',
       current_points: 0,
       member_code: randCode,
@@ -873,22 +890,31 @@ export const AppProvider = ({ children }) => {
       is_active: true
     };
 
-    // Insert staff to Supabase
-    const { data: dbStaff, error: staffErr } = await supabase
-      .from('tomsmoothie_users')
-      .insert([newStaff])
-      .select()
-      .single();
-
-    if (staffErr || !dbStaff) {
-      console.error('Error inserting staff to Supabase:', staffErr);
-      triggerToast('เกิดข้อผิดพลาดในการลงทะเบียนพนักงาน', 'danger');
-      return { success: false };
-    }
-
-    const updatedUsers = [...users, dbStaff];
+    // 1. Update in local state & mockDb
+    const updatedUsers = [...users, newStaff];
     setUsers(updatedUsers);
     mockDb.saveUsers(updatedUsers);
+
+    // 2. Sync to Supabase in background
+    try {
+      await supabase
+        .from('tomsmoothie_users')
+        .insert([{
+          id: newStaff.id,
+          email: newStaff.email,
+          password_hash: newStaff.password_hash,
+          full_name: newStaff.full_name,
+          phone: newStaff.phone,
+          role: newStaff.role,
+          member_code: newStaff.member_code,
+          current_points: 0,
+          created_at: newStaff.created_at,
+          is_active: true
+        }]);
+    } catch (e) {
+      console.warn('Supabase registerStaff sync warning:', e);
+    }
+
     triggerToast(`เพิ่มพนักงานคุณ "${data.full_name}" สำเร็จ`, 'success');
     return { success: true };
   };
@@ -898,17 +924,7 @@ export const AppProvider = ({ children }) => {
     if (!targetUser) return;
     const nextState = !targetUser.is_active;
 
-    const { error: err } = await supabase
-      .from('tomsmoothie_users')
-      .update({ is_active: nextState })
-      .eq('id', id);
-
-    if (err) {
-      console.error('Error updating staff active status in Supabase:', err);
-      triggerToast('เกิดข้อผิดพลาดในการอัปเดตสถานะพนักงาน', 'danger');
-      return;
-    }
-
+    // 1. Update local state & mockDb
     const updatedUsers = users.map(u => {
       if (u.id === id) {
         return { ...u, is_active: nextState };
@@ -917,6 +933,17 @@ export const AppProvider = ({ children }) => {
     });
     setUsers(updatedUsers);
     mockDb.saveUsers(updatedUsers);
+
+    // 2. Sync to Supabase in background
+    try {
+      await supabase
+        .from('tomsmoothie_users')
+        .update({ is_active: nextState })
+        .eq('id', id);
+    } catch (e) {
+      console.warn('Supabase toggleStaffStatus sync warning:', e);
+    }
+
     const roleLabel = targetUser.role === 'CUSTOMER' ? 'สมาชิก' : (targetUser.role === 'ADMIN' ? 'ผู้ดูแลระบบ' : 'พนักงาน');
     triggerToast(`${nextState ? 'เปิดใช้งาน' : 'ระงับใช้งาน'} ${roleLabel} "${targetUser.full_name}" เรียบร้อย`, 'info');
   };
@@ -929,47 +956,47 @@ export const AppProvider = ({ children }) => {
       return { success: false, message: 'ไม่พบผู้ใช้' };
     }
 
-    // 1. Update points in Supabase
-    const { data: dbUser, error: userErr } = await supabase
-      .from('tomsmoothie_users')
-      .update({ current_points: nextPoints })
-      .eq('id', userId)
-      .select()
-      .single();
+    const targetPoints = Math.max(0, Number(nextPoints));
+    const pointsChange = targetPoints - (customerUser.current_points || 0);
 
-    if (userErr || !dbUser) {
-      console.error('Error updating customer points in Supabase:', userErr);
-      triggerToast('เกิดข้อผิดพลาดในการอัปเดตแต้มสมาชิก', 'danger');
-      return { success: false };
-    }
+    // 1. Update points locally
+    const updatedUser = { ...customerUser, current_points: targetPoints };
+    const updatedUsers = users.map(u => u.id === userId ? updatedUser : u);
+    setUsers(updatedUsers);
+    mockDb.saveUsers(updatedUsers);
 
-    // 2. Record points adjustment transaction
-    const pointsChange = nextPoints - customerUser.current_points;
+    // 2. Record transaction locally
     const newTx = {
       id: 'tx-' + Date.now(),
       customer_id: userId,
       customer_name: customerUser.full_name,
-      staff_id: currentUser.id,
-      staff_email: currentUser.email + ' (แอดมินแก้ไข)',
+      staff_id: currentUser?.id || 'admin',
+      staff_email: (currentUser?.email || 'admin') + ' (แอดมินแก้ไข)',
       order_id: null,
       points_change: pointsChange,
-      transaction_type: pointsChange > 0 ? 'EARN' : 'REDEEM',
+      transaction_type: pointsChange >= 0 ? 'EARN' : 'REDEEM',
       created_at: new Date().toISOString()
     };
 
-    const { data: dbTx } = await supabase
-      .from('tomsmoothie_point_transactions')
-      .insert([newTx])
-      .select()
-      .single();
+    const updatedTxs = [newTx, ...transactions];
+    setTransactions(updatedTxs);
+    mockDb.saveTransactions(updatedTxs);
 
-    if (dbTx) {
-      setTransactions(prev => [dbTx, ...prev]);
+    // 3. Sync to Supabase in background
+    try {
+      await supabase
+        .from('tomsmoothie_users')
+        .update({ current_points: targetPoints })
+        .eq('id', userId);
+
+      await supabase
+        .from('tomsmoothie_point_transactions')
+        .insert([newTx]);
+    } catch (e) {
+      console.warn('Supabase updateCustomerPoints sync warning:', e);
     }
 
-    setUsers(prev => prev.map(u => u.id === userId ? dbUser : u));
-    
-    triggerToast(`ปรับแต้มของคุณ ${customerUser.full_name} เป็น ${nextPoints} แต้ม สำเร็จ`, 'success');
+    triggerToast(`ปรับแต้มของคุณ ${customerUser.full_name} เป็น ${targetPoints} แต้ม สำเร็จ`, 'success');
     return { success: true };
   };
 
@@ -987,21 +1014,19 @@ export const AppProvider = ({ children }) => {
       notes: closingData.notes || ''
     };
 
-    const { data: dbClosing, error: closeErr } = await supabase
-      .from('tomsmoothie_daily_closings')
-      .insert([newClosing])
-      .select()
-      .single();
-
-    if (closeErr || !dbClosing) {
-      console.error('Error inserting daily closing to Supabase:', closeErr);
-      triggerToast('เกิดข้อผิดพลาดในการบันทึกปิดยอดขายลงระบบ', 'danger');
-      return { success: false };
-    }
-
-    const updatedClosings = [dbClosing, ...dailyClosings];
+    // 1. Update local state & mockDb
+    const updatedClosings = [newClosing, ...dailyClosings];
     setDailyClosings(updatedClosings);
     mockDb.saveDailyClosings(updatedClosings);
+
+    // 2. Sync to Supabase in background
+    try {
+      await supabase
+        .from('tomsmoothie_daily_closings')
+        .insert([newClosing]);
+    } catch (e) {
+      console.warn('Supabase submitDailyClosing sync warning:', e);
+    }
 
     triggerToast('บันทึกปิดยอดขายเรียบร้อย!', 'success');
     return { success: true };
@@ -1009,19 +1034,37 @@ export const AppProvider = ({ children }) => {
 
   // RESET DATABASE helper
   const resetDatabase = async () => {
+    // 1. Clean all local mock database data back to defaults
+    const res = mockDb.resetAll();
+
+    // 2. Update local states
+    setUsers(res.users);
+    setMenuItems(res.menu);
+    setOrders(res.orders);
+    setTransactions(res.transactions);
+    setDailyClosings(res.dailyClosings || []);
+    
+    let nextCurrentUser = null;
+    if (currentUser) {
+      nextCurrentUser = res.users.find(u => u.email === currentUser.email) 
+                        || res.users.find(u => u.role === currentUser.role);
+    }
+    
+    if (!nextCurrentUser) {
+      nextCurrentUser = res.users.find(u => u.role === 'ADMIN') || res.users[0] || null;
+    }
+
+    setCurrentUser(nextCurrentUser);
+    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(nextCurrentUser));
+
+    // 3. Clear Supabase tables in background
     try {
-      // 1. Clear Supabase tables to reset them
-      // Deleting order_items first due to foreign keys referencing orders, then orders/transactions referencing users.
       await supabase.from('tomsmoothie_order_items').delete().neq('order_id', '_');
       await supabase.from('tomsmoothie_orders').delete().neq('id', '_');
       await supabase.from('tomsmoothie_point_transactions').delete().neq('id', '_');
       await supabase.from('tomsmoothie_daily_closings').delete().neq('id', '_');
       await supabase.from('tomsmoothie_users').delete().neq('id', '_');
 
-      // 2. Clean all local mock database data back to defaults
-      const res = mockDb.resetAll();
-
-      // 3. Re-seed default users in Supabase
       if (res.users && res.users.length > 0) {
         const usersPayload = res.users.map(u => ({
           id: u.id,
@@ -1036,38 +1079,13 @@ export const AppProvider = ({ children }) => {
           auth_provider: u.auth_provider,
           is_active: u.is_active
         }));
-        const { error: seedErr } = await supabase.from('tomsmoothie_users').insert(usersPayload);
-        if (seedErr) {
-          console.error('Error seeding users to Supabase on reset:', seedErr);
-        }
+        await supabase.from('tomsmoothie_users').insert(usersPayload);
       }
-
-      // 4. Update local states
-      setUsers(res.users);
-      setMenuItems(res.menu);
-      setOrders(res.orders);
-      setTransactions(res.transactions);
-      setDailyClosings(res.dailyClosings || []);
-      
-      // Keep the current user logged in with their newly seeded user details
-      let nextCurrentUser = null;
-      if (currentUser) {
-        nextCurrentUser = res.users.find(u => u.email === currentUser.email) 
-                          || res.users.find(u => u.role === currentUser.role);
-      }
-      
-      if (!nextCurrentUser) {
-        nextCurrentUser = res.users.find(u => u.role === 'ADMIN') || res.users[0] || null;
-      }
-
-      setCurrentUser(nextCurrentUser);
-      localStorage.setItem('tomsmoothie_current_user', JSON.stringify(nextCurrentUser));
-      
-      triggerToast('รีเซ็ตฐานข้อมูลเป็นค่าตั้งต้นเรียบร้อยแล้ว!', 'warning');
     } catch (error) {
-      console.error('Error resetting database:', error);
-      triggerToast('เกิดข้อผิดพลาดในการรีเซ็ตฐานข้อมูล', 'danger');
+      console.warn('Supabase resetDatabase sync warning:', error);
     }
+
+    triggerToast('รีเซ็ตฐานข้อมูลเป็นค่าตั้งต้นเรียบร้อยแล้ว!', 'warning');
   };
 
   return (
