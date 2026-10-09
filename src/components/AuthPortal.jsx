@@ -502,24 +502,7 @@ export const AuthPortal = () => {
 
         {/* Toggle between login and register text link for Admin */}
         {loginRole === 'ADMIN' && (
-          <div style={{ marginTop: '16px', textAlign: 'center' }}>
-            <button
-              type="button"
-              onClick={() => { setIsRegister(!isRegister); setError(''); }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--primary)',
-                fontSize: '0.85rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                textDecoration: 'underline'
-              }}
-            >
-              {isRegister ? '👑 มีบัญชีผู้ดูแลระบบอยู่แล้ว? เข้าสู่ระบบ' : '➕ ยังไม่มีบัญชีผู้ดูแลระบบ? สมัครสมาชิกผู้ดูแลระบบใหม่'}
-            </button>
-          </div>
-        )}
+
 
         {/* Staff/Admin buttons below Customer Login form */}
         {loginRole === 'CUSTOMER' && !isRegister && (
