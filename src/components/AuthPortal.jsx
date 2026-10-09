@@ -364,23 +364,7 @@ export const AuthPortal = () => {
               </svg>
               {isRegister ? 'สมัครสมาชิกด้วย Google' : 'เข้าสู่ระบบด้วย Google'}
             </button>
-            <div style={{ textAlign: 'center' }}>
-              <button
-                type="button"
-                onClick={() => setIsGoogleModalOpen(true)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--primary)',
-                  fontSize: '0.78rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  textDecoration: 'underline'
-                }}
-              >
-                🔍 หรือเลือกบัญชี Google จำลอง (Simulator Mode)
-              </button>
-            </div>
+
           </div>
         )}
 
