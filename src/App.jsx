@@ -26,7 +26,7 @@ const AppContent = () => {
         <div className="logo-container">
           <div className="logo-icon">🍹</div>
           <div className="logo-text">
-            <h1>ร้านน้ำปั่นพี่ต้อม</h1>
+            <h1 style={{ fontSize: '0.75rem', lineHeight: '1.4' }}>เว็บแอปพลิเคชันสั่งจองเครื่องดื่มล่วงหน้าและสะสมแต้มสมาชิกดิจิทัล ร้านน้ำปั่นพี่ต้อม</h1>
             <p>TomSmoothie WebOrder & Points</p>
           </div>
         </div>
