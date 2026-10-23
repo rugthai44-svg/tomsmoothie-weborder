@@ -395,6 +395,8 @@ export const AuthPortal = () => {
                     placeholder={loginRole === 'ADMIN' ? "เช่น คุณต้อม (ผู้ดูแลระบบ)" : "เช่น สมชาย รักน้ำปั่น"}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
+                    onInvalid={(e) => e.target.setCustomValidity('กรุณากรอกชื่อ-นามสกุล')}
+                    onInput={(e) => e.target.setCustomValidity('')}
                     style={{ paddingLeft: '40px' }}
                     maxLength={80}
                     required
@@ -412,6 +414,8 @@ export const AuthPortal = () => {
                     placeholder="เช่น 0891234567"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                    onInvalid={(e) => e.target.setCustomValidity('กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 11 หลัก')}
+                    onInput={(e) => e.target.setCustomValidity('')}
                     inputMode="numeric"
                     pattern="[0-9]*"
                     style={{ paddingLeft: '40px' }}
@@ -435,7 +439,17 @@ export const AuthPortal = () => {
                   loginRole === 'STAFF' ? "staff1@tomsmoothie.com" : "admin@tomsmoothie.com"
                 }
                 value={email}
-                onChange={(e) => handleEmailChange(e.target.value)}
+                onChange={(e) => handleEmailChange(e.target.value.replace(/[^\x20-\x7E]/g, ''))}
+                onInvalid={(e) => {
+                  if (e.target.validity.valueMissing) {
+                    e.target.setCustomValidity('กรุณากรอกอีเมล');
+                  } else if (e.target.validity.typeMismatch) {
+                    e.target.setCustomValidity('รูปแบบอีเมลไม่ถูกต้อง ตัวอย่าง: example@gmail.com');
+                  } else {
+                    e.target.setCustomValidity('กรุณากรอกอีเมลให้ถูกต้อง');
+                  }
+                }}
+                onInput={(e) => e.target.setCustomValidity('')}
                 style={{ paddingLeft: '40px' }}
                 maxLength={100}
                 required
@@ -453,6 +467,8 @@ export const AuthPortal = () => {
                 placeholder={isRegister ? "กำหนดรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)" : "รหัสผ่านเข้าใช้งาน"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onInvalid={(e) => e.target.setCustomValidity('กรุณากรอกรหัสผ่านอย่างน้อย 6 ตัวอักษร')}
+                onInput={(e) => e.target.setCustomValidity('')}
                 style={{ paddingLeft: '40px' }}
                 maxLength={64}
                 required
@@ -471,6 +487,8 @@ export const AuthPortal = () => {
                   placeholder="กรอกรหัสผ่านอีกครั้งเพื่อยืนยัน"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  onInvalid={(e) => e.target.setCustomValidity('กรุณายืนยันรหัสผ่าน')}
+                  onInput={(e) => e.target.setCustomValidity('')}
                   style={{ paddingLeft: '40px' }}
                   maxLength={64}
                   required
