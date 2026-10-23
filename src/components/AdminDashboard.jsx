@@ -814,7 +814,7 @@ export const AdminDashboard = () => {
                 <thead>
                   <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left', color: 'var(--text-muted)', backgroundColor: 'var(--bg)' }}>
                     <th style={{ padding: '12px 10px' }}>ชื่อ-นามสกุล</th>
-                    <th style={{ padding: '12px 10px' }}>รหัสสมาชิก</th>
+
                     <th style={{ padding: '12px 10px' }}>ข้อมูลติดต่อ</th>
                     <th style={{ padding: '12px 10px', textAlign: 'center' }}>แต้มสะสม</th>
                     <th style={{ padding: '12px 10px', textAlign: 'center' }}>สถานะใช้งาน</th>
@@ -834,11 +834,7 @@ export const AdminDashboard = () => {
                         <td style={{ padding: '12px 10px', fontWeight: 'bold', color: 'var(--brown)' }}>
                           {cust.full_name}
                         </td>
-                        <td style={{ padding: '12px 10px' }}>
-                          <code style={{ backgroundColor: 'var(--brown-pale)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, color: 'var(--brown)' }}>
-                            {cust.member_code}
-                          </code>
-                        </td>
+
                         <td style={{ padding: '12px 10px', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
                           <div>✉️ {cust.email}</div>
                           <div>📞 {cust.phone || cust.phone_number || '-'}</div>
