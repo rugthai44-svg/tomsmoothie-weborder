@@ -396,6 +396,7 @@ export const AuthPortal = () => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     style={{ paddingLeft: '40px' }}
+                    maxLength={80}
                     required
                   />
                 </div>
@@ -408,10 +409,13 @@ export const AuthPortal = () => {
                   <input 
                     type="tel" 
                     className="form-input" 
-                    placeholder="เช่น 089-999-9999"
+                    placeholder="เช่น 0891234567"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     style={{ paddingLeft: '40px' }}
+                    maxLength={11}
                     required
                   />
                 </div>
@@ -433,6 +437,7 @@ export const AuthPortal = () => {
                 value={email}
                 onChange={(e) => handleEmailChange(e.target.value)}
                 style={{ paddingLeft: '40px' }}
+                maxLength={100}
                 required
               />
             </div>
@@ -449,6 +454,7 @@ export const AuthPortal = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ paddingLeft: '40px' }}
+                maxLength={64}
                 required
               />
             </div>
@@ -466,6 +472,7 @@ export const AuthPortal = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   style={{ paddingLeft: '40px' }}
+                  maxLength={64}
                   required
                 />
               </div>
@@ -783,9 +790,12 @@ export const AuthPortal = () => {
             <form onSubmit={handlePhoneSubmit}>
               <input
                 type="tel"
-                placeholder="เช่น 081-234-5678"
+                placeholder="เช่น 0891234567"
                 value={tempPhone}
-                onChange={(e) => setTempPhone(e.target.value)}
+                onChange={(e) => setTempPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={11}
                 style={{
                   width: '100%',
                   padding: '12px',
