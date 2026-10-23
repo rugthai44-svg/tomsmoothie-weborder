@@ -507,10 +507,6 @@ export const AuthPortal = () => {
           </button>
         </form>
 
-        {/* Toggle between login and register text link for Admin */}
-        {loginRole === 'ADMIN' && (
-
-
         {/* Staff/Admin buttons below Customer Login form */}
         {loginRole === 'CUSTOMER' && !isRegister && (
           <div style={{ marginTop: '24px' }}>
