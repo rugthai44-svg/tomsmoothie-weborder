@@ -201,6 +201,17 @@ export const AuthPortal = () => {
         });
         if (!res.success) {
           setError(res.message);
+        } else {
+          // Switch back to login tab
+          setIsRegister(false);
+          setError('');
+          setConfirmPassword('');
+          setFullName('');
+          setPhone('');
+          saveCredentials(email, password, rememberMe);
+          localStorage.setItem('tomsmoothie_last_email_CUSTOMER', email);
+          localStorage.setItem('tomsmoothie_last_email', email);
+          localStorage.setItem('tomsmoothie_last_role', 'CUSTOMER');
         }
       }
     } else {

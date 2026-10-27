@@ -252,9 +252,7 @@ export const AppProvider = ({ children }) => {
     const updatedUsers = [...users, newUser];
     setUsers(updatedUsers);
     mockDb.saveUsers(updatedUsers);
-    setCurrentUser(newUser);
-    localStorage.setItem('tomsmoothie_current_user', JSON.stringify(newUser));
-    triggerToast('ลงทะเบียนและเข้าสู่ระบบสำเร็จ', 'success');
+    triggerToast('สมัครสมาชิกสำเร็จเรียบร้อยแล้ว กรุณาเข้าสู่ระบบ', 'success');
     return { success: true, user: newUser };
   };
 
