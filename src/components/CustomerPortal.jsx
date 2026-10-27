@@ -6,6 +6,7 @@ import {
   AlertCircle, ShoppingCart, 
   Plus, Minus, ArrowRight, CheckCircle2 
 } from 'lucide-react';
+import { ItemImage } from './ItemImage';
 
 export const CustomerPortal = () => {
   const { 
@@ -502,7 +503,9 @@ export const CustomerPortal = () => {
                         {idx + 1}
                       </div>
                       
-                      <div style={{ fontSize: '2.2rem', margin: '8px 0' }}>{item.image_url}</div>
+                      <div style={{ margin: '6px auto 8px auto', display: 'flex', justifyContent: 'center' }}>
+                        <ItemImage src={item.image_url} alt={item.name} size={64} borderRadius={12} />
+                      </div>
                       
                       <h5 style={{ 
                         fontSize: '0.75rem', 
@@ -587,20 +590,7 @@ export const CustomerPortal = () => {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                      <div style={{ 
-                        fontSize: '2rem', 
-                        backgroundColor: 'var(--brown-pale)', 
-                        width: '52px', 
-                        height: '52px', 
-                        minWidth: '52px',
-                        borderRadius: '14px',
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)'
-                      }}>
-                        {item.image_url}
-                      </div>
+                      <ItemImage src={item.image_url} alt={item.name} size={54} borderRadius={14} />
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <h5 style={{ 
                           fontSize: '0.92rem', 
@@ -1265,16 +1255,17 @@ export const CustomerPortal = () => {
       {selectedItem && (
         <div className="modal-overlay" onClick={() => setSelectedItem(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-              <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+              <ItemImage src={selectedItem.image_url} alt={selectedItem.name} size={62} borderRadius={14} />
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 'bold', textTransform: 'uppercase' }}>
                   {selectedItem.category === 'Smoothie' ? 'เครื่องดื่มปั่นสูตรพิเศษ' : 'ท็อปปิ้งเพิ่มเติม'}
                 </span>
-                <h3 style={{ color: 'var(--brown)', fontWeight: 800, fontSize: '1.2rem' }}>
+                <h3 style={{ color: 'var(--brown)', fontWeight: 800, fontSize: '1.2rem', margin: '2px 0', wordBreak: 'break-word' }}>
                   {selectedItem.name}
                 </h3>
               </div>
-              <span style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--primary)' }}>
+              <span style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--primary)', flexShrink: 0 }}>
                 ฿{selectedItem.base_price}
               </span>
             </div>

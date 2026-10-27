@@ -4,8 +4,9 @@ import {
   TrendingUp, Users, Coffee, ListFilter, Plus, Trash2,
   Edit3, ShieldCheck, Power, RefreshCw, BarChart2,
   Calendar, Check, UserPlus, FileSpreadsheet, PlayCircle, Sparkles, Clock,
-  Percent
+  Percent, Image as ImageIcon, Upload
 } from 'lucide-react';
+import { ItemImage } from './ItemImage';
 
 export const AdminDashboard = () => {
   const {
@@ -569,7 +570,9 @@ export const AdminDashboard = () => {
                   <tbody>
                     {smoothies.map(item => (
                       <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                        <td style={{ padding: '8px 4px', fontSize: '1.5rem' }}>{item.image_url}</td>
+                        <td style={{ padding: '8px 4px' }}>
+                          <ItemImage src={item.image_url} alt={item.name} size={42} borderRadius={8} />
+                        </td>
                         <td style={{ padding: '8px', fontWeight: 'bold', color: 'var(--brown)' }}>{item.name}</td>
                         <td style={{ padding: '8px', textAlign: 'center' }}>
                           <span style={{
@@ -1028,14 +1031,64 @@ export const AdminDashboard = () => {
               {['Smoothie', 'Iced', 'Hot'].includes(menuFormCategory) && (
                 <>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label>อีโมจิประกอบ (Emoji)</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="เช่น 🍊 หรือ 🥭"
-                      value={menuFormEmoji}
-                      onChange={e => setMenuFormEmoji(e.target.value)}
-                    />
+                    <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontWeight: 600 }}>รูปภาพเมนู (Image URL / ไฟล์รูปภาพ)</span>
+                    </label>
+
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                        <ItemImage src={menuFormEmoji} alt="พรีวิว" size={56} borderRadius={10} />
+                        <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>พรีวิว</span>
+                      </div>
+
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="เช่น /menu/strawberry.jpg หรือ https://... หรือ 🍓"
+                          value={menuFormEmoji}
+                          onChange={e => setMenuFormEmoji(e.target.value)}
+                          style={{ fontSize: '0.82rem' }}
+                        />
+                        <label style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          color: 'var(--primary)',
+                          fontWeight: 700,
+                          backgroundColor: 'var(--primary-light, #fff2ea)',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          width: 'fit-content',
+                          border: '1px dashed var(--primary)'
+                        }}>
+                          <Upload size={13} />
+                          <span>เลือกไฟล์รูปภาพจากเครื่อง</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (loadEvt) => {
+                                  if (loadEvt.target?.result) {
+                                    setMenuFormEmoji(loadEvt.target.result);
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginTop: '6px' }}>
+                      💡 สามารถวางรูปในโฟลเดอร์ <code>public/menu/</code> แล้วใส่เป็น <code>/menu/ชื่อรูป.jpg</code> หรือกดเลือกไฟล์รูปเพื่ออัปโหลดตรงนี้ได้เลย
+                    </span>
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
