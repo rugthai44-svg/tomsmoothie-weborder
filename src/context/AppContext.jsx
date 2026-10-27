@@ -18,7 +18,7 @@ export const AppProvider = ({ children }) => {
     }
   });
   const [dailyClosings, setDailyClosings] = useState([]);
-  
+
   // Custom states for notifications and simulator experience
   const [toast, setToast] = useState(null);
 
@@ -33,14 +33,14 @@ export const AppProvider = ({ children }) => {
         const { data: dbUsers, error: usersErr } = await supabase
           .from('tomsmoothie_users')
           .select('*');
-          
+
         if (!usersErr && dbUsers && dbUsers.length > 0) {
           const normalizedDbUsers = dbUsers.map(u => ({
             ...u,
             phone: u.phone || u.phone_number || '',
             phone_number: u.phone || u.phone_number || ''
           }));
-          
+
           // Merge with initial mock users so demo accounts always exist
           const merged = [...normalizedDbUsers];
           initialUsers.forEach(initUser => {
@@ -56,10 +56,10 @@ export const AppProvider = ({ children }) => {
 
       setUsers(combinedUsers);
       mockDb.saveUsers(combinedUsers);
-      
+
       // 2. Fetch Menu Items (Local mock db)
       setMenuItems(mockDb.getMenu());
-      
+
       // 3. Fetch Orders (with nested items)
       try {
         const { data: dbOrders, error: ordersErr } = await supabase
@@ -69,7 +69,7 @@ export const AppProvider = ({ children }) => {
             items:tomsmoothie_order_items(*)
           `)
           .order('created_at', { ascending: false });
-          
+
         if (!ordersErr && dbOrders) {
           setOrders(dbOrders);
         } else {
@@ -78,14 +78,14 @@ export const AppProvider = ({ children }) => {
       } catch (e) {
         setOrders(mockDb.getOrders());
       }
-      
+
       // 4. Fetch Point Transactions
       try {
         const { data: dbTxs, error: txsErr } = await supabase
           .from('tomsmoothie_point_transactions')
           .select('*')
           .order('created_at', { ascending: false });
-          
+
         if (!txsErr && dbTxs) {
           setTransactions(dbTxs);
         } else {
@@ -94,14 +94,14 @@ export const AppProvider = ({ children }) => {
       } catch (e) {
         setTransactions(mockDb.getTransactions());
       }
-      
+
       // 5. Fetch Daily Closings
       try {
         const { data: dbClosings, error: closingsErr } = await supabase
           .from('tomsmoothie_daily_closings')
           .select('*')
           .order('created_at', { ascending: false });
-          
+
         if (!closingsErr && dbClosings) {
           setDailyClosings(dbClosings);
         } else {
@@ -123,13 +123,13 @@ export const AppProvider = ({ children }) => {
           } else {
             setCurrentUser(parsed);
           }
-        } catch (e) {}
+        } catch (e) { }
       }
     };
-    
+
     initData();
   }, []);
- 
+
   // Quick helper to display a brief visual toast
   const triggerToast = (message, type = 'info') => {
     setToast({ message, type });
@@ -142,7 +142,7 @@ export const AppProvider = ({ children }) => {
     if (user.password_hash === inputPassword) return true;
     if (user.role === 'ADMIN') {
       if ((inputPassword === 'TomAdmin@99!' || inputPassword === 'admin123') &&
-          (user.password_hash === 'TomAdmin@99!' || user.password_hash === 'admin123')) {
+        (user.password_hash === 'TomAdmin@99!' || user.password_hash === 'admin123')) {
         return true;
       }
     }
@@ -172,7 +172,7 @@ export const AppProvider = ({ children }) => {
     // 2. Fallback to in-memory users state or mockDb
     if (!foundUser) {
       const localPool = users.length > 0 ? users : mockDb.getUsers();
-      foundUser = localPool.find(u => 
+      foundUser = localPool.find(u =>
         (u.email || '').toLowerCase() === trimmedEmail && isPasswordMatch(u, password)
       );
     }
@@ -201,7 +201,7 @@ export const AppProvider = ({ children }) => {
 
   const registerCustomer = async (data) => {
     const trimmedEmail = (data.email || '').trim().toLowerCase();
-    
+
     // Check if email already exists locally or in db
     const localPool = users.length > 0 ? users : mockDb.getUsers();
     if (localPool.some(u => (u.email || '').toLowerCase() === trimmedEmail)) {
@@ -223,7 +223,7 @@ export const AppProvider = ({ children }) => {
       created_at: new Date().toISOString(),
       is_active: true
     };
-    
+
     try {
       const { data: dbUser } = await supabase
         .from('tomsmoothie_users')
@@ -267,7 +267,7 @@ export const AppProvider = ({ children }) => {
       triggerToast('อีเมลนี้ถูกใช้งานแล้วในระบบ', 'danger');
       return { success: false, message: 'อีเมลนี้ถูกใช้งานแล้วในระบบ' };
     }
-    
+
     const randCode = 'ADMIN' + Math.floor(100 + Math.random() * 900);
     const newAdmin = {
       id: 'u-admin-' + Date.now(),
@@ -282,7 +282,7 @@ export const AppProvider = ({ children }) => {
       created_at: new Date().toISOString(),
       is_active: true
     };
-    
+
     try {
       const { data: dbUser } = await supabase
         .from('tomsmoothie_users')
@@ -320,7 +320,7 @@ export const AppProvider = ({ children }) => {
   const logout = async () => {
     try {
       await supabase.auth.signOut();
-    } catch (e) {}
+    } catch (e) { }
     setCurrentUser(null);
     localStorage.removeItem('tomsmoothie_current_user');
     localStorage.removeItem('tomsmoothie_session_token');
@@ -338,7 +338,7 @@ export const AppProvider = ({ children }) => {
         .ilike('email', trimmedEmail)
         .maybeSingle();
       if (dbUser) user = dbUser;
-    } catch (e) {}
+    } catch (e) { }
 
     if (!user) {
       const localPool = users.length > 0 ? users : mockDb.getUsers();
@@ -365,16 +365,16 @@ export const AppProvider = ({ children }) => {
             .from('tomsmoothie_users')
             .update({ google_id: updatedUser.google_id, auth_provider: updatedUser.auth_provider })
             .eq('id', user.id);
-        } catch (e) {}
+        } catch (e) { }
       }
 
-      user = { 
-        ...updatedUser, 
-        phone_number: updatedUser.phone || updatedUser.phone_number || '', 
-        phone: updatedUser.phone || updatedUser.phone_number || '' 
+      user = {
+        ...updatedUser,
+        phone_number: updatedUser.phone || updatedUser.phone_number || '',
+        phone: updatedUser.phone || updatedUser.phone_number || ''
       };
       setUsers(prev => prev.map(u => u.id === user.id ? user : u));
-      
+
       if (!user.is_active) {
         triggerToast('บัญชีนี้ถูกปิดใช้งานชั่วคราว', 'danger');
         return { success: false, message: 'บัญชีนี้ถูกปิดใช้งาน' };
@@ -382,7 +382,7 @@ export const AppProvider = ({ children }) => {
     } else {
       isNew = true;
       const selectedRole = localStorage.getItem('tomsmoothie_last_role') || 'CUSTOMER';
-      const randCode = selectedRole === 'CUSTOMER' 
+      const randCode = selectedRole === 'CUSTOMER'
         ? 'TOM-CUST-' + Math.floor(1000 + Math.random() * 9000)
         : (selectedRole === 'STAFF' ? 'STAFF' + Math.floor(100 + Math.random() * 900) : 'ADMIN' + Math.floor(100 + Math.random() * 900));
 
@@ -410,7 +410,7 @@ export const AppProvider = ({ children }) => {
           .single();
 
         if (dbUser) newUser.id = dbUser.id;
-      } catch (e) {}
+      } catch (e) { }
 
       user = newUser;
       const updatedList = [...users, user];
@@ -420,7 +420,7 @@ export const AppProvider = ({ children }) => {
 
     setCurrentUser(user);
     localStorage.setItem('tomsmoothie_current_user', JSON.stringify(user));
-    
+
     const mockToken = 'mock-jwt-' + btoa(JSON.stringify({ userId: user.id, email: user.email, role: user.role }));
     localStorage.setItem('tomsmoothie_session_token', mockToken);
 
@@ -458,7 +458,7 @@ export const AppProvider = ({ children }) => {
           name: fullName,
           google_id: googleId
         });
-        
+
         if (!res?.success) {
           await supabase.auth.signOut();
         }
@@ -472,7 +472,7 @@ export const AppProvider = ({ children }) => {
 
   const updateUserPhone = async (userId, phone) => {
     const cleanPhone = (phone || '').trim();
-    
+
     // 1. Update in local state & mockDb immediately
     const updatedUsers = users.map(u => {
       if (u.id === userId) {
@@ -509,7 +509,7 @@ export const AppProvider = ({ children }) => {
     if (role === 'CUSTOMER') target = users.find(u => u.role === 'CUSTOMER');
     else if (role === 'STAFF') target = users.find(u => u.role === 'STAFF');
     else if (role === 'ADMIN') target = users.find(u => u.role === 'ADMIN');
-    
+
     if (target) {
       setCurrentUser(target);
       localStorage.setItem('tomsmoothie_current_user', JSON.stringify(target));
@@ -520,7 +520,7 @@ export const AppProvider = ({ children }) => {
   // CUSTOMER: Pre-order Smoothie
   const createOrder = async (orderCart, isRedeemedFreeCup, pickupTime) => {
     if (!currentUser || currentUser.role !== 'CUSTOMER') return null;
-    
+
     const cartTotal = orderCart.reduce((sum, item) => sum + item.subtotal_price, 0);
     const totalCups = orderCart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -569,7 +569,7 @@ export const AppProvider = ({ children }) => {
     if (isRedeemedFreeCup) {
       const nextPoints = Math.max(0, currentUser.current_points - 10);
       const updatedUser = { ...currentUser, current_points: nextPoints };
-      
+
       const nextUsers = users.map(u => u.id === currentUser.id ? updatedUser : u);
       setUsers(nextUsers);
       mockDb.saveUsers(nextUsers);
@@ -638,7 +638,7 @@ export const AppProvider = ({ children }) => {
       triggerToast('ไม่พบข้อมูลคำสั่งซื้อนี้', 'danger');
       return { success: false, message: 'ไม่พบออเดอร์นี้' };
     }
-    
+
     if (order.order_status !== 'Pending') {
       triggerToast('ไม่สามารถยกเลิกออเดอร์นี้ได้เนื่องจากร้านค้ากำลังเตรียมแล้ว', 'danger');
       return { success: false, message: 'ไม่สามารถยกเลิกได้' };
@@ -653,7 +653,7 @@ export const AppProvider = ({ children }) => {
     if (order.is_redeemed_free_cup) {
       const customer = users.find(u => u.id === order.customer_id) || currentUser;
       const nextPoints = (customer?.current_points || 0) + 10;
-      
+
       const nextUsers = users.map(u => u.id === order.customer_id ? { ...u, current_points: nextPoints } : u);
       setUsers(nextUsers);
       mockDb.saveUsers(nextUsers);
@@ -1043,13 +1043,13 @@ export const AppProvider = ({ children }) => {
     setOrders(res.orders);
     setTransactions(res.transactions);
     setDailyClosings(res.dailyClosings || []);
-    
+
     let nextCurrentUser = null;
     if (currentUser) {
-      nextCurrentUser = res.users.find(u => u.email === currentUser.email) 
-                        || res.users.find(u => u.role === currentUser.role);
+      nextCurrentUser = res.users.find(u => u.email === currentUser.email)
+        || res.users.find(u => u.role === currentUser.role);
     }
-    
+
     if (!nextCurrentUser) {
       nextCurrentUser = res.users.find(u => u.role === 'ADMIN') || res.users[0] || null;
     }

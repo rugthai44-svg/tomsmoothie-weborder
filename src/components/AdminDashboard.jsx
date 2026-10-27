@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { 
-  TrendingUp, Users, Coffee, ListFilter, Plus, Trash2, 
-  Edit3, ShieldCheck, Power, RefreshCw, BarChart2, 
+import {
+  TrendingUp, Users, Coffee, ListFilter, Plus, Trash2,
+  Edit3, ShieldCheck, Power, RefreshCw, BarChart2,
   Calendar, Check, UserPlus, FileSpreadsheet, PlayCircle, Sparkles, Clock,
   Percent
 } from 'lucide-react';
@@ -27,7 +27,7 @@ export const AdminDashboard = () => {
 
   const [adminTab, setAdminTab] = useState('analytics'); // 'analytics' | 'menu' | 'members' | 'staff' | 'logs'
   const [hoveredBarIndex, setHoveredBarIndex] = useState(null);
-  
+
   // Menu form states
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null); // null if adding
@@ -46,15 +46,15 @@ export const AdminDashboard = () => {
 
   // Analytics Math
   const completedOrders = orders.filter(o => o.order_status === 'Completed');
-  
+
   // Base revenue from completed orders plus revenue from submitted daily closings
   const closingsRevenue = (dailyClosings || []).reduce((sum, c) => sum + c.total_revenue, 0);
   const totalRevenue = completedOrders.reduce((sum, o) => sum + o.total_price, 0) + closingsRevenue;
-  
+
   // Total cups and free drinks from closings
   const closingsFreeCups = (dailyClosings || []).reduce((sum, c) => sum + c.free_cups_redeemed, 0);
   const freeDrinksRedeemed = completedOrders.filter(o => o.is_redeemed_free_cup).length + closingsFreeCups;
-  
+
   // Simulated ranges based on base sales
   const revenueDaily = totalRevenue + 130; // base + mock active
   const revenueWeekly = revenueDaily * 6;
@@ -64,7 +64,7 @@ export const AdminDashboard = () => {
   // Best selling calculations
   const smoothies = menuItems.filter(item => ['Smoothie', 'Iced', 'Hot'].includes(item.category));
   const toppings = menuItems.filter(item => item.category === 'Topping');
-  
+
   const sortedSellers = [...smoothies].sort((a, b) => b.total_sold_count - a.total_sold_count);
   const maxSoldVal = sortedSellers.length > 0 ? sortedSellers[0].total_sold_count : 1;
 
@@ -137,7 +137,7 @@ export const AdminDashboard = () => {
 
   return (
     <div className="app-container wide-layout" style={{ minHeight: 'calc(100vh - 40px)', padding: '20px' }}>
-      
+
       {/* Admin Quick Title Bar */}
       <div style={{
         display: 'flex',
@@ -161,7 +161,7 @@ export const AdminDashboard = () => {
 
       {/* Tabs */}
       <div className="tabs-container" style={{ marginBottom: '24px' }}>
-        <button 
+        <button
           className={`tab-btn ${adminTab === 'analytics' ? 'active' : ''}`}
           onClick={() => setAdminTab('analytics')}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
@@ -169,7 +169,7 @@ export const AdminDashboard = () => {
           <BarChart2 size={16} />
           วิเคราะห์และยอดขาย
         </button>
-        <button 
+        <button
           className={`tab-btn ${adminTab === 'menu' ? 'active' : ''}`}
           onClick={() => setAdminTab('menu')}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
@@ -177,7 +177,7 @@ export const AdminDashboard = () => {
           <Coffee size={16} />
           จัดการเมนูเครื่องดื่ม
         </button>
-        <button 
+        <button
           className={`tab-btn ${adminTab === 'members' ? 'active' : ''}`}
           onClick={() => setAdminTab('members')}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
@@ -185,7 +185,7 @@ export const AdminDashboard = () => {
           <Users size={16} />
           ข้อมูลสมาชิก (ลูกค้า)
         </button>
-        <button 
+        <button
           className={`tab-btn ${adminTab === 'staff' ? 'active' : ''}`}
           onClick={() => setAdminTab('staff')}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
@@ -193,7 +193,7 @@ export const AdminDashboard = () => {
           <ShieldCheck size={16} />
           สิทธิ์การใช้งานของพนักงาน
         </button>
-        <button 
+        <button
           className={`tab-btn ${adminTab === 'logs' ? 'active' : ''}`}
           onClick={() => setAdminTab('logs')}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
@@ -256,13 +256,13 @@ export const AdminDashboard = () => {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-            
+
             {/* Best Sellers Analytics (Interactive CSS Bar Chart) */}
             <div className="card" style={{ margin: 0 }}>
               <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <TrendingUp size={16} /> 5 อันดับเมนูน้ำปั่นยอดฮิต (จำนวนแก้วที่ขายได้)
               </h4>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {sortedSellers.slice(0, 5).map((item, idx) => {
                   const pct = Math.max(10, Math.floor((item.total_sold_count / maxSoldVal) * 100));
@@ -273,10 +273,10 @@ export const AdminDashboard = () => {
                         <span style={{ color: 'var(--text-muted)' }}>{item.total_sold_count} แก้ว</span>
                       </div>
                       <div style={{ width: '100%', height: '10px', backgroundColor: 'var(--brown-pale)', borderRadius: '50px', overflow: 'hidden' }}>
-                        <div style={{ 
-                          width: `${pct}%`, 
-                          height: '100%', 
-                          background: 'linear-gradient(90deg, var(--primary), #ffa726)', 
+                        <div style={{
+                          width: `${pct}%`,
+                          height: '100%',
+                          background: 'linear-gradient(90deg, var(--primary), #ffa726)',
                           borderRadius: '50px',
                           transition: 'var(--transition)'
                         }}></div>
@@ -334,30 +334,30 @@ export const AdminDashboard = () => {
             <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <BarChart2 size={16} /> กราฟสรุปยอดขายรายเดือน (ปี 2026)
             </h4>
-            
-            <div style={{ 
-              display: 'flex', 
-              height: '240px', 
-              alignItems: 'flex-end', 
-              position: 'relative', 
-              paddingLeft: '45px', 
+
+            <div style={{
+              display: 'flex',
+              height: '240px',
+              alignItems: 'flex-end',
+              position: 'relative',
+              paddingLeft: '45px',
               paddingRight: '15px',
-              paddingBottom: '30px', 
-              borderBottom: '1px solid var(--border)' 
+              paddingBottom: '30px',
+              borderBottom: '1px solid var(--border)'
             }}>
               {/* Grid lines and Y-axis labels */}
-              <div style={{ 
-                position: 'absolute', 
-                left: 0, 
-                top: 0, 
-                bottom: '30px', 
-                width: '100%', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'space-between', 
-                pointerEvents: 'none', 
-                fontSize: '0.7rem', 
-                color: 'var(--text-muted)' 
+              <div style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: '30px',
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                pointerEvents: 'none',
+                fontSize: '0.7rem',
+                color: 'var(--text-muted)'
               }}>
                 <div style={{ borderBottom: '1px dashed var(--border)', width: '100%', paddingBottom: '2px', display: 'flex', justifyContent: 'flex-start' }}>
                   <span>฿8,000</span>
@@ -391,26 +391,26 @@ export const AdminDashboard = () => {
                   const heightPercent = (d.sales / 8000) * 100;
                   const isHovered = hoveredBarIndex === index;
                   return (
-                    <div key={index} style={{ 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      alignItems: 'center', 
-                      width: '10%', 
-                      height: '100%', 
-                      justifyContent: 'flex-end', 
-                      position: 'relative' 
+                    <div key={index} style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      width: '10%',
+                      height: '100%',
+                      justifyContent: 'flex-end',
+                      position: 'relative'
                     }}>
-                      
+
                       {/* Bar with hover effect */}
-                      <div 
+                      <div
                         onMouseEnter={() => setHoveredBarIndex(index)}
                         onMouseLeave={() => setHoveredBarIndex(null)}
                         style={{
                           width: '100%',
                           maxWidth: '32px',
                           height: `${heightPercent}%`,
-                          background: isHovered 
-                            ? 'linear-gradient(to top, var(--brown-hover), var(--primary-hover))' 
+                          background: isHovered
+                            ? 'linear-gradient(to top, var(--brown-hover), var(--primary-hover))'
                             : 'linear-gradient(to top, var(--brown), var(--primary))',
                           borderRadius: '6px 6px 0 0',
                           cursor: 'pointer',
@@ -444,15 +444,15 @@ export const AdminDashboard = () => {
                           ฿{d.sales.toLocaleString('th-TH')}
                         </div>
                       </div>
-                      
+
                       {/* Month Label */}
-                      <span style={{ 
-                        fontSize: '0.75rem', 
-                        fontWeight: 600, 
-                        color: 'var(--text-muted)', 
-                        marginTop: '8px', 
-                        position: 'absolute', 
-                        bottom: '-22px' 
+                      <span style={{
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        color: 'var(--text-muted)',
+                        marginTop: '8px',
+                        position: 'absolute',
+                        bottom: '-22px'
                       }}>
                         {d.month}
                       </span>
@@ -461,7 +461,7 @@ export const AdminDashboard = () => {
                 })}
               </div>
             </div>
-            
+
             <div style={{ marginTop: '24px', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right' }}>
               * ข้อมูลของเดือน สิงหาคม คำนวณแบบพลวัตจากยอดขายจริงในปัจจุบัน
             </div>
@@ -500,7 +500,7 @@ export const AdminDashboard = () => {
                         if (parts.length === 3) {
                           formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
                         }
-                      } catch (e) {}
+                      } catch (e) { }
 
                       return (
                         <tr key={c.id} style={{ borderBottom: '1px solid var(--border)' }}>
@@ -536,7 +536,7 @@ export const AdminDashboard = () => {
             <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem' }}>
               รายการเครื่องดื่ม & ท็อปปิ้งทั้งหมด ในระบบร้านค้า
             </h4>
-            <button 
+            <button
               onClick={() => handleOpenMenuModal(null)}
               className="btn btn-primary"
               style={{ width: 'auto', padding: '8px 16px', fontSize: '0.8rem', borderRadius: '10px' }}
@@ -546,13 +546,13 @@ export const AdminDashboard = () => {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
-            
+
             {/* 1. SMOOTHIES TABLE */}
             <div className="card" style={{ padding: '16px 20px', margin: 0 }}>
               <h5 style={{ color: 'var(--brown)', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '12px' }}>
                 🥤 รายการเครื่องดื่มทั้งหมด (ร้อน / เย็น / ปั่น)
               </h5>
-              
+
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.8rem' }}>
                   <thead>
@@ -594,14 +594,14 @@ export const AdminDashboard = () => {
                         </td>
                         <td style={{ padding: '8px', textAlign: 'right' }}>
                           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                            <button 
+                            <button
                               onClick={() => handleOpenMenuModal(item)}
                               style={{ border: 'none', background: 'none', color: 'var(--brown-light)', cursor: 'pointer' }}
                               title="แก้ไข"
                             >
                               <Edit3 size={14} />
                             </button>
-                            <button 
+                            <button
                               onClick={() => {
                                 if (confirm(`ยืนยันการลบเมนู ${item.name}?`)) {
                                   deleteMenuItem(item.id);
@@ -626,7 +626,7 @@ export const AdminDashboard = () => {
               <h5 style={{ color: 'var(--brown)', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '12px' }}>
                 🍒 รายการท็อปปิ้งเพิ่มเติม (Toppings)
               </h5>
-              
+
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.8rem' }}>
                   <thead>
@@ -643,13 +643,13 @@ export const AdminDashboard = () => {
                         <td style={{ padding: '8px' }}>+฿{item.base_price}</td>
                         <td style={{ padding: '8px', textAlign: 'right' }}>
                           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                            <button 
+                            <button
                               onClick={() => handleOpenMenuModal(item)}
                               style={{ border: 'none', background: 'none', color: 'var(--brown-light)', cursor: 'pointer' }}
                             >
                               <Edit3 size={14} />
                             </button>
-                            <button 
+                            <button
                               onClick={() => {
                                 if (confirm(`ยืนยันลบท็อปปิ้ง ${item.name}?`)) {
                                   deleteMenuItem(item.id);
@@ -675,19 +675,19 @@ export const AdminDashboard = () => {
       {/* ================= ADMIN TAB: STAFF MANAGEMENT ================= */}
       {adminTab === 'staff' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-          
+
           {/* Add Staff form */}
           <div className="card" style={{ margin: 0, height: 'fit-content' }}>
             <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <UserPlus size={16} /> ลงทะเบียนพนักงานร้านคนใหม่
             </h4>
-            
+
             <form onSubmit={handleStaffSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div className="form-group" style={{ margin: 0 }}>
                 <label>ชื่อพนักงาน</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
+                <input
+                  type="text"
+                  className="form-input"
                   placeholder="เช่น สมศักดิ์ จัดเต็ม"
                   value={staffName}
                   onChange={e => setStaffName(e.target.value)}
@@ -697,9 +697,9 @@ export const AdminDashboard = () => {
 
               <div className="form-group" style={{ margin: 0 }}>
                 <label>อีเมลใช้งาน (ใช้เข้าสู่ระบบ Staff Portal)</label>
-                <input 
-                  type="email" 
-                  className="form-input" 
+                <input
+                  type="email"
+                  className="form-input"
                   placeholder="staffname@tomsmoothie.com"
                   value={staffEmail}
                   onChange={e => setStaffEmail(e.target.value)}
@@ -709,9 +709,9 @@ export const AdminDashboard = () => {
 
               <div className="form-group" style={{ margin: 0 }}>
                 <label>รหัสผ่านเริ่มต้น</label>
-                <input 
-                  type="password" 
-                  className="form-input" 
+                <input
+                  type="password"
+                  className="form-input"
                   placeholder="ความยาวอย่างน้อย 4 ตัวอักษร"
                   value={staffPassword}
                   onChange={e => setStaffPassword(e.target.value)}
@@ -721,9 +721,9 @@ export const AdminDashboard = () => {
 
               <div className="form-group" style={{ margin: 0 }}>
                 <label>เบอร์โทรศัพท์ติดต่อ</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
+                <input
+                  type="text"
+                  className="form-input"
                   placeholder="081-xxx-xxxx"
                   value={staffPhone}
                   onChange={e => setStaffPhone(e.target.value)}
@@ -741,7 +741,7 @@ export const AdminDashboard = () => {
             <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <ShieldCheck size={16} /> รายชื่อและสิทธิ์พนักงานหน้าร้าน
             </h4>
-            
+
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.8rem' }}>
                 <thead>
@@ -876,18 +876,26 @@ export const AdminDashboard = () => {
                             </button>
                             <button
                               type="button"
-                              onClick={() => toggleStaffStatus(cust.id)}
-                              className={cust.is_active ? "btn btn-outline" : "btn btn-primary"}
-                              style={{ 
-                                width: 'auto', 
-                                padding: '6px 12px', 
-                                fontSize: '0.75rem', 
-                                borderRadius: '6px',
-                                color: cust.is_active ? 'var(--danger)' : 'white',
-                                borderColor: cust.is_active ? 'var(--danger)' : 'var(--primary)'
+                              onClick={() => {
+                                if (window.confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีสมาชิกคุณ "${cust.full_name}" ถาวร?\n(ข้อมูลบัญชีจะถูกลบออกจากระบบและไม่สามารถกู้คืนได้)`)) {
+                                  deleteUser(cust.id);
+                                }
                               }}
+                              className="btn btn-outline"
+                              style={{
+                                width: 'auto',
+                                padding: '6px 12px',
+                                fontSize: '0.75rem',
+                                borderRadius: '6px',
+                                color: 'var(--danger)',
+                                borderColor: 'var(--danger)',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                              title="ลบบัญชีสมาชิกถาวร"
                             >
-                              {cust.is_active ? 'ระงับใช้งาน' : 'เปิดใช้งาน'}
+                              <Trash2 size={13} /> ลบบัญชี
                             </button>
                           </div>
                         </td>
@@ -977,12 +985,12 @@ export const AdminDashboard = () => {
             </h3>
 
             <form onSubmit={handleMenuSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              
+
               <div className="form-group" style={{ margin: 0 }}>
                 <label>หมวดหมู่</label>
-                <select 
-                  className="form-input" 
-                  value={menuFormCategory} 
+                <select
+                  className="form-input"
+                  value={menuFormCategory}
                   onChange={e => setMenuFormCategory(e.target.value)}
                   style={{ appearance: 'auto' }}
                 >
@@ -995,9 +1003,9 @@ export const AdminDashboard = () => {
 
               <div className="form-group" style={{ margin: 0 }}>
                 <label>ชื่อเมนูภาษาไทย / ภาษาอังกฤษ</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
+                <input
+                  type="text"
+                  className="form-input"
                   placeholder="เช่น ส้มปั่นสด (Orange Smoothie)"
                   value={menuFormName}
                   onChange={e => setMenuFormName(e.target.value)}
@@ -1007,9 +1015,9 @@ export const AdminDashboard = () => {
 
               <div className="form-group" style={{ margin: 0 }}>
                 <label>ราคาตั้งต้น (THB)</label>
-                <input 
-                  type="number" 
-                  className="form-input" 
+                <input
+                  type="number"
+                  className="form-input"
                   placeholder="ราคาเครื่องดื่ม"
                   value={menuFormPrice}
                   onChange={e => setMenuFormPrice(e.target.value)}
@@ -1021,9 +1029,9 @@ export const AdminDashboard = () => {
                 <>
                   <div className="form-group" style={{ margin: 0 }}>
                     <label>อีโมจิประกอบ (Emoji)</label>
-                    <input 
-                      type="text" 
-                      className="form-input" 
+                    <input
+                      type="text"
+                      className="form-input"
                       placeholder="เช่น 🍊 หรือ 🥭"
                       value={menuFormEmoji}
                       onChange={e => setMenuFormEmoji(e.target.value)}
@@ -1032,8 +1040,8 @@ export const AdminDashboard = () => {
 
                   <div className="form-group" style={{ margin: 0 }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={menuFormPopular}
                         onChange={e => setMenuFormPopular(e.target.checked)}
                         style={{ width: '16px', height: '16px', accentColor: 'var(--primary)' }}
@@ -1048,7 +1056,7 @@ export const AdminDashboard = () => {
                 <Check size={16} /> ยืนยันบันทึกข้อมูล
               </button>
 
-              <button 
+              <button
                 type="button"
                 onClick={() => setIsMenuModalOpen(false)}
                 className="btn btn-outline"
