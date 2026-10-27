@@ -948,6 +948,51 @@ export const AppProvider = ({ children }) => {
     triggerToast(`${nextState ? 'เปิดใช้งาน' : 'ระงับใช้งาน'} ${roleLabel} "${targetUser.full_name}" เรียบร้อย`, 'info');
   };
 
+  // ADMIN: Delete User (Customer or Staff)
+  const deleteUser = async (id) => {
+    const targetUser = users.find(u => u.id === id);
+    if (!targetUser) {
+      triggerToast('ไม่พบข้อมูลผู้ใช้นี้ในระบบ', 'danger');
+      return { success: false, message: 'ไม่พบผู้ใช้' };
+    }
+
+    if (currentUser?.id === id) {
+      triggerToast('ไม่สามารถลบบัญชีของตนเองได้', 'danger');
+      return { success: false, message: 'ไม่สามารถลบบัญชีของตนเองได้' };
+    }
+
+    // 1. Update local state & mockDb
+    const updatedUsers = users.filter(u => u.id !== id);
+    setUsers(updatedUsers);
+    mockDb.saveUsers(updatedUsers);
+
+    // 2. Clear saved credentials in localStorage if matched
+    try {
+      const creds = JSON.parse(localStorage.getItem('tomsmoothie_remembered_credentials') || '{}');
+      const emailKey = (targetUser.email || '').toLowerCase();
+      if (emailKey && creds[emailKey]) {
+        delete creds[emailKey];
+        localStorage.setItem('tomsmoothie_remembered_credentials', JSON.stringify(creds));
+      }
+    } catch (e) {
+      console.warn('Error clearing remembered credentials:', e);
+    }
+
+    // 3. Sync deletion to Supabase
+    try {
+      await supabase
+        .from('tomsmoothie_users')
+        .delete()
+        .eq('id', id);
+    } catch (e) {
+      console.warn('Supabase deleteUser sync warning:', e);
+    }
+
+    const roleLabel = targetUser.role === 'CUSTOMER' ? 'สมาชิก' : (targetUser.role === 'ADMIN' ? 'ผู้ดูแลระบบ' : 'พนักงาน');
+    triggerToast(`ลบบัญชี${roleLabel} "${targetUser.full_name}" สำเร็จแล้ว`, 'success');
+    return { success: true };
+  };
+
   // ADMIN: Adjust Customer Points directly
   const updateCustomerPoints = async (userId, nextPoints) => {
     const customerUser = users.find(u => u.id === userId);
@@ -1115,6 +1160,7 @@ export const AppProvider = ({ children }) => {
         togglePopularStatus,
         registerStaff,
         toggleStaffStatus,
+        deleteUser,
         resetDatabase,
         dailyClosings,
         submitDailyClosing,

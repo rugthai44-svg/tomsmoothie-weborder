@@ -20,6 +20,7 @@ export const AdminDashboard = () => {
     togglePopularStatus,
     registerStaff,
     toggleStaffStatus,
+    deleteUser,
     triggerToast,
     resetDatabase,
     dailyClosings,
