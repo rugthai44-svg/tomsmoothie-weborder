@@ -4,9 +4,10 @@ import {
   TrendingUp, Users, Coffee, ListFilter, Plus, Trash2,
   Edit3, ShieldCheck, Power, RefreshCw, BarChart2,
   Calendar, Check, UserPlus, FileSpreadsheet, PlayCircle, Sparkles, Clock,
-  Percent, Image as ImageIcon, Upload, CloudUpload
+  Percent, Image as ImageIcon, Upload, CloudUpload, Copy, Download, ExternalLink, X
 } from 'lucide-react';
 import { ItemImage } from './ItemImage';
+import { mockDb } from '../mockDb';
 
 export const AdminDashboard = () => {
   const {
@@ -39,6 +40,37 @@ export const AdminDashboard = () => {
   const [menuFormPrice, setMenuFormPrice] = useState(0);
   const [menuFormEmoji, setMenuFormEmoji] = useState('🥤');
   const [menuFormPopular, setMenuFormPopular] = useState(false);
+  const [isSqlModalOpen, setIsSqlModalOpen] = useState(false);
+
+  const handleSyncClick = async () => {
+    const res = await syncMenuToCloud();
+    if (res?.missingTable) {
+      setIsSqlModalOpen(true);
+    }
+  };
+
+  const handleExportMenu = () => {
+    const data = JSON.stringify(menuItems);
+    navigator.clipboard.writeText(data);
+    triggerToast('คัดลอกข้อมูลเมนูและรูปภาพทั้งหมดลงคลิปบอร์ดแล้ว! สามารถนำไปกดวางที่เบราว์เซอร์อื่นได้ทันที', 'success');
+  };
+
+  const handleImportMenu = () => {
+    const input = prompt('วางโค้ดข้อมูลเมนูที่คัดลอกมาจาก Chrome ที่นี่:');
+    if (!input) return;
+    try {
+      const parsed = JSON.parse(input);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setMenuItems(parsed);
+        mockDb.saveMenu(parsed);
+        triggerToast(`นำเข้าเมนูสำเร็จ ${parsed.length} รายการ รูปภาพจะตรงกันทันที!`, 'success');
+      } else {
+        triggerToast('รูปแบบข้อมูลไม่ถูกต้อง', 'danger');
+      }
+    } catch (e) {
+      triggerToast('ข้อมูลไม่ถูกต้อง ไม่สามารถนำเข้าได้', 'danger');
+    }
+  };
 
   // Staff form states
   const [isStaffFormOpen, setIsStaffFormOpen] = useState(false);
@@ -541,12 +573,28 @@ export const AdminDashboard = () => {
             </h4>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
               <button
-                onClick={syncMenuToCloud}
+                onClick={handleSyncClick}
                 className="btn btn-secondary"
                 style={{ width: 'auto', padding: '8px 14px', fontSize: '0.8rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}
                 title="ส่งข้อมูลเมนูและรูปภาพจากเครื่องนี้ขึ้น Supabase Cloud ให้ทุกเครื่องเห็นตรงกัน"
               >
                 <CloudUpload size={14} /> ซิงค์เมนูขึ้น Supabase
+              </button>
+              <button
+                onClick={handleExportMenu}
+                className="btn btn-outline"
+                style={{ width: 'auto', padding: '8px 14px', fontSize: '0.8rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                title="คัดลอกรูปภาพและเมนูทั้งหมดจากเครื่องนี้ ไปวางในเครื่องอื่น"
+              >
+                <Copy size={14} /> คัดลอกเมนูทั้งหมด
+              </button>
+              <button
+                onClick={handleImportMenu}
+                className="btn btn-outline"
+                style={{ width: 'auto', padding: '8px 14px', fontSize: '0.8rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                title="นำเข้าเมนูและรูปภาพที่คัดลอกมาจากเครื่องอื่น"
+              >
+                <Download size={14} /> นำเข้าเมนู
               </button>
               <button
                 onClick={() => handleOpenMenuModal(null)}
@@ -1129,6 +1177,69 @@ export const AdminDashboard = () => {
                 ยกเลิก
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Setup Supabase Menu Table */}
+      {isSqlModalOpen && (
+        <div className="modal-overlay" style={{ display: 'flex', zIndex: 9999 }}>
+          <div className="modal-content" style={{ maxWidth: '580px', width: '90%', padding: '24px', borderRadius: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--brown)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CloudUpload size={20} color="var(--primary)" /> ต้องเปิดตารางเมนูใน Supabase ก่อน
+              </h3>
+              <button onClick={() => setIsSqlModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: '0 0 16px' }}>
+              ในฐานข้อมูล Supabase ปัจจุบันยังไม่มีตาราง <code>tomsmoothie_menu_items</code> ทำให้รูปภาพที่คุณอัปโหลดไว้ใน Chrome ยังส่งไปให้เครื่องอื่นไม่ได้ 
+              <br/><br/>
+              <b>วิธีเปิดใช้งาน (ใช้เวลา 1 นาที):</b>
+              <br/>1. กดปุ่ม <b>"คัดลอกคำสั่ง SQL"</b> ด้านล่าง
+              <br/>2. กดปุ่ม <b>"เปิด Supabase SQL Editor"</b> นำโค้ดไปวาง และกด <b>Run</b>
+              <br/>3. กลับมากดปุ่ม <b>"ซิงค์เมนูขึ้น Supabase"</b> อีกครั้ง ทุกเครื่องจะเห็นรูปภาพตรงกันทันที!
+            </p>
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '16px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => {
+                  const sql = `CREATE TABLE IF NOT EXISTS public.tomsmoothie_menu_items (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  category VARCHAR(30) NOT NULL,
+  base_price NUMERIC(10,2) NOT NULL DEFAULT 0,
+  image_url TEXT,
+  is_popular BOOLEAN NOT NULL DEFAULT FALSE,
+  is_available BOOLEAN NOT NULL DEFAULT TRUE,
+  total_sold_count INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER PUBLICATION supabase_realtime ADD TABLE tomsmoothie_menu_items;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'tomsmoothie_menu_items' AND policyname = 'Public Access Menu Items') THEN
+    CREATE POLICY "Public Access Menu Items" ON tomsmoothie_menu_items FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+END $$;`;
+                  navigator.clipboard.writeText(sql);
+                  triggerToast('คัดลอกคำสั่ง SQL เรียบร้อยแล้ว!', 'success');
+                }}
+                className="btn btn-primary"
+                style={{ flex: 1, padding: '10px' }}
+              >
+                <Copy size={16} /> คัดลอกคำสั่ง SQL
+              </button>
+
+              <button
+                onClick={() => window.open('https://supabase.com/dashboard/project/vxktchfeluhgrovmqbcr/sql/new', '_blank')}
+                className="btn btn-secondary"
+                style={{ flex: 1, padding: '10px' }}
+              >
+                <ExternalLink size={16} /> เปิด Supabase SQL Editor
+              </button>
+            </div>
           </div>
         </div>
       )}
