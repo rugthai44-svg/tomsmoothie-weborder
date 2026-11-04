@@ -19,104 +19,200 @@ export const AppProvider = ({ children }) => {
   });
   const [dailyClosings, setDailyClosings] = useState([]);
 
+  // Supabase Real-time and continuous connection states
+  const [isDbConnected, setIsDbConnected] = useState(false);
+  const [isRealtimeActive, setIsRealtimeActive] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+
   // Custom states for notifications and simulator experience
   const [toast, setToast] = useState(null);
 
-  // Sync database state from Supabase / mockDb on load
+  // 1. Fetch Users from Supabase
+  const fetchUsers = async () => {
+    try {
+      const { data: dbUsers, error: usersErr } = await supabase
+        .from('tomsmoothie_users')
+        .select('*');
+
+      if (!usersErr && dbUsers && dbUsers.length > 0) {
+        const normalizedDbUsers = dbUsers.map(u => ({
+          ...u,
+          phone: u.phone || u.phone_number || '',
+          phone_number: u.phone || u.phone_number || ''
+        }));
+
+        // Merge with initial mock users so default demo accounts always exist
+        const initialUsers = mockDb.getUsers();
+        const merged = [...normalizedDbUsers];
+        initialUsers.forEach(initUser => {
+          if (!merged.some(u => u.email.toLowerCase() === initUser.email.toLowerCase())) {
+            merged.push(initUser);
+          }
+        });
+
+        setUsers(merged);
+        mockDb.saveUsers(merged);
+        return true;
+      }
+    } catch (err) {
+      console.warn('Supabase fetchUsers warning:', err);
+    }
+    return false;
+  };
+
+  // 2. Fetch Menu Items (from Supabase if available, fallback to mockDb)
+  const fetchMenuItems = async () => {
+    try {
+      const { data: dbMenu, error: menuErr } = await supabase
+        .from('tomsmoothie_menu_items')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (!menuErr && dbMenu && dbMenu.length > 0) {
+        setMenuItems(dbMenu);
+        mockDb.saveMenu(dbMenu);
+        return true;
+      }
+    } catch (err) {
+      // Supabase table might not exist yet, fallback gracefully
+    }
+    setMenuItems(mockDb.getMenu());
+    return false;
+  };
+
+  // 3. Fetch Orders (with nested items)
+  const fetchOrders = async () => {
+    try {
+      const { data: dbOrders, error: ordersErr } = await supabase
+        .from('tomsmoothie_orders')
+        .select(`
+          *,
+          items:tomsmoothie_order_items(*)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (!ordersErr && dbOrders) {
+        setOrders(dbOrders);
+        mockDb.saveOrders(dbOrders);
+        return true;
+      }
+    } catch (e) {
+      console.warn('Supabase fetchOrders warning:', e);
+    }
+    return false;
+  };
+
+  // 4. Fetch Point Transactions
+  const fetchTransactions = async () => {
+    try {
+      const { data: dbTxs, error: txsErr } = await supabase
+        .from('tomsmoothie_point_transactions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!txsErr && dbTxs) {
+        setTransactions(dbTxs);
+        mockDb.saveTransactions(dbTxs);
+        return true;
+      }
+    } catch (e) {
+      console.warn('Supabase fetchTransactions warning:', e);
+    }
+    return false;
+  };
+
+  // 5. Fetch Daily Closings
+  const fetchDailyClosings = async () => {
+    try {
+      const { data: dbClosings, error: closingsErr } = await supabase
+        .from('tomsmoothie_daily_closings')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!closingsErr && dbClosings) {
+        setDailyClosings(dbClosings);
+        mockDb.saveDailyClosings(dbClosings);
+        return true;
+      }
+    } catch (e) {
+      console.warn('Supabase fetchDailyClosings warning:', e);
+    }
+    return false;
+  };
+
+  // Master fetch function to synchronize all tables
+  const fetchAllData = async (isInitial = false) => {
+    if (!isInitial) setIsSyncing(true);
+    try {
+      const [uOk, mOk, oOk, tOk, cOk] = await Promise.all([
+        fetchUsers(),
+        fetchMenuItems(),
+        fetchOrders(),
+        fetchTransactions(),
+        fetchDailyClosings()
+      ]);
+
+      const connected = uOk || mOk || oOk || tOk || cOk;
+      setIsDbConnected(connected);
+      if (connected) {
+        setLastSyncTime(new Date());
+      }
+    } catch (err) {
+      console.warn('fetchAllData error:', err);
+    } finally {
+      if (!isInitial) setIsSyncing(false);
+    }
+  };
+
+  // Manual Trigger to force instant resync with Supabase
+  const syncNow = async () => {
+    setIsSyncing(true);
+    await fetchAllData(false);
+    triggerToast('ซิงค์ข้อมูลล่าสุดกับ Supabase เรียบร้อยแล้ว', 'success');
+  };
+
+  // Live Sync currentUser: update logged-in session instantly if points or details change in Supabase
   useEffect(() => {
-    const initData = async () => {
-      const initialUsers = mockDb.getUsers();
-      let combinedUsers = [...initialUsers];
+    if (!currentUser) return;
+    const fresh = users.find(u =>
+      u.id === currentUser.id ||
+      (u.email && currentUser.email && u.email.toLowerCase() === currentUser.email.toLowerCase())
+    );
 
-      // 1. Fetch Users from Supabase
-      try {
-        const { data: dbUsers, error: usersErr } = await supabase
-          .from('tomsmoothie_users')
-          .select('*');
+    if (fresh) {
+      const isPointsChanged = fresh.current_points !== currentUser.current_points;
+      const isNameChanged = fresh.full_name !== currentUser.full_name;
+      const isRoleChanged = fresh.role !== currentUser.role;
+      const isPhoneChanged = fresh.phone !== currentUser.phone;
+      const isActiveChanged = fresh.is_active !== currentUser.is_active;
 
-        if (!usersErr && dbUsers && dbUsers.length > 0) {
-          const normalizedDbUsers = dbUsers.map(u => ({
-            ...u,
-            phone: u.phone || u.phone_number || '',
-            phone_number: u.phone || u.phone_number || ''
-          }));
-
-          // Merge with initial mock users so demo accounts always exist
-          const merged = [...normalizedDbUsers];
-          initialUsers.forEach(initUser => {
-            if (!merged.some(u => u.email.toLowerCase() === initUser.email.toLowerCase())) {
-              merged.push(initUser);
-            }
-          });
-          combinedUsers = merged;
-        }
-      } catch (err) {
-        console.warn('Supabase users fetch failed, using local mock DB:', err);
+      if (isPointsChanged || isNameChanged || isRoleChanged || isPhoneChanged || isActiveChanged) {
+        const updated = {
+          ...currentUser,
+          ...fresh,
+          phone: fresh.phone || fresh.phone_number || '',
+          phone_number: fresh.phone || fresh.phone_number || ''
+        };
+        setCurrentUser(updated);
+        localStorage.setItem('tomsmoothie_current_user', JSON.stringify(updated));
       }
+    }
+  }, [users, currentUser]);
 
-      setUsers(combinedUsers);
-      mockDb.saveUsers(combinedUsers);
+  // Main Effect: Continuous Supabase Connection (Realtime Channels + Keep-Alive Polling)
+  useEffect(() => {
+    let isMounted = true;
 
-      // 2. Fetch Menu Items (Local mock db)
-      setMenuItems(mockDb.getMenu());
-
-      // 3. Fetch Orders (with nested items)
-      try {
-        const { data: dbOrders, error: ordersErr } = await supabase
-          .from('tomsmoothie_orders')
-          .select(`
-            *,
-            items:tomsmoothie_order_items(*)
-          `)
-          .order('created_at', { ascending: false });
-
-        if (!ordersErr && dbOrders) {
-          setOrders(dbOrders);
-        } else {
-          setOrders(mockDb.getOrders());
-        }
-      } catch (e) {
-        setOrders(mockDb.getOrders());
-      }
-
-      // 4. Fetch Point Transactions
-      try {
-        const { data: dbTxs, error: txsErr } = await supabase
-          .from('tomsmoothie_point_transactions')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (!txsErr && dbTxs) {
-          setTransactions(dbTxs);
-        } else {
-          setTransactions(mockDb.getTransactions());
-        }
-      } catch (e) {
-        setTransactions(mockDb.getTransactions());
-      }
-
-      // 5. Fetch Daily Closings
-      try {
-        const { data: dbClosings, error: closingsErr } = await supabase
-          .from('tomsmoothie_daily_closings')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (!closingsErr && dbClosings) {
-          setDailyClosings(dbClosings);
-        } else {
-          setDailyClosings(mockDb.getDailyClosings());
-        }
-      } catch (e) {
-        setDailyClosings(mockDb.getDailyClosings());
-      }
-
-      // 6. Sync current user session
+    // 1. Initial Load
+    fetchAllData(true).then(() => {
+      // Sync current user session on initial load
       const savedUser = localStorage.getItem('tomsmoothie_current_user');
       if (savedUser) {
         try {
           const parsed = JSON.parse(savedUser);
-          const fresh = combinedUsers.find(u => u.id === parsed.id || u.email.toLowerCase() === (parsed.email || '').toLowerCase());
+          const initialUsers = mockDb.getUsers();
+          const fresh = initialUsers.find(u => u.id === parsed.id || u.email.toLowerCase() === (parsed.email || '').toLowerCase());
           if (fresh) {
             setCurrentUser(fresh);
             localStorage.setItem('tomsmoothie_current_user', JSON.stringify(fresh));
@@ -125,9 +221,90 @@ export const AppProvider = ({ children }) => {
           }
         } catch (e) { }
       }
+    });
+
+    // 2. Realtime WebSocket subscription for instant live updates across devices
+    const channel = supabase
+      .channel('tomsmoothie-live-realtime-channel')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tomsmoothie_orders' },
+        () => {
+          if (isMounted) fetchOrders();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tomsmoothie_order_items' },
+        () => {
+          if (isMounted) fetchOrders();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tomsmoothie_users' },
+        () => {
+          if (isMounted) fetchUsers();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tomsmoothie_point_transactions' },
+        () => {
+          if (isMounted) fetchTransactions();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tomsmoothie_daily_closings' },
+        () => {
+          if (isMounted) fetchDailyClosings();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tomsmoothie_menu_items' },
+        () => {
+          if (isMounted) fetchMenuItems();
+        }
+      )
+      .subscribe((status) => {
+        if (!isMounted) return;
+        if (status === 'SUBSCRIBED') {
+          setIsRealtimeActive(true);
+          setIsDbConnected(true);
+        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          setIsRealtimeActive(false);
+        }
+      });
+
+    // 3. Heartbeat Polling every 4 seconds to guarantee continuous connection
+    // even if Supabase Realtime publication is disabled or mobile browser sleeps
+    const pollInterval = setInterval(() => {
+      if (isMounted && typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        fetchAllData(false);
+      }
+    }, 4000);
+
+    // 4. Reactivate and fetch instantly when user returns to tab, window gains focus, or device comes online
+    const handleReactivate = () => {
+      if (isMounted && typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        fetchAllData(false);
+      }
     };
 
-    initData();
+    window.addEventListener('visibilitychange', handleReactivate);
+    window.addEventListener('focus', handleReactivate);
+    window.addEventListener('online', handleReactivate);
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+      clearInterval(pollInterval);
+      window.removeEventListener('visibilitychange', handleReactivate);
+      window.removeEventListener('focus', handleReactivate);
+      window.removeEventListener('online', handleReactivate);
+    };
   }, []);
 
   // Quick helper to display a brief visual toast
@@ -621,6 +798,7 @@ export const AppProvider = ({ children }) => {
 
       await supabase.from('tomsmoothie_orders').insert([orderDbPayload]);
       await supabase.from('tomsmoothie_order_items').insert(itemsPayload);
+      fetchOrders();
     } catch (e) {
       console.warn('Supabase createOrder sync warning:', e);
     }
@@ -700,6 +878,9 @@ export const AppProvider = ({ children }) => {
         .from('tomsmoothie_orders')
         .update({ order_status: 'Cancelled' })
         .eq('id', orderId);
+      fetchOrders();
+      fetchUsers();
+      fetchTransactions();
     } catch (e) {
       console.warn('Supabase cancelOrder sync warning:', e);
     }
@@ -727,6 +908,7 @@ export const AppProvider = ({ children }) => {
         .from('tomsmoothie_orders')
         .update({ order_status: newStatus })
         .eq('id', orderId);
+      fetchOrders();
     } catch (e) {
       console.warn('Supabase updateOrderStatus sync warning:', e);
     }
@@ -799,6 +981,9 @@ export const AppProvider = ({ children }) => {
       await supabase
         .from('tomsmoothie_point_transactions')
         .insert([newTx]);
+
+      fetchUsers();
+      fetchTransactions();
     } catch (e) {
       console.warn('Supabase scanLoyaltyQR sync warning:', e);
     }
@@ -808,7 +993,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // ADMIN: Menu Management CRUD
-  const addMenuItem = (item) => {
+  const addMenuItem = async (item) => {
     const newItem = {
       id: 'm-' + Date.now(),
       name: item.name,
@@ -821,10 +1006,17 @@ export const AppProvider = ({ children }) => {
     const updatedMenu = [...menuItems, newItem];
     setMenuItems(updatedMenu);
     mockDb.saveMenu(updatedMenu);
+
+    try {
+      await supabase.from('tomsmoothie_menu_items').insert([newItem]);
+    } catch (e) {
+      console.warn('Supabase addMenuItem sync warning:', e);
+    }
+
     triggerToast(`เพิ่มรายการ "${item.name}" สำเร็จ`, 'success');
   };
 
-  const updateMenuItem = (updatedItem) => {
+  const updateMenuItem = async (updatedItem) => {
     const updatedMenu = menuItems.map(item => {
       if (item.id === updatedItem.id) {
         return {
@@ -839,21 +1031,43 @@ export const AppProvider = ({ children }) => {
     });
     setMenuItems(updatedMenu);
     mockDb.saveMenu(updatedMenu);
+
+    try {
+      await supabase.from('tomsmoothie_menu_items').update({
+        name: updatedItem.name,
+        base_price: Number(updatedItem.base_price),
+        image_url: updatedItem.image_url,
+        is_popular: !!updatedItem.is_popular
+      }).eq('id', updatedItem.id);
+    } catch (e) {
+      console.warn('Supabase updateMenuItem sync warning:', e);
+    }
+
     triggerToast(`แก้ไขรายการ "${updatedItem.name}" สำเร็จ`, 'success');
   };
 
-  const deleteMenuItem = (id) => {
+  const deleteMenuItem = async (id) => {
     const target = menuItems.find(m => m.id === id);
     const updatedMenu = menuItems.filter(item => item.id !== id);
     setMenuItems(updatedMenu);
     mockDb.saveMenu(updatedMenu);
+
+    try {
+      await supabase.from('tomsmoothie_menu_items').delete().eq('id', id);
+    } catch (e) {
+      console.warn('Supabase deleteMenuItem sync warning:', e);
+    }
+
     triggerToast(`ลบรายการ "${target?.name || ''}" สำเร็จ`, 'success');
   };
 
-  const togglePopularStatus = (id) => {
+  const togglePopularStatus = async (id) => {
+    let nextState = false;
+    let targetName = '';
     const updatedMenu = menuItems.map(item => {
       if (item.id === id) {
-        const nextState = !item.is_popular;
+        nextState = !item.is_popular;
+        targetName = item.name;
         triggerToast(`เปลี่ยนสถานะ "${item.name}" เป็น [${nextState ? 'เมนูยอดฮิต 🔥' : 'เมนูปกติ'}]`, 'info');
         return { ...item, is_popular: nextState };
       }
@@ -861,6 +1075,12 @@ export const AppProvider = ({ children }) => {
     });
     setMenuItems(updatedMenu);
     mockDb.saveMenu(updatedMenu);
+
+    try {
+      await supabase.from('tomsmoothie_menu_items').update({ is_popular: nextState }).eq('id', id);
+    } catch (e) {
+      console.warn('Supabase togglePopularStatus sync warning:', e);
+    }
   };
 
   // ADMIN: Staff Management CRUD
@@ -909,6 +1129,7 @@ export const AppProvider = ({ children }) => {
           created_at: newStaff.created_at,
           is_active: true
         }]);
+      fetchUsers();
     } catch (e) {
       console.warn('Supabase registerStaff sync warning:', e);
     }
@@ -938,6 +1159,7 @@ export const AppProvider = ({ children }) => {
         .from('tomsmoothie_users')
         .update({ is_active: nextState })
         .eq('id', id);
+      fetchUsers();
     } catch (e) {
       console.warn('Supabase toggleStaffStatus sync warning:', e);
     }
@@ -982,6 +1204,7 @@ export const AppProvider = ({ children }) => {
         .from('tomsmoothie_users')
         .delete()
         .eq('id', id);
+      fetchUsers();
     } catch (e) {
       console.warn('Supabase deleteUser sync warning:', e);
     }
@@ -1035,6 +1258,9 @@ export const AppProvider = ({ children }) => {
       await supabase
         .from('tomsmoothie_point_transactions')
         .insert([newTx]);
+
+      fetchUsers();
+      fetchTransactions();
     } catch (e) {
       console.warn('Supabase updateCustomerPoints sync warning:', e);
     }
@@ -1067,6 +1293,7 @@ export const AppProvider = ({ children }) => {
       await supabase
         .from('tomsmoothie_daily_closings')
         .insert([newClosing]);
+      fetchDailyClosings();
     } catch (e) {
       console.warn('Supabase submitDailyClosing sync warning:', e);
     }
@@ -1124,6 +1351,7 @@ export const AppProvider = ({ children }) => {
         }));
         await supabase.from('tomsmoothie_users').insert(usersPayload);
       }
+      fetchAllData(false);
     } catch (error) {
       console.warn('Supabase resetDatabase sync warning:', error);
     }
@@ -1164,6 +1392,12 @@ export const AppProvider = ({ children }) => {
         submitDailyClosing,
         cancelOrder,
         updateCustomerPoints,
+        isDbConnected,
+        isRealtimeActive,
+        lastSyncTime,
+        isSyncing,
+        syncNow,
+        fetchAllData,
       }}
     >
       {children}

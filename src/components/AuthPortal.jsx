@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Mail, Lock, User, Phone, CheckCircle, ShieldAlert } from 'lucide-react';
+import heroVideo from '../assets/hero-video.mp4';
 
 export const AuthPortal = () => {
   const { login, registerCustomer, registerAdmin, logout, loginWithGoogle, loginWithGoogleRedirect, updateUserPhone, users } = useApp();
@@ -239,8 +240,33 @@ export const AuthPortal = () => {
   return (
     <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
-      <div style={{ textAlign: 'center', margin: '20px 0 10px' }}>
-        <div className="logo-icon" style={{ margin: '0 auto 16px', width: '60px', height: '60px', fontSize: '30px' }}>🍹</div>
+      <div style={{ textAlign: 'center', margin: '14px 0 10px' }}>
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          maxWidth: '320px',
+          margin: '0 auto 16px',
+          borderRadius: '18px',
+          overflow: 'hidden',
+          boxShadow: '0 8px 24px rgba(230, 81, 0, 0.22)',
+          border: '2px solid rgba(255, 152, 0, 0.35)',
+          aspectRatio: '16 / 9',
+          backgroundColor: '#1a1a1a'
+        }}>
+          <video
+            src={heroVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block'
+            }}
+          />
+        </div>
         <h2 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.85rem', lineHeight: '1.5' }}>
           เว็บแอปพลิเคชันสั่งจองเครื่องดื่มล่วงหน้าและสะสมแต้มสมาชิกดิจิทัล ร้านน้ำปั่นพี่ต้อม
         </h2>
