@@ -238,18 +238,18 @@ export const AuthPortal = () => {
   };
 
   return (
-    <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '520px', margin: '0 auto', width: '100%' }}>
       
-      <div style={{ textAlign: 'center', margin: '14px 0 10px' }}>
+      <div style={{ textAlign: 'center', margin: '6px 0 4px' }}>
         <div style={{
           position: 'relative',
           width: '100%',
-          maxWidth: '320px',
-          margin: '0 auto 16px',
-          borderRadius: '18px',
+          maxWidth: '520px',
+          margin: '0 auto',
+          borderRadius: '22px',
           overflow: 'hidden',
-          boxShadow: '0 8px 24px rgba(230, 81, 0, 0.22)',
-          border: '2px solid rgba(255, 152, 0, 0.35)',
+          boxShadow: '0 12px 32px rgba(230, 81, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.08)',
+          border: '2px solid rgba(255, 152, 0, 0.45)',
           aspectRatio: '16 / 9',
           backgroundColor: '#1a1a1a'
         }}>
@@ -259,17 +259,17 @@ export const AuthPortal = () => {
             loop
             muted
             playsInline
+            preload="auto"
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              display: 'block'
+              display: 'block',
+              transform: 'translateZ(0)',
+              imageRendering: '-webkit-optimize-contrast'
             }}
           />
         </div>
-        <h2 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.85rem', lineHeight: '1.5' }}>
-          เว็บแอปพลิเคชันสั่งจองเครื่องดื่มล่วงหน้าและสะสมแต้มสมาชิกดิจิทัล ร้านน้ำปั่นพี่ต้อม
-        </h2>
       </div>
 
       <div className="card" style={{ padding: '28px 24px', margin: 0 }}>
