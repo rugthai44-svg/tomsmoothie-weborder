@@ -63,21 +63,21 @@ END $$;
 -- 4. นำเข้าข้อมูลเมนูเครื่องดื่มเริ่มต้นพร้อมลิงก์รูปภาพจริง (Real Images)
 INSERT INTO public.tomsmoothie_menu_items (id, name, category, base_price, image_url, is_popular, is_available, total_sold_count)
 VALUES
-  ('m-1', 'มะม่วงเสาวรสปั่น (Mango Passionfruit)', 'Smoothie', 65, '/menu/mango.jpg', true, true, 145),
-  ('m-2', 'สตรอว์เบอร์รีโยเกิร์ตปั่น (Strawberry Yogurt)', 'Smoothie', 70, '/menu/strawberry.jpg', true, true, 180),
-  ('m-3', 'มะพร้าวนมสดปั่น (Coconut Fresh Milk)', 'Smoothie', 60, '/menu/coconut.jpg', true, true, 120),
-  ('m-4', 'โกโก้ปั่นเข้มข้น (Cocoa Intense)', 'Smoothie', 55, '/menu/cocoa.jpg', true, true, 95),
-  ('m-5', 'อะโวคาโดน้ำผึ้งปั่น (Avocado Honey)', 'Smoothie', 85, '/menu/avocado.jpg', true, true, 110),
-  ('m-6', 'ส้มปั่นสด (Orange Smoothie)', 'Smoothie', 50, '/menu/orange.jpg', false, true, 40),
-  ('m-7', 'แตงโมปั่น (Watermelon Smoothie)', 'Smoothie', 45, '/menu/watermelon.jpg', false, true, 50),
-  ('m-8', 'มิกซ์เบอร์รีปั่น (Mixed Berry)', 'Smoothie', 75, '/menu/berry.jpg', false, true, 65),
-  ('m-iced-1', 'ชาไทยนมสดเย็น (Iced Thai Milk Tea)', 'Iced', 50, '/menu/thai-tea.jpg', true, true, 85),
-  ('m-iced-2', 'ชาเขียวมัทฉะลาเต้เย็น (Iced Matcha Latte)', 'Iced', 55, '/menu/matcha.jpg', true, true, 90),
-  ('m-iced-3', 'ชามะนาวเย็น (Iced Lemon Tea)', 'Iced', 45, '/menu/lemon-tea.jpg', false, true, 60),
-  ('m-iced-4', 'อเมริกาโน่เย็น (Iced Americano)', 'Iced', 50, '/menu/americano.jpg', false, true, 45),
-  ('m-hot-1', 'ชาไทยร้อน (Hot Thai Tea)', 'Hot', 45, '/menu/hot-coffee.jpg', false, true, 25),
-  ('m-hot-2', 'ชาเขียวมัทฉะร้อน (Hot Matcha Latte)', 'Hot', 50, '/menu/hot-tea.jpg', false, true, 30),
-  ('m-hot-3', 'โกโก้ร้อน (Hot Cocoa)', 'Hot', 45, '/menu/hot-chocolate.jpg', false, true, 20)
+  ('m-1', 'มะม่วงเสาวรสปั่น (Mango Passionfruit)', 'Smoothie', 65, '/menu/mango.jpg?v=2', true, true, 145),
+  ('m-2', 'สตรอว์เบอร์รีโยเกิร์ตปั่น (Strawberry Yogurt)', 'Smoothie', 70, '/menu/strawberry.jpg?v=2', true, true, 180),
+  ('m-3', 'มะพร้าวนมสดปั่น (Coconut Fresh Milk)', 'Smoothie', 60, '/menu/coconut.jpg?v=2', true, true, 120),
+  ('m-4', 'โกโก้ปั่นเข้มข้น (Cocoa Intense)', 'Smoothie', 55, '/menu/cocoa.jpg?v=2', true, true, 95),
+  ('m-5', 'อะโวคาโดน้ำผึ้งปั่น (Avocado Honey)', 'Smoothie', 85, '/menu/avocado.jpg?v=2', true, true, 110),
+  ('m-6', 'ส้มปั่นสด (Orange Smoothie)', 'Smoothie', 50, '/menu/orange.jpg?v=2', false, true, 40),
+  ('m-7', 'แตงโมปั่น (Watermelon Smoothie)', 'Smoothie', 45, '/menu/watermelon.jpg?v=2', false, true, 50),
+  ('m-8', 'มิกซ์เบอร์รีปั่น (Mixed Berry)', 'Smoothie', 75, '/menu/berry.jpg?v=2', false, true, 65),
+  ('m-iced-1', 'ชาไทยนมสดเย็น (Iced Thai Milk Tea)', 'Iced', 50, '/menu/thai-tea.jpg?v=2', true, true, 85),
+  ('m-iced-2', 'ชาเขียวมัทฉะลาเต้เย็น (Iced Matcha Latte)', 'Iced', 55, '/menu/matcha.jpg?v=2', true, true, 90),
+  ('m-iced-3', 'ชามะนาวเย็น (Iced Lemon Tea)', 'Iced', 45, '/menu/lemon-tea.jpg?v=2', false, true, 60),
+  ('m-iced-4', 'อเมริกาโน่เย็น (Iced Americano)', 'Iced', 50, '/menu/americano.jpg?v=2', false, true, 45),
+  ('m-hot-1', 'ชาไทยร้อน (Hot Thai Tea)', 'Hot', 45, '/menu/hot-coffee.jpg?v=2', false, true, 25),
+  ('m-hot-2', 'ชาเขียวมัทฉะร้อน (Hot Matcha Latte)', 'Hot', 50, '/menu/hot-tea.jpg?v=2', false, true, 30),
+  ('m-hot-3', 'โกโก้ร้อน (Hot Cocoa)', 'Hot', 45, '/menu/hot-chocolate.jpg?v=2', false, true, 20)
 ON CONFLICT (id) DO UPDATE SET
   image_url = EXCLUDED.image_url;
 

@@ -822,6 +822,7 @@ export const AuthPortal = () => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto', marginBottom: '16px' }}>
               {[
+                { name: 'Ra K (สมาชิกสะสมแต้ม 10/10 แต้ม)', email: 'rugthai44@gmail.com', avatar: '🍹' },
                 { name: 'สมชาย รักสุขภาพ', email: 'customer1@tomsmoothie.com', avatar: '👨‍⚕️' },
                 { name: 'อรอนงค์ สมูทตี้ (บัญชีใหม่)', email: 'oranong.smooth@gmail.com', avatar: '👩' }
               ].map((acc, index) => (
