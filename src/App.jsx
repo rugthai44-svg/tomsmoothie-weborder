@@ -32,13 +32,23 @@ const AppContent = () => {
         <div className="logo-container">
           <div className="logo-icon" style={{ overflow: 'hidden', padding: 0, border: '2px solid #ff9800', background: '#000' }}>
             <video
-              src={heroVideo}
               autoPlay
               loop
               muted
               playsInline
+              preload="auto"
+              ref={(el) => {
+                if (el) {
+                  el.defaultMuted = true;
+                  el.muted = true;
+                  el.play().catch(() => {});
+                }
+              }}
               style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-            />
+            >
+              <source src={heroVideo} type="video/mp4" />
+              <source src="/hero-video.mp4" type="video/mp4" />
+            </video>
           </div>
           <div className="logo-text">
             <h1 style={{ fontSize: '0.75rem', lineHeight: '1.4' }}>เว็บแอปพลิเคชันสั่งจองเครื่องดื่มล่วงหน้าและสะสมแต้มสมาชิกดิจิทัล ร้านน้ำปั่นพี่ต้อม</h1>

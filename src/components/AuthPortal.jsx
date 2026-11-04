@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { Mail, Lock, User, Phone, CheckCircle, ShieldAlert } from 'lucide-react';
+import { Mail, Lock, User, Phone, CheckCircle, ShieldAlert, Play, Volume2, VolumeX } from 'lucide-react';
 import heroVideo from '../assets/hero-video.mp4';
 
 export const AuthPortal = () => {
@@ -15,6 +15,51 @@ export const AuthPortal = () => {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
+
+  // Video autoplay and interaction states
+  const videoRef = useRef(null);
+  const [isVideoPaused, setIsVideoPaused] = useState(false);
+  const [isVideoMuted, setIsVideoMuted] = useState(true);
+
+  // Ensure video autoplays smoothly across all browsers (Chrome, Edge, Safari, Mobile)
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Explicitly set DOM property to bypass Chrome/Safari autoplay policy
+    video.defaultMuted = true;
+    video.muted = true;
+    video.setAttribute('muted', '');
+    video.playsInline = true;
+
+    const playVideo = () => {
+      const promise = video.play();
+      if (promise !== undefined) {
+        promise
+          .then(() => setIsVideoPaused(false))
+          .catch((e) => {
+            console.warn('Autoplay prevented by browser:', e);
+            setIsVideoPaused(true);
+          });
+      }
+    };
+
+    playVideo();
+
+    // Fallback: unlock playback on first user touch/click anywhere on page
+    const handleUnlock = () => {
+      if (video && video.paused) {
+        playVideo();
+      }
+    };
+    window.addEventListener('click', handleUnlock, { once: true });
+    window.addEventListener('touchstart', handleUnlock, { once: true });
+
+    return () => {
+      window.removeEventListener('click', handleUnlock);
+      window.removeEventListener('touchstart', handleUnlock);
+    };
+  }, []);
 
   // Google OAuth flow states
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
@@ -241,25 +286,41 @@ export const AuthPortal = () => {
     <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '520px', margin: '0 auto', width: '100%' }}>
       
       <div style={{ textAlign: 'center', margin: '6px 0 4px' }}>
-        <div style={{
-          position: 'relative',
-          width: '100%',
-          maxWidth: '520px',
-          margin: '0 auto',
-          borderRadius: '22px',
-          overflow: 'hidden',
-          boxShadow: '0 12px 32px rgba(230, 81, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.08)',
-          border: '2px solid rgba(255, 152, 0, 0.45)',
-          aspectRatio: '16 / 9',
-          backgroundColor: '#1a1a1a'
-        }}>
+        <div 
+          onClick={() => {
+            const video = videoRef.current;
+            if (!video) return;
+            if (video.paused) {
+              video.play().then(() => setIsVideoPaused(false)).catch(() => {});
+            } else {
+              video.pause();
+              setIsVideoPaused(true);
+            }
+          }}
+          style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: '520px',
+            margin: '0 auto',
+            borderRadius: '22px',
+            overflow: 'hidden',
+            boxShadow: '0 12px 32px rgba(230, 81, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.08)',
+            border: '2px solid rgba(255, 152, 0, 0.45)',
+            aspectRatio: '16 / 9',
+            backgroundColor: '#1a1a1a',
+            cursor: 'pointer'
+          }}
+          title="คลิกเพื่อเล่นหรือหยุดวิดีโอ"
+        >
           <video
-            src={heroVideo}
+            ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
             preload="auto"
+            onPlay={() => setIsVideoPaused(false)}
+            onPause={() => setIsVideoPaused(true)}
             style={{
               width: '100%',
               height: '100%',
@@ -268,7 +329,71 @@ export const AuthPortal = () => {
               transform: 'translateZ(0)',
               imageRendering: '-webkit-optimize-contrast'
             }}
-          />
+          >
+            <source src={heroVideo} type="video/mp4" />
+            <source src="/hero-video.mp4" type="video/mp4" />
+          </video>
+
+          {/* Play Overlay if paused */}
+          {isVideoPaused && (
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(2px)',
+              pointerEvents: 'none'
+            }}>
+              <div style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255, 112, 67, 0.95)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                boxShadow: '0 4px 18px rgba(0, 0, 0, 0.35)'
+              }}>
+                <Play size={28} fill="white" style={{ marginLeft: '4px' }} />
+              </div>
+            </div>
+          )}
+
+          {/* Sound Mute/Unmute button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              const video = videoRef.current;
+              if (!video) return;
+              video.muted = !video.muted;
+              setIsVideoMuted(video.muted);
+            }}
+            style={{
+              position: 'absolute',
+              bottom: '10px',
+              right: '10px',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: '#fff',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              borderRadius: '20px',
+              padding: '4px 10px',
+              fontSize: '0.72rem',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              cursor: 'pointer',
+              backdropFilter: 'blur(4px)',
+              zIndex: 2
+            }}
+          >
+            {isVideoMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+            <span>{isVideoMuted ? 'ปิดเสียง' : 'เปิดเสียง'}</span>
+          </button>
         </div>
       </div>
 
