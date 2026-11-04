@@ -4,7 +4,7 @@ import {
   TrendingUp, Users, Coffee, ListFilter, Plus, Trash2,
   Edit3, ShieldCheck, Power, RefreshCw, BarChart2,
   Calendar, Check, UserPlus, FileSpreadsheet, PlayCircle, Sparkles, Clock,
-  Percent, Image as ImageIcon, Upload
+  Percent, Image as ImageIcon, Upload, CloudUpload
 } from 'lucide-react';
 import { ItemImage } from './ItemImage';
 
@@ -18,6 +18,7 @@ export const AdminDashboard = () => {
     updateMenuItem,
     deleteMenuItem,
     togglePopularStatus,
+    syncMenuToCloud,
     registerStaff,
     toggleStaffStatus,
     deleteUser,
@@ -538,13 +539,23 @@ export const AdminDashboard = () => {
             <h4 style={{ color: 'var(--brown)', fontWeight: 700, fontSize: '0.95rem' }}>
               รายการเครื่องดื่ม & ท็อปปิ้งทั้งหมด ในระบบร้านค้า
             </h4>
-            <button
-              onClick={() => handleOpenMenuModal(null)}
-              className="btn btn-primary"
-              style={{ width: 'auto', padding: '8px 16px', fontSize: '0.8rem', borderRadius: '10px' }}
-            >
-              <Plus size={14} /> เพิ่มเครื่องดื่ม/ท็อปปิ้งใหม่
-            </button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={syncMenuToCloud}
+                className="btn btn-secondary"
+                style={{ width: 'auto', padding: '8px 14px', fontSize: '0.8rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                title="ส่งข้อมูลเมนูและรูปภาพจากเครื่องนี้ขึ้น Supabase Cloud ให้ทุกเครื่องเห็นตรงกัน"
+              >
+                <CloudUpload size={14} /> ซิงค์เมนูขึ้น Supabase
+              </button>
+              <button
+                onClick={() => handleOpenMenuModal(null)}
+                className="btn btn-primary"
+                style={{ width: 'auto', padding: '8px 16px', fontSize: '0.8rem', borderRadius: '10px' }}
+              >
+                <Plus size={14} /> เพิ่มเครื่องดื่ม/ท็อปปิ้งใหม่
+              </button>
+            </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>

@@ -72,15 +72,6 @@ const INITIAL_USERS = [
 const INITIAL_MENU = [
   // Smoothies
   {
-    id: 'm-1',
-    name: 'มะม่วงเสาวรสปั่น (Mango Passionfruit)',
-    category: 'Smoothie',
-    base_price: 65,
-    image_url: '/menu/mango.jpg?v=2',
-    is_popular: true,
-    total_sold_count: 145
-  },
-  {
     id: 'm-2',
     name: 'สตรอว์เบอร์รีโยเกิร์ตปั่น (Strawberry Yogurt)',
     category: 'Smoothie',
@@ -142,6 +133,42 @@ const INITIAL_MENU = [
     image_url: '/menu/berry.jpg?v=2',
     is_popular: false,
     total_sold_count: 65
+  },
+  {
+    id: 'm-water',
+    name: 'น้ำเปล่าปั่น',
+    category: 'Smoothie',
+    base_price: 50,
+    image_url: '🥤',
+    is_popular: true,
+    total_sold_count: 85
+  },
+  {
+    id: 'm-pinkmilk',
+    name: 'นมเย็น',
+    category: 'Iced',
+    base_price: 50,
+    image_url: '🥤',
+    is_popular: false,
+    total_sold_count: 35
+  },
+  {
+    id: 'm-hotcoffee-custom',
+    name: 'กาแฟร้อน',
+    category: 'Hot',
+    base_price: 50,
+    image_url: '🥤',
+    is_popular: false,
+    total_sold_count: 20
+  },
+  {
+    id: 'm-1',
+    name: 'มะม่วงเสาวรสปั่น (Mango Passionfruit)',
+    category: 'Smoothie',
+    base_price: 65,
+    image_url: '/menu/mango.jpg?v=2',
+    is_popular: false,
+    total_sold_count: 145
   },
   // Iced drinks
   {
@@ -252,6 +279,18 @@ function loadData(key, initial) {
       initial.forEach(initUser => {
         if (!data.some(u => u.email.toLowerCase() === initUser.email.toLowerCase())) {
           data.push(initUser);
+          modified = true;
+        }
+      });
+      if (modified) {
+        localStorage.setItem(key, JSON.stringify(data));
+      }
+    }
+    if (key === DB_KEYS.MENU && Array.isArray(data) && Array.isArray(initial)) {
+      let modified = false;
+      initial.forEach(initItem => {
+        if (!data.some(m => m.id === initItem.id || m.name === initItem.name)) {
+          data.push(initItem);
           modified = true;
         }
       });

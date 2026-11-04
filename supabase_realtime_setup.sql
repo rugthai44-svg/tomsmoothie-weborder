@@ -63,7 +63,6 @@ END $$;
 -- 4. นำเข้าข้อมูลเมนูเครื่องดื่มเริ่มต้นพร้อมลิงก์รูปภาพจริง (Real Images)
 INSERT INTO public.tomsmoothie_menu_items (id, name, category, base_price, image_url, is_popular, is_available, total_sold_count)
 VALUES
-  ('m-1', 'มะม่วงเสาวรสปั่น (Mango Passionfruit)', 'Smoothie', 65, '/menu/mango.jpg?v=2', true, true, 145),
   ('m-2', 'สตรอว์เบอร์รีโยเกิร์ตปั่น (Strawberry Yogurt)', 'Smoothie', 70, '/menu/strawberry.jpg?v=2', true, true, 180),
   ('m-3', 'มะพร้าวนมสดปั่น (Coconut Fresh Milk)', 'Smoothie', 60, '/menu/coconut.jpg?v=2', true, true, 120),
   ('m-4', 'โกโก้ปั่นเข้มข้น (Cocoa Intense)', 'Smoothie', 55, '/menu/cocoa.jpg?v=2', true, true, 95),
@@ -71,6 +70,10 @@ VALUES
   ('m-6', 'ส้มปั่นสด (Orange Smoothie)', 'Smoothie', 50, '/menu/orange.jpg?v=2', false, true, 40),
   ('m-7', 'แตงโมปั่น (Watermelon Smoothie)', 'Smoothie', 45, '/menu/watermelon.jpg?v=2', false, true, 50),
   ('m-8', 'มิกซ์เบอร์รีปั่น (Mixed Berry)', 'Smoothie', 75, '/menu/berry.jpg?v=2', false, true, 65),
+  ('m-water', 'น้ำเปล่าปั่น', 'Smoothie', 50, '🥤', true, true, 85),
+  ('m-pinkmilk', 'นมเย็น', 'Iced', 50, '🥤', false, true, 35),
+  ('m-hotcoffee-custom', 'กาแฟร้อน', 'Hot', 50, '🥤', false, true, 20),
+  ('m-1', 'มะม่วงเสาวรสปั่น (Mango Passionfruit)', 'Smoothie', 65, '/menu/mango.jpg?v=2', false, true, 145),
   ('m-iced-1', 'ชาไทยนมสดเย็น (Iced Thai Milk Tea)', 'Iced', 50, '/menu/thai-tea.jpg?v=2', true, true, 85),
   ('m-iced-2', 'ชาเขียวมัทฉะลาเต้เย็น (Iced Matcha Latte)', 'Iced', 55, '/menu/matcha.jpg?v=2', true, true, 90),
   ('m-iced-3', 'ชามะนาวเย็น (Iced Lemon Tea)', 'Iced', 45, '/menu/lemon-tea.jpg?v=2', false, true, 60),
@@ -79,6 +82,10 @@ VALUES
   ('m-hot-2', 'ชาเขียวมัทฉะร้อน (Hot Matcha Latte)', 'Hot', 50, '/menu/hot-tea.jpg?v=2', false, true, 30),
   ('m-hot-3', 'โกโก้ร้อน (Hot Cocoa)', 'Hot', 45, '/menu/hot-chocolate.jpg?v=2', false, true, 20)
 ON CONFLICT (id) DO UPDATE SET
-  image_url = EXCLUDED.image_url;
+  name = EXCLUDED.name,
+  category = EXCLUDED.category,
+  base_price = EXCLUDED.base_price,
+  image_url = EXCLUDED.image_url,
+  is_popular = EXCLUDED.is_popular;
 
 

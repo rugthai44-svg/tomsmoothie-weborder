@@ -69,10 +69,30 @@ export const AppProvider = ({ children }) => {
         .select('*')
         .order('created_at', { ascending: true });
 
-      if (!menuErr && dbMenu && dbMenu.length > 0) {
-        setMenuItems(dbMenu);
-        mockDb.saveMenu(dbMenu);
-        return true;
+      if (!menuErr && dbMenu) {
+        if (dbMenu.length > 0) {
+          setMenuItems(dbMenu);
+          mockDb.saveMenu(dbMenu);
+          return true;
+        } else {
+          // Table exists in Supabase but is empty -> push current local menu
+          const localMenu = mockDb.getMenu();
+          if (localMenu && localMenu.length > 0) {
+            const formatted = localMenu.map(m => ({
+              id: m.id,
+              name: m.name,
+              category: m.category,
+              base_price: Number(m.base_price),
+              image_url: m.image_url,
+              is_popular: !!m.is_popular,
+              is_available: m.is_available !== false,
+              total_sold_count: m.total_sold_count || 0
+            }));
+            await supabase.from('tomsmoothie_menu_items').upsert(formatted);
+            setMenuItems(localMenu);
+            return true;
+          }
+        }
       }
     } catch (err) {
       // Supabase table might not exist yet, fallback gracefully
@@ -1089,6 +1109,35 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const syncMenuToCloud = async () => {
+    try {
+      const current = menuItems.length > 0 ? menuItems : mockDb.getMenu();
+      const formatted = current.map(m => ({
+        id: m.id,
+        name: m.name,
+        category: m.category,
+        base_price: Number(m.base_price),
+        image_url: m.image_url,
+        is_popular: !!m.is_popular,
+        is_available: m.is_available !== false,
+        total_sold_count: m.total_sold_count || 0
+      }));
+      const { error } = await supabase.from('tomsmoothie_menu_items').upsert(formatted);
+      if (error) {
+        if (error.code === 'PGRST205') {
+          triggerToast('ยังไม่มีตาราง tomsmoothie_menu_items ใน Supabase (โปรดรันไฟล์ SQL ใน Dashboard)', 'warning');
+          return { success: false, missingTable: true };
+        }
+        throw error;
+      }
+      triggerToast('ซิงค์เมนูขึ้น Supabase สำเร็จ ทุกอุปกรณ์จะเห็นตรงกันทันที!', 'success');
+      return { success: true };
+    } catch (e) {
+      triggerToast('ไม่สามารถซิงค์ขึ้น Supabase ได้: ' + (e.message || ''), 'danger');
+      return { success: false, error: e.message };
+    }
+  };
+
   // ADMIN: Staff Management CRUD
   const registerStaff = async (data) => {
     const trimmedEmail = (data.email || '').trim().toLowerCase();
@@ -1390,6 +1439,7 @@ export const AppProvider = ({ children }) => {
         updateMenuItem,
         deleteMenuItem,
         togglePopularStatus,
+        syncMenuToCloud,
         registerStaff,
         toggleStaffStatus,
         deleteUser,
