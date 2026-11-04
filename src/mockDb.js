@@ -76,7 +76,7 @@ const INITIAL_MENU = [
     name: 'มะม่วงเสาวรสปั่น (Mango Passionfruit)',
     category: 'Smoothie',
     base_price: 65,
-    image_url: '🍊', // Emoji shorthand representation
+    image_url: '/menu/mango.jpg',
     is_popular: true,
     total_sold_count: 145
   },
@@ -85,7 +85,7 @@ const INITIAL_MENU = [
     name: 'สตรอว์เบอร์รีโยเกิร์ตปั่น (Strawberry Yogurt)',
     category: 'Smoothie',
     base_price: 70,
-    image_url: '🍓',
+    image_url: '/menu/strawberry.jpg',
     is_popular: true,
     total_sold_count: 180
   },
@@ -94,7 +94,7 @@ const INITIAL_MENU = [
     name: 'มะพร้าวนมสดปั่น (Coconut Fresh Milk)',
     category: 'Smoothie',
     base_price: 60,
-    image_url: '🥥',
+    image_url: '/menu/coconut.jpg',
     is_popular: true,
     total_sold_count: 120
   },
@@ -103,7 +103,7 @@ const INITIAL_MENU = [
     name: 'โกโก้ปั่นเข้มข้น (Cocoa Intense)',
     category: 'Smoothie',
     base_price: 55,
-    image_url: '🍫',
+    image_url: '/menu/cocoa.jpg',
     is_popular: true,
     total_sold_count: 95
   },
@@ -112,7 +112,7 @@ const INITIAL_MENU = [
     name: 'อะโวคาโดน้ำผึ้งปั่น (Avocado Honey)',
     category: 'Smoothie',
     base_price: 85,
-    image_url: '🥑',
+    image_url: '/menu/avocado.jpg',
     is_popular: true,
     total_sold_count: 110
   },
@@ -121,7 +121,7 @@ const INITIAL_MENU = [
     name: 'ส้มปั่นสด (Orange Smoothie)',
     category: 'Smoothie',
     base_price: 50,
-    image_url: '🍊',
+    image_url: '/menu/orange.jpg',
     is_popular: false,
     total_sold_count: 40
   },
@@ -130,7 +130,7 @@ const INITIAL_MENU = [
     name: 'แตงโมปั่น (Watermelon Smoothie)',
     category: 'Smoothie',
     base_price: 45,
-    image_url: '🍉',
+    image_url: '/menu/watermelon.jpg',
     is_popular: false,
     total_sold_count: 50
   },
@@ -139,7 +139,7 @@ const INITIAL_MENU = [
     name: 'มิกซ์เบอร์รีปั่น (Mixed Berry)',
     category: 'Smoothie',
     base_price: 75,
-    image_url: '🫐',
+    image_url: '/menu/berry.jpg',
     is_popular: false,
     total_sold_count: 65
   },
@@ -149,7 +149,7 @@ const INITIAL_MENU = [
     name: 'ชาไทยนมสดเย็น (Iced Thai Milk Tea)',
     category: 'Iced',
     base_price: 50,
-    image_url: '🍹',
+    image_url: '/menu/thai-tea.jpg',
     is_popular: true,
     total_sold_count: 85
   },
@@ -158,7 +158,7 @@ const INITIAL_MENU = [
     name: 'ชาเขียวมัทฉะลาเต้เย็น (Iced Matcha Latte)',
     category: 'Iced',
     base_price: 55,
-    image_url: '🍵',
+    image_url: '/menu/matcha.jpg',
     is_popular: true,
     total_sold_count: 90
   },
@@ -167,7 +167,7 @@ const INITIAL_MENU = [
     name: 'ชามะนาวเย็น (Iced Lemon Tea)',
     category: 'Iced',
     base_price: 45,
-    image_url: '🍋',
+    image_url: '/menu/lemon-tea.jpg',
     is_popular: false,
     total_sold_count: 60
   },
@@ -176,7 +176,7 @@ const INITIAL_MENU = [
     name: 'อเมริกาโน่เย็น (Iced Americano)',
     category: 'Iced',
     base_price: 50,
-    image_url: '☕',
+    image_url: '/menu/americano.jpg',
     is_popular: false,
     total_sold_count: 45
   },
@@ -186,7 +186,7 @@ const INITIAL_MENU = [
     name: 'ชาไทยร้อน (Hot Thai Tea)',
     category: 'Hot',
     base_price: 45,
-    image_url: '☕',
+    image_url: '/menu/hot-coffee.jpg',
     is_popular: false,
     total_sold_count: 25
   },
@@ -195,7 +195,7 @@ const INITIAL_MENU = [
     name: 'ชาเขียวมัทฉะร้อน (Hot Matcha Latte)',
     category: 'Hot',
     base_price: 50,
-    image_url: '🍵',
+    image_url: '/menu/hot-tea.jpg',
     is_popular: false,
     total_sold_count: 30
   },
@@ -204,7 +204,7 @@ const INITIAL_MENU = [
     name: 'โกโก้ร้อน (Hot Cocoa)',
     category: 'Hot',
     base_price: 45,
-    image_url: '🍫',
+    image_url: '/menu/hot-chocolate.jpg',
     is_popular: false,
     total_sold_count: 20
   },
@@ -278,7 +278,25 @@ export const mockDb = {
   saveUsers: (users) => saveData(DB_KEYS.USERS, users),
   
   // MENU
-  getMenu: () => loadData(DB_KEYS.MENU, INITIAL_MENU),
+  getMenu: () => {
+    const loaded = loadData(DB_KEYS.MENU, INITIAL_MENU);
+    let changed = false;
+    const migrated = loaded.map(item => {
+      // If image_url is still an old emoji (not a real path or data URL), upgrade to real image
+      if (item.image_url && !/^(https?:\/\/|\/|\.\/|data:image\/)/i.test(item.image_url)) {
+        const defaultMatch = INITIAL_MENU.find(m => m.id === item.id || m.name === item.name);
+        if (defaultMatch && defaultMatch.image_url) {
+          changed = true;
+          return { ...item, image_url: defaultMatch.image_url };
+        }
+      }
+      return item;
+    });
+    if (changed) {
+      saveData(DB_KEYS.MENU, migrated);
+    }
+    return migrated;
+  },
   saveMenu: (menu) => saveData(DB_KEYS.MENU, menu),
   
   // ORDERS
