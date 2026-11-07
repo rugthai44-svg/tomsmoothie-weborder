@@ -812,7 +812,7 @@ export const AdminDashboard = () => {
                     <th style={{ padding: '8px' }}>ชื่อพนักงาน</th>
                     <th style={{ padding: '8px' }}>อีเมลล็อกอิน</th>
                     <th style={{ padding: '8px' }}>สถานะสิทธิ์</th>
-                    <th style={{ padding: '8px', textAlign: 'right' }}>เปิด/ปิดใช้งาน</th>
+                    <th style={{ padding: '8px', textAlign: 'center' }}>ลบบัญชี</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -832,19 +832,31 @@ export const AdminDashboard = () => {
                           {staff.is_active ? 'ปกติ' : 'ถูกระงับสิทธิ์'}
                         </span>
                       </td>
-                      <td style={{ padding: '8px', textAlign: 'right' }}>
+                      <td style={{ padding: '8px', textAlign: 'center' }}>
                         <button
-                          onClick={() => toggleStaffStatus(staff.id)}
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีพนักงาน "${staff.full_name}" ถาวร?\n(ข้อมูลบัญชีพนักงานจะถูกลบออกจากระบบและ Supabase ทันที)`)) {
+                              deleteUser(staff.id);
+                            }
+                          }}
                           style={{
                             border: 'none',
                             background: 'none',
-                            color: staff.is_active ? 'var(--danger)' : 'var(--success)',
+                            color: 'var(--danger)',
                             cursor: 'pointer',
-                            padding: '4px'
+                            padding: '6px',
+                            borderRadius: '6px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'var(--transition)'
                           }}
-                          title={staff.is_active ? 'ระงับการเข้าสู่ระบบ' : 'คืนสิทธิ์พนักงาน'}
+                          title={`ลบบัญชีพนักงาน ${staff.full_name}`}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--danger-light)'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                         >
-                          <Power size={14} />
+                          <Trash2 size={16} />
                         </button>
                       </td>
                     </tr>
