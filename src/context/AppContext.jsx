@@ -106,15 +106,31 @@ export const AppProvider = ({ children }) => {
   };
 
   // 3. Fetch Orders (with nested items)
-  const fetchOrders = async () => {
+  const fetchOrders = async (targetUser = currentUser) => {
     try {
-      const { data: dbOrders, error: ordersErr } = await supabase
+      let query = supabase
         .from('tomsmoothie_orders')
         .select(`
           *,
           items:tomsmoothie_order_items(*)
         `)
         .order('created_at', { ascending: false });
+
+      // Determine active user (isolate customer data)
+      const activeUser = targetUser || (function() {
+        try {
+          return JSON.parse(localStorage.getItem('tomsmoothie_current_user') || 'null');
+        } catch (e) {
+          return null;
+        }
+      })();
+
+      // If user is a customer, fetch only their own orders
+      if (activeUser && activeUser.role === 'CUSTOMER') {
+        query = query.eq('customer_id', activeUser.id);
+      }
+
+      const { data: dbOrders, error: ordersErr } = await query;
 
       if (!ordersErr && dbOrders) {
         setOrders(dbOrders);
@@ -128,12 +144,28 @@ export const AppProvider = ({ children }) => {
   };
 
   // 4. Fetch Point Transactions
-  const fetchTransactions = async () => {
+  const fetchTransactions = async (targetUser = currentUser) => {
     try {
-      const { data: dbTxs, error: txsErr } = await supabase
+      let query = supabase
         .from('tomsmoothie_point_transactions')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // Determine active user (isolate customer data)
+      const activeUser = targetUser || (function() {
+        try {
+          return JSON.parse(localStorage.getItem('tomsmoothie_current_user') || 'null');
+        } catch (e) {
+          return null;
+        }
+      })();
+
+      // If user is a customer, fetch only their own point transactions
+      if (activeUser && activeUser.role === 'CUSTOMER') {
+        query = query.eq('customer_id', activeUser.id);
+      }
+
+      const { data: dbTxs, error: txsErr } = await query;
 
       if (!txsErr && dbTxs) {
         setTransactions(dbTxs);
@@ -408,6 +440,8 @@ export const AppProvider = ({ children }) => {
 
     setCurrentUser(normalizedUser);
     localStorage.setItem('tomsmoothie_current_user', JSON.stringify(normalizedUser));
+    fetchOrders(normalizedUser);
+    fetchTransactions(normalizedUser);
     triggerToast(`ยินดีต้อนรับคุณ ${normalizedUser.full_name}`, 'success');
     return { success: true, user: normalizedUser };
   };
@@ -533,6 +567,8 @@ export const AppProvider = ({ children }) => {
       await supabase.auth.signOut();
     } catch (e) { }
     setCurrentUser(null);
+    setOrders([]);
+    setTransactions([]);
     localStorage.removeItem('tomsmoothie_current_user');
     localStorage.removeItem('tomsmoothie_session_token');
     triggerToast('ออกจากระบบเรียบร้อยแล้ว', 'info');
@@ -631,6 +667,8 @@ export const AppProvider = ({ children }) => {
 
     setCurrentUser(user);
     localStorage.setItem('tomsmoothie_current_user', JSON.stringify(user));
+    fetchOrders(user);
+    fetchTransactions(user);
 
     const mockToken = 'mock-jwt-' + btoa(JSON.stringify({ userId: user.id, email: user.email, role: user.role }));
     localStorage.setItem('tomsmoothie_session_token', mockToken);
