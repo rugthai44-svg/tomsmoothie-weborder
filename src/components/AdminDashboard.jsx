@@ -149,8 +149,13 @@ export const AdminDashboard = () => {
 
   const handleStaffSubmit = async (e) => {
     e.preventDefault();
-    if (!staffEmail || !staffPassword || !staffName) {
-      triggerToast('กรุณากรอกข้อมูลพนักงานที่ต้องการเพิ่มให้ครบถ้วน', 'danger');
+    if (!staffEmail || !staffPassword || !staffName || !staffPhone) {
+      triggerToast('กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง', 'danger');
+      return;
+    }
+
+    if (staffPassword.length < 6) {
+      triggerToast('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร', 'danger');
       return;
     }
 
@@ -754,6 +759,9 @@ export const AdminDashboard = () => {
                   placeholder="เช่น สมศักดิ์ จัดเต็ม"
                   value={staffName}
                   onChange={e => setStaffName(e.target.value)}
+                  onInvalid={(e) => e.target.setCustomValidity('กรุณากรอกชื่อ-นามสกุล')}
+                  onInput={(e) => e.target.setCustomValidity('')}
+                  maxLength={80}
                   required
                 />
               </div>
@@ -765,7 +773,18 @@ export const AdminDashboard = () => {
                   className="form-input"
                   placeholder="staffname@tomsmoothie.com"
                   value={staffEmail}
-                  onChange={e => setStaffEmail(e.target.value)}
+                  onChange={e => setStaffEmail(e.target.value.replace(/[^\x20-\x7E]/g, ''))}
+                  onInvalid={(e) => {
+                    if (e.target.validity.valueMissing) {
+                      e.target.setCustomValidity('กรุณากรอกอีเมล');
+                    } else if (e.target.validity.typeMismatch) {
+                      e.target.setCustomValidity('รูปแบบอีเมลไม่ถูกต้อง ตัวอย่าง: example@gmail.com');
+                    } else {
+                      e.target.setCustomValidity('กรุณากรอกอีเมลให้ถูกต้อง');
+                    }
+                  }}
+                  onInput={(e) => e.target.setCustomValidity('')}
+                  maxLength={100}
                   required
                 />
               </div>
@@ -775,9 +794,13 @@ export const AdminDashboard = () => {
                 <input
                   type="password"
                   className="form-input"
-                  placeholder="ความยาวอย่างน้อย 4 ตัวอักษร"
+                  placeholder="กำหนดรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)"
                   value={staffPassword}
                   onChange={e => setStaffPassword(e.target.value)}
+                  onInvalid={(e) => e.target.setCustomValidity('กรุณากรอกรหัสผ่านอย่างน้อย 6 ตัวอักษร')}
+                  onInput={(e) => e.target.setCustomValidity('')}
+                  minLength={6}
+                  maxLength={64}
                   required
                 />
               </div>
@@ -785,11 +808,17 @@ export const AdminDashboard = () => {
               <div className="form-group" style={{ margin: 0 }}>
                 <label>เบอร์โทรศัพท์ติดต่อ</label>
                 <input
-                  type="text"
+                  type="tel"
                   className="form-input"
-                  placeholder="081-xxx-xxxx"
+                  placeholder="เช่น 0891234567"
                   value={staffPhone}
-                  onChange={e => setStaffPhone(e.target.value)}
+                  onChange={e => setStaffPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                  onInvalid={(e) => e.target.setCustomValidity('กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 11 หลัก')}
+                  onInput={(e) => e.target.setCustomValidity('')}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={11}
+                  required
                 />
               </div>
 
