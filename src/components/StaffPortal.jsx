@@ -13,7 +13,8 @@ export const StaffPortal = () => {
     users, 
     transactions,
     currentUser, 
-    updateOrderStatus, 
+    updateOrderStatus,
+    markOrderPointsAwarded,
     scanLoyaltyQR, 
     triggerToast,
     submitDailyClosing
@@ -216,6 +217,10 @@ export const StaffPortal = () => {
 
   const handleCreditOrderPoints = async () => {
     if (!scannedOrder) return;
+    if (scannedOrder.points_awarded) {
+      triggerToast('ออเดอร์นี้ได้รับแต้มสะสมไปแล้ว ไม่สามารถสะสมซ้ำได้', 'warning');
+      return;
+    }
     const customer = users.find(u => u.id === scannedOrder.customer_id);
     if (!customer) {
       triggerToast('ไม่พบข้อมูลลูกค้าสำหรับออเดอร์นี้', 'danger');
@@ -223,6 +228,8 @@ export const StaffPortal = () => {
     }
     const res = await scanLoyaltyQR(customer.member_code, 'EARN', orderCupsCount);
     if (res.success) {
+      if (markOrderPointsAwarded) await markOrderPointsAwarded(scannedOrder.id);
+      setScannedOrder(prev => prev ? { ...prev, points_awarded: true } : null);
       triggerToast(`บันทึกคะแนนสะสมให้คุณ ${customer.full_name} +${orderCupsCount} แต้มเรียบร้อย`, 'success');
     }
   };
@@ -839,18 +846,19 @@ export const StaffPortal = () => {
                       onClick={async () => {
                         await updateOrderStatus(scannedOrder.id, 'Completed');
                         
-                        // Auto-credit points!
+                        // Auto-credit points if not already awarded!
                         const totalCups = scannedOrder.items.reduce((sum, item) => sum + item.quantity, 0);
-                        if (!scannedOrder.is_redeemed_free_cup && totalCups > 0) {
+                        if (!scannedOrder.points_awarded && !scannedOrder.is_redeemed_free_cup && totalCups > 0) {
                           const customer = users.find(u => u.id === scannedOrder.customer_id);
                           if (customer) {
                             await scanLoyaltyQR(customer.member_code, 'EARN', totalCups);
+                            if (markOrderPointsAwarded) await markOrderPointsAwarded(scannedOrder.id);
                             triggerToast(`สะสมแต้มให้คุณ ${customer.full_name} อัตโนมัติ +${totalCups} แต้ม สำเร็จ!`, 'success');
                           }
                         }
                         
                         const updated = orders.find(o => o.id === scannedOrder.id);
-                        setScannedOrder(updated || { ...scannedOrder, order_status: 'Completed' });
+                        setScannedOrder(updated || { ...scannedOrder, order_status: 'Completed', points_awarded: true });
                       }}
                       className="btn btn-primary"
                       style={{ padding: '10px' }}

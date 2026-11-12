@@ -28,12 +28,12 @@ export const AppProvider = ({ children }) => {
   // Custom states for notifications and simulator experience
   const [toast, setToast] = useState(null);
 
-  // 1. Fetch Users from Supabase
+  // 1. Fetch Users from Supabase (Exclude password_hash for security)
   const fetchUsers = async () => {
     try {
       const { data: dbUsers, error: usersErr } = await supabase
         .from('tomsmoothie_users')
-        .select('*');
+        .select('id, full_name, email, phone, phone_number, role, member_code, current_points, is_active, created_at, auth_provider, google_id');
 
       if (!usersErr && dbUsers && dbUsers.length > 0) {
         const normalizedDbUsers = dbUsers.map(u => ({
@@ -43,7 +43,11 @@ export const AppProvider = ({ children }) => {
         }));
 
         // Merge with initial mock users so default demo accounts always exist
-        const initialUsers = mockDb.getUsers();
+        const initialUsers = mockDb.getUsers().map(u => {
+          const safe = { ...u };
+          delete safe.password_hash;
+          return safe;
+        });
         const merged = [...normalizedDbUsers];
         initialUsers.forEach(initUser => {
           if (!merged.some(u => u.email.toLowerCase() === initUser.email.toLowerCase())) {
@@ -333,23 +337,14 @@ export const AppProvider = ({ children }) => {
     setTimeout(() => setToast(null), 3500);
   };
 
-  // Check password helper (supports TomAdmin@99! & admin123 for admin)
+  // Check password helper (strictly verifies against actual registered password)
   const isPasswordMatch = (user, inputPassword) => {
-    if (!user) return false;
-    if (user.password_hash === inputPassword) return true;
-    if (user.role === 'ADMIN') {
-      if ((inputPassword === 'TomAdmin@99!' || inputPassword === 'admin123') &&
-        (user.password_hash === 'TomAdmin@99!' || user.password_hash === 'admin123')) {
-        return true;
-      }
+    if (!user || !inputPassword) return false;
+    // Disallow password bypass for OAuth-only accounts
+    if (user.password_hash === 'GOOGLE-OAUTH') {
+      return false;
     }
-    // Convenience: If user signed up via Google or is customer, also accept standard customer passwords
-    if (user.role === 'CUSTOMER') {
-      if (user.password_hash === 'GOOGLE-OAUTH' || inputPassword === 'cust123' || inputPassword === '123456') {
-        return true;
-      }
-    }
-    return false;
+    return user.password_hash === inputPassword;
   };
 
   // Auth Operations
@@ -365,8 +360,14 @@ export const AppProvider = ({ children }) => {
         .ilike('email', trimmedEmail)
         .maybeSingle();
 
-      if (!error && dbUser && isPasswordMatch(dbUser, password)) {
-        foundUser = dbUser;
+      if (!error && dbUser) {
+        if (dbUser.password_hash === 'GOOGLE-OAUTH') {
+          triggerToast('บัญชีนี้ลงทะเบียนด้วย Google กรุณากดเข้าสู่ระบบด้วย Google', 'warning');
+          return { success: false, message: 'บัญชีนี้ลงทะเบียนด้วย Google กรุณากดเข้าสู่ระบบด้วย Google' };
+        }
+        if (isPasswordMatch(dbUser, password)) {
+          foundUser = dbUser;
+        }
       }
     } catch (e) {
       console.warn('Supabase login check failed, trying local DB:', e);
@@ -374,10 +375,17 @@ export const AppProvider = ({ children }) => {
 
     // 2. Fallback to in-memory users state or mockDb
     if (!foundUser) {
-      const localPool = users.length > 0 ? users : mockDb.getUsers();
-      foundUser = localPool.find(u =>
-        (u.email || '').toLowerCase() === trimmedEmail && isPasswordMatch(u, password)
-      );
+      const localPool = mockDb.getUsers();
+      const localUser = localPool.find(u => (u.email || '').toLowerCase() === trimmedEmail);
+      if (localUser) {
+        if (localUser.password_hash === 'GOOGLE-OAUTH') {
+          triggerToast('บัญชีนี้ลงทะเบียนด้วย Google กรุณากดเข้าสู่ระบบด้วย Google', 'warning');
+          return { success: false, message: 'บัญชีนี้ลงทะเบียนด้วย Google กรุณากดเข้าสู่ระบบด้วย Google' };
+        }
+        if (isPasswordMatch(localUser, password)) {
+          foundUser = localUser;
+        }
+      }
     }
 
     if (!foundUser) {
@@ -395,6 +403,8 @@ export const AppProvider = ({ children }) => {
       phone: foundUser.phone || foundUser.phone_number || '',
       phone_number: foundUser.phone || foundUser.phone_number || ''
     };
+    // Security: Never retain plaintext password in active session state or localStorage
+    delete normalizedUser.password_hash;
 
     setCurrentUser(normalizedUser);
     localStorage.setItem('tomsmoothie_current_user', JSON.stringify(normalizedUser));
@@ -942,6 +952,28 @@ export const AppProvider = ({ children }) => {
     triggerToast(`อัปเดตสถานะออเดอร์เป็น [${newStatus}]`, 'success');
   };
 
+  // STAFF: Mark order points as awarded to prevent duplicate scans
+  const markOrderPointsAwarded = async (orderId) => {
+    const updatedOrders = orders.map(ord => {
+      if (ord.id === orderId) {
+        return { ...ord, points_awarded: true };
+      }
+      return ord;
+    });
+
+    setOrders(updatedOrders);
+    mockDb.saveOrders(updatedOrders);
+
+    try {
+      await supabase
+        .from('tomsmoothie_orders')
+        .update({ points_awarded: true })
+        .eq('id', orderId);
+    } catch (e) {
+      console.warn('Supabase markOrderPointsAwarded sync warning:', e);
+    }
+  };
+
   // STAFF: Scan QR points add/deduct
   const scanLoyaltyQR = async (memberCode, actionType, cupsCount = 1) => {
     if (!currentUser || currentUser.role !== 'STAFF') {
@@ -1434,6 +1466,7 @@ export const AppProvider = ({ children }) => {
         devSwitchRole,
         createOrder,
         updateOrderStatus,
+        markOrderPointsAwarded,
         scanLoyaltyQR,
         addMenuItem,
         updateMenuItem,
